@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard — Interview Agent</title>
+    <link rel="icon" href="../public/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/3d-effects.css" />
+    <link rel="stylesheet" href="../css/animations.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+</head>
+<body>
+
+<div class="dashboard-layout">
+
+    <!-- Nav -->
+    <nav class="nav">
+        <a class="nav-brand" href="dashboard.html">
+            <div class="nav-logo">🎯</div>
+            Interview Agent
+        </a>
+        <div class="nav-actions">
+            <a href="profile.html" class="nav-user">
+                <div class="avatar avatar-sm" id="nav-avatar">?</div>
+                <span class="nav-user-name" id="nav-name">…</span>
+            </a>
+            <button class="btn btn-ghost btn-sm" data-action="logout">Sign out</button>
+        </div>
+    </nav>
+
+    <!-- Body -->
+    <main class="dashboard-body page-enter">
+
+        <!-- Header -->
+        <div class="page-header">
+            <h1>Dashboard</h1>
+            <p>Track your interview practice and performance.</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid stagger">
+            <div class="stat-card">
+                <div class="stat-icon stat-icon-purple">📋</div>
+                <div class="stat-value" id="stat-total">—</div>
+                <div class="stat-label">Total sessions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon stat-icon-teal">✅</div>
+                <div class="stat-value" id="stat-completed">—</div>
+                <div class="stat-label">Completed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon stat-icon-amber">⭐</div>
+                <div class="stat-value" id="stat-avg">—</div>
+                <div class="stat-label">Avg score</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon stat-icon-blue">🏆</div>
+                <div class="stat-value" id="stat-best">—</div>
+                <div class="stat-label">Best score</div>
+            </div>
+        </div>
+
+        <!-- Two-col layout -->
+        <div class="dashboard-cols">
+
+            <!-- Left: recent interviews -->
+            <div>
+                <div class="section-heading">
+                    <h3>Recent interviews</h3>
+                    <a href="history.html" class="btn btn-ghost btn-sm" style="font-size:0.8rem">View all →</a>
+                </div>
+
+                <div class="interviews-section" id="interview-list">
+                    <!-- Skeleton -->
+                    <div class="skeleton" style="height:66px;border-radius:var(--radius-lg)"></div>
+                    <div class="skeleton" style="height:66px;border-radius:var(--radius-lg)"></div>
+                    <div class="skeleton" style="height:66px;border-radius:var(--radius-lg)"></div>
+                </div>
+
+                <div id="no-interviews" class="empty-state hidden">
+                    <div class="empty-state-icon">🎙️</div>
+                    <h4>No interviews yet</h4>
+                    <p>Start your first mock interview to see results here.</p>
+                </div>
+
+                <!-- Trend -->
+                <div class="trend-wrap mt-3" id="trend-section" style="display:none">
+                    <div class="trend-label">Score trend (last 5)</div>
+                    <div id="trend-chart"></div>
+                </div>
+            </div>
+
+            <!-- Right: quick start + resume -->
+            <div>
+                <!-- Quick start card -->
+                <div class="quick-start-card">
+                    <h3>Start a new interview</h3>
+                    <p>Pick a role, paste your resume, and begin practising in seconds.</p>
+                    <button id="open-modal-btn" class="btn btn-white btn-sm">
+                        + New interview
+                    </button>
+                </div>
+
+                <!-- Resume card -->
+                <div class="card resume-card">
+                    <div class="section-heading" style="margin-bottom:1rem">
+                        <h3 style="font-size:0.95rem">Your resume</h3>
+                    </div>
+
+                    <div id="resume-active-wrap" class="hidden">
+                        <div class="resume-active">
+                            <div class="resume-active-icon">📄</div>
+                            <div class="resume-active-info">
+                                <div class="resume-active-name" id="resume-name">—</div>
+                                <div class="resume-active-sub">Active resume</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <label class="upload-zone mt-2" for="resume-file">
+                        <div class="upload-zone-icon">📤</div>
+                        <p><strong>Click to upload</strong> a PDF or plain text file</p>
+                        <p style="font-size:0.75rem;margin-top:4px;color:var(--text-muted)">Max 5 MB</p>
+                        <input type="file" id="resume-file" accept=".pdf,.txt" style="display:none" />
+                    </label>
+                    <span id="resume-file-label" class="text-xs text-muted mt-1" style="display:block"></span>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- New interview modal -->
+<div id="new-interview-modal" class="modal-backdrop hidden">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title">New interview</span>
+            <button id="close-modal-btn" class="modal-close">✕</button>
+        </div>
+
+        <form id="new-interview-form" novalidate>
+            <div class="field">
+                <label for="role">Target role <span style="color:var(--danger)">*</span></label>
+                <input id="role" type="text" class="input" placeholder="e.g. Frontend Engineer, Product Manager" required />
+            </div>
+
+            <div class="field">
+                <label for="exp-level">Experience level</label>
+                <select id="exp-level" class="input">
+                    <option value="entry">Entry level (0-2 yrs)</option>
+                    <option value="mid" selected>Mid level (2-5 yrs)</option>
+                    <option value="senior">Senior (5-8 yrs)</option>
+                    <option value="lead">Lead / Staff (8+ yrs)</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label for="resume-text">Paste your resume <span style="color:var(--danger)">*</span></label>
+                <textarea id="resume-text" class="input" rows="8" placeholder="Paste your resume text here…" required></textarea>
+            </div>
+
+            <button id="start-btn" type="submit" class="btn btn-primary btn-full btn-lg ripple" style="margin-top:0.5rem">
+                Start interview →
+            </button>
+        </form>
+    </div>
+</div>
+
+<div id="toast-container"></div>
+<script type="module" src="../js/dashboard.js"></script>
+</body>
+</html>

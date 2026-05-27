@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profile — Interview Agent</title>
+    <link rel="icon" href="../public/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/3d-effects.css" />
+    <link rel="stylesheet" href="../css/animations.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="nav">
+    <a class="nav-brand" href="dashboard.html">
+        <div class="nav-logo">🎯</div>
+        Interview Agent
+    </a>
+    <div class="nav-actions">
+        <a href="dashboard.html" class="btn btn-secondary btn-sm">← Dashboard</a>
+        <button class="btn btn-ghost btn-sm" data-action="logout">Sign out</button>
+    </div>
+</nav>
+
+<main class="container" style="max-width:680px;padding:2rem 1.5rem">
+
+    <div class="page-header page-enter">
+        <h1>Profile</h1>
+        <p>Manage your account details and security.</p>
+    </div>
+
+    <!-- Avatar + name -->
+    <div class="card mb-3" style="margin-bottom:1.25rem">
+        <div style="display:flex;align-items:center;gap:1.25rem;margin-bottom:1.5rem">
+            <div class="avatar avatar-lg" id="profile-avatar">?</div>
+            <div>
+                <div class="font-bold" id="profile-name" style="font-size:1.1rem;color:var(--text-primary)">…</div>
+                <div class="text-sm text-muted" id="profile-email">…</div>
+                <div class="chip chip-teal mt-1" id="verified-badge" style="display:none">✓ Verified</div>
+            </div>
+        </div>
+
+        <form id="profile-form" novalidate>
+            <div class="field">
+                <label for="name">Display name</label>
+                <input id="name" type="text" class="input" placeholder="Your name" required />
+            </div>
+            <button type="submit" id="profile-save-btn" class="btn btn-primary ripple">
+                Save changes
+            </button>
+        </form>
+    </div>
+
+    <!-- Change password -->
+    <div class="card mb-3" style="margin-bottom:1.25rem">
+        <h3 style="margin-bottom:1.25rem">Change password</h3>
+        <form id="password-form" novalidate>
+            <div class="field">
+                <label for="current-password">Current password</label>
+                <input id="current-password" type="password" class="input" placeholder="Your current password" />
+            </div>
+            <div class="field">
+                <label for="new-password">New password</label>
+                <input id="new-password" type="password" class="input" placeholder="Min 8 characters" />
+            </div>
+            <div class="field">
+                <label for="confirm-new-password">Confirm new password</label>
+                <input id="confirm-new-password" type="password" class="input" placeholder="Repeat new password" />
+            </div>
+            <button type="submit" id="password-save-btn" class="btn btn-primary ripple">
+                Update password
+            </button>
+        </form>
+    </div>
+
+    <!-- Stats summary -->
+    <div class="card">
+        <h3 style="margin-bottom:1.25rem">Your stats</h3>
+        <div class="grid-2" style="gap:1rem">
+            <div style="text-align:center;padding:1rem;background:var(--surface-2);border-radius:var(--radius-lg)">
+                <div class="stat-value" id="p-total">—</div>
+                <div class="stat-label">Total interviews</div>
+            </div>
+            <div style="text-align:center;padding:1rem;background:var(--surface-2);border-radius:var(--radius-lg)">
+                <div class="stat-value" id="p-avg">—</div>
+                <div class="stat-label">Avg score</div>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<div id="toast-container"></div>
+<script type="module">
+import { requireAuth, userApi, showToast, $, setLoading, initials } from '../js/utils.js';
+import { userApi as uApi, authApi } from '../js/api.js';
+
+(async () => {
+    const user = await requireAuth();
+    if (!user) return;
+
+    // Populate
+    $('#profile-avatar').textContent = initials(user.name);
+    $('#profile-name').textContent   = user.name;
+    $('#profile-email').textContent  = user.email;
+    $('#name').value                 = user.name;
+    if (user.isVerified) $('#verified-badge').style.display = 'inline-flex';
+
+    // Load stats
+    try {
+        const { stats } = await uApi.getStats();
+        $('#p-total').textContent = stats.total ?? 0;
+        $('#p-avg').textContent   = stats.avgScore ? `${stats.avgScore}/10` : '—';
+    } catch (_) {}
+
+    // Profile save
+    $('#profile-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = $('#profile-save-btn');
+        setLoading(btn, true, 'Saving…');
+        try {
+            await uApi.updateProfile({ name: $('#name').value.trim() });
+            showToast('Profile updated', 'success');
+        } catch (err) {
+            showToast(err.message, 'error');
+        } finally {
+            setLoading(btn, false, 'Save changes');
+        }
+    });
+
+    // Password change
+    $('#password-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn     = $('#password-save-btn');
+        const newPwd  = $('#new-password').value;
+        const confirm = $('#confirm-new-password').value;
+        if (newPwd.length < 8)  { showToast('New password must be ≥ 8 characters', 'warning'); return; }
+        if (newPwd !== confirm) { showToast('Passwords do not match', 'warning'); return; }
+
+        setLoading(btn, true, 'Updating…');
+        try {
+            await uApi.changePassword({ currentPassword: $('#current-password').value, newPassword: newPwd });
+            showToast('Password updated', 'success');
+            $('#password-form').reset();
+        } catch (err) {
+            showToast(err.message, 'error');
+        } finally {
+            setLoading(btn, false, 'Update password');
+        }
+    });
+
+    // Logout
+    document.querySelectorAll('[data-action="logout"]').forEach(el => {
+        el.addEventListener('click', async () => {
+            try { await authApi.logout(); } catch (_) {}
+            sessionStorage.clear();
+            window.location.href = '/pages/login.html';
+        });
+    });
+})();
+</script>
+</body>
+</html>

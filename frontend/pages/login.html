@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign in — Interview Agent</title>
+    <link rel="icon" href="../public/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/3d-effects.css" />
+    <link rel="stylesheet" href="../css/animations.css" />
+    <link rel="stylesheet" href="../css/auth.css" />
+</head>
+<body data-page="login">
+
+<div class="auth-page">
+
+    <!-- Left decorative panel -->
+    <div class="auth-panel">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+
+        <!-- Floating cards -->
+        <div class="panel-card panel-card-1">
+            <div style="font-size:0.75rem;opacity:.7;margin-bottom:4px">Last session score</div>
+            <div style="font-size:1.5rem;font-weight:800">8.4 <span style="font-size:0.9rem;opacity:.7">/ 10</span></div>
+        </div>
+        <div class="panel-card panel-card-2">
+            <div style="display:flex;align-items:center;gap:8px">
+                <span style="font-size:1.1rem">🎯</span>
+                <span style="font-size:0.85rem">3 interviews this week</span>
+            </div>
+        </div>
+
+        <div class="auth-panel-content">
+            <div class="auth-panel-logo">🎯</div>
+            <h2>Welcome back</h2>
+            <p>Continue practising and track your interview performance over time.</p>
+            <div class="auth-panel-features">
+                <div class="auth-feature">
+                    <div class="auth-feature-icon">📄</div>
+                    Resume-tailored questions
+                </div>
+                <div class="auth-feature">
+                    <div class="auth-feature-icon">🤖</div>
+                    Claude AI feedback
+                </div>
+                <div class="auth-feature">
+                    <div class="auth-feature-icon">📈</div>
+                    Track your progress
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right form area -->
+    <div class="auth-form-area">
+        <div class="auth-form-box fade-up">
+
+            <!-- Mobile logo -->
+            <div class="auth-logo-mobile">
+                <div style="display:inline-flex;align-items:center;gap:10px;font-weight:800;font-size:1.1rem;color:var(--text-primary)">
+                    <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--purple-400),var(--accent));display:flex;align-items:center;justify-content:center;color:#fff;font-size:1rem;box-shadow:0 2px 8px rgba(83,74,183,.35)">🎯</div>
+                    Interview Agent
+                </div>
+            </div>
+
+            <h1 class="auth-title">Sign in</h1>
+            <p class="auth-subtitle">Don't have an account? <a href="signup.html">Create one free</a></p>
+
+            <!-- Error alert -->
+            <div id="form-error" class="alert alert-error hidden"></div>
+
+            <form id="login-form" class="auth-form" novalidate>
+                <div class="field">
+                    <label for="email">Email address</label>
+                    <div class="input-group">
+                        <span class="input-icon">✉</span>
+                        <input id="email" type="email" class="input" placeholder="you@example.com" autocomplete="email" required />
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label for="password">
+                        Password
+                        <a href="forgot-password.html" style="float:right;color:var(--accent);font-size:0.78rem;font-weight:500">Forgot?</a>
+                    </label>
+                    <div class="input-group">
+                        <span class="input-icon">🔒</span>
+                        <input id="password" type="password" class="input" placeholder="Your password" autocomplete="current-password" required />
+                        <button type="button" id="toggle-password" class="input-icon-right" title="Show/hide password">👁</button>
+                    </div>
+                </div>
+
+                <div style="margin-top:0.5rem">
+                    <button id="submit-btn" type="submit" class="btn btn-primary btn-full btn-lg ripple">
+                        Sign in
+                    </button>
+                </div>
+            </form>
+
+            <p class="auth-footer">
+                New here? <a href="signup.html">Create a free account →</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<div id="toast-container"></div>
+<script type="module" src="../js/auth.js"></script>
+</body>
+</html>

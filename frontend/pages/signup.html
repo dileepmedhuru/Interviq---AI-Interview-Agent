@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create account — Interview Agent</title>
+    <link rel="icon" href="../public/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/3d-effects.css" />
+    <link rel="stylesheet" href="../css/animations.css" />
+    <link rel="stylesheet" href="../css/auth.css" />
+</head>
+<body data-page="signup">
+
+<div class="auth-page">
+
+    <!-- Left panel -->
+    <div class="auth-panel">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-3"></div>
+        <div class="panel-card panel-card-1">
+            <div style="font-size:0.75rem;opacity:.7;margin-bottom:4px">Questions generated</div>
+            <div style="font-size:1.5rem;font-weight:800">5 <span style="font-size:0.9rem;opacity:.7">for your role</span></div>
+        </div>
+        <div class="panel-card panel-card-2">
+            <div style="display:flex;align-items:center;gap:8px">
+                <span>🚀</span>
+                <span style="font-size:0.85rem">Ready in under 2 min</span>
+            </div>
+        </div>
+        <div class="auth-panel-content">
+            <div class="auth-panel-logo">🎯</div>
+            <h2>Start practising today</h2>
+            <p>Create a free account and run your first AI-powered mock interview in minutes.</p>
+            <div class="auth-panel-features">
+                <div class="auth-feature"><div class="auth-feature-icon">✅</div> Free to start</div>
+                <div class="auth-feature"><div class="auth-feature-icon">🔒</div> Secure & private</div>
+                <div class="auth-feature"><div class="auth-feature-icon">📊</div> Detailed reports</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right form -->
+    <div class="auth-form-area">
+        <div class="auth-form-box fade-up">
+
+            <div class="auth-logo-mobile">
+                <div style="display:inline-flex;align-items:center;gap:10px;font-weight:800;font-size:1.1rem;color:var(--text-primary)">
+                    <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--purple-400),var(--accent));display:flex;align-items:center;justify-content:center;color:#fff">🎯</div>
+                    Interview Agent
+                </div>
+            </div>
+
+            <h1 class="auth-title">Create account</h1>
+            <p class="auth-subtitle">Already have one? <a href="login.html">Sign in</a></p>
+
+            <div id="form-error" class="alert alert-error hidden"></div>
+
+            <form id="signup-form" class="auth-form" novalidate>
+                <div class="field">
+                    <label for="name">Full name</label>
+                    <div class="input-group">
+                        <span class="input-icon">👤</span>
+                        <input id="name" type="text" class="input" placeholder="Jane Doe" autocomplete="name" required />
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label for="email">Email address</label>
+                    <div class="input-group">
+                        <span class="input-icon">✉</span>
+                        <input id="email" type="email" class="input" placeholder="you@example.com" autocomplete="email" required />
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label for="password">Password</label>
+                    <div class="input-group">
+                        <span class="input-icon">🔒</span>
+                        <input id="password" type="password" class="input" placeholder="Min 8 characters" autocomplete="new-password" required />
+                        <button type="button" id="toggle-password" class="input-icon-right">👁</button>
+                    </div>
+                    <div class="password-strength mt-1">
+                        <div class="strength-bar"><div id="strength-fill" class="strength-fill" style="width:0%"></div></div>
+                        <span id="strength-label" class="strength-label"></span>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label for="confirm-password">Confirm password</label>
+                    <div class="input-group">
+                        <span class="input-icon">🔒</span>
+                        <input id="confirm-password" type="password" class="input" placeholder="Repeat password" autocomplete="new-password" required />
+                    </div>
+                </div>
+
+                <div style="margin-top:0.5rem">
+                    <button id="submit-btn" type="submit" class="btn btn-primary btn-full btn-lg ripple">
+                        Create account
+                    </button>
+                </div>
+            </form>
+
+            <p class="auth-terms">
+                By creating an account you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.
+            </p>
+            <p class="auth-footer">Already have an account? <a href="login.html">Sign in →</a></p>
+        </div>
+    </div>
+</div>
+
+<div id="toast-container"></div>
+<script type="module" src="../js/auth.js"></script>
+</body>
+</html>
