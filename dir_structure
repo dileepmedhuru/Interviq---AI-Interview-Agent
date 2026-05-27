@@ -1,0 +1,85 @@
+ai-interview-agent/
+│
+├── frontend/
+│   ├── public/
+│   │   ├── favicon.ico
+│   │   └── logo.svg
+│   │
+│   ├── pages/
+│   │   ├── index.html
+│   │   ├── login.html
+│   │   ├── signup.html
+│   │   ├── dashboard.html
+│   │   ├── interview.html
+│   │   ├── report.html
+│   │   └── profile.html
+│   │
+│   ├── css/
+│   │   ├── base.css
+│   │   ├── 3d-effects.css
+│   │   ├── auth.css
+│   │   ├── dashboard.css
+│   │   ├── interview.css
+│   │   ├── components.css
+│   │   └── animations.css
+│   │
+│   └── js/
+│       ├── auth.js
+│       ├── api.js
+│       ├── interview.js
+│       ├── report.js
+│       ├── dashboard.js
+│       └── utils.js
+│
+├── backend/
+│   ├── server.js
+│   │
+│   ├── routes/
+│   │   ├── auth.routes.js
+│   │   ├── interview.routes.js
+│   │   ├── user.routes.js
+│   │   └── resume.routes.js
+│   │
+│   ├── controllers/
+│   │   ├── auth.controller.js
+│   │   ├── interview.controller.js
+│   │   ├── user.controller.js
+│   │   └── resume.controller.js
+│   │
+│   ├── middleware/
+│   │   ├── authMiddleware.js
+│   │   ├── rateLimiter.js
+│   │   ├── upload.js
+│   │   └── errorHandler.js
+│   │
+│   ├── models/
+│   │   ├── User.js
+│   │   ├── Interview.js
+│   │   ├── Report.js
+│   │   └── Resume.js
+│   │
+│   ├── services/
+│   │   ├── claudeService.js
+│   │   ├── resumeParser.js
+│   │   ├── tokenService.js
+│   │   └── emailService.js
+│   │
+│   ├── config/
+│   │   ├── db.js
+│   │   ├── cors.js
+│   │   └── constants.js
+│   │
+│   ├── deploy/
+│   │   ├── Dockerfile
+│   │   ├── docker-compose.yml
+│   │   ├── nginx.conf
+│   │   └── github-actions/
+│   │       ├── deploy.yml
+│   │       └── test.yml
+│   │
+│   ├── .env
+│   └── package.json
+│
+├── .env.example
+├── .gitignore
+└── README.md
