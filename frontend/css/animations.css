@@ -1,0 +1,293 @@
+/* ─── Page Transitions ─── */
+.page-enter {
+    animation: page-in 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes page-in {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fade-in 0.35s ease both;
+}
+
+.fade-up {
+    animation: fade-up 0.45s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.fade-down {
+    animation: fade-down 0.35s ease both;
+}
+
+.scale-in {
+    animation: scale-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.slide-right {
+    animation: slide-right 0.35s ease both;
+}
+
+.slide-left {
+    animation: slide-left 0.35s ease both;
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fade-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes fade-down {
+    from {
+        opacity: 0;
+        transform: translateY(-12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes scale-in {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes slide-right {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes slide-left {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* ─── Stagger helpers ─── */
+.stagger>* {
+    animation: fade-up 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.stagger>*:nth-child(1) {
+    animation-delay: 0.05s;
+}
+
+.stagger>*:nth-child(2) {
+    animation-delay: 0.10s;
+}
+
+.stagger>*:nth-child(3) {
+    animation-delay: 0.15s;
+}
+
+.stagger>*:nth-child(4) {
+    animation-delay: 0.20s;
+}
+
+.stagger>*:nth-child(5) {
+    animation-delay: 0.25s;
+}
+
+.stagger>*:nth-child(6) {
+    animation-delay: 0.30s;
+}
+
+/* ─── Typing dots ─── */
+.typing-dots {
+    display: inline-flex;
+    gap: 5px;
+    align-items: center;
+    padding: 4px 0;
+}
+
+.typing-dots span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    animation: typing-bounce 1.3s ease-in-out infinite;
+}
+
+.typing-dots span:nth-child(2) {
+    animation-delay: 0.18s;
+}
+
+.typing-dots span:nth-child(3) {
+    animation-delay: 0.36s;
+}
+
+@keyframes typing-bounce {
+
+    0%,
+    60%,
+    100% {
+        transform: translateY(0);
+        opacity: 0.4;
+    }
+
+    30% {
+        transform: translateY(-6px);
+        opacity: 1;
+    }
+}
+
+/* ─── Pulse ring (voice recording) ─── */
+.pulse-ring {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pulse-ring::before,
+.pulse-ring::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 2px solid var(--danger);
+    animation: pulse-ring 1.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.pulse-ring::after {
+    animation-delay: 0.7s;
+}
+
+@keyframes pulse-ring {
+    0% {
+        transform: scale(1);
+        opacity: 0.7;
+    }
+
+    100% {
+        transform: scale(1.8);
+        opacity: 0;
+    }
+}
+
+/* ─── Score counter animation ─── */
+@keyframes count-up {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.85);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.score-appear {
+    animation: count-up 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both;
+}
+
+/* ─── Gradient background shimmer ─── */
+.bg-shimmer {
+    background: linear-gradient(135deg,
+            var(--purple-50) 0%, #fff 30%,
+            var(--teal-50) 60%, var(--purple-50) 100%);
+    background-size: 300% 300%;
+    animation: bg-shift 12s ease infinite;
+}
+
+@keyframes bg-shift {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* ─── Bounce CTA arrow ─── */
+.bounce-arrow {
+    animation: bounce-arrow 2s ease-in-out infinite;
+    display: inline-block;
+}
+
+@keyframes bounce-arrow {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(5px);
+    }
+}
+
+/* ─── Ripple on click ─── */
+.ripple {
+    position: relative;
+    overflow: hidden;
+}
+
+.ripple::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: inherit;
+    transform: scale(0);
+    opacity: 0;
+    transition: transform 0.4s, opacity 0.4s;
+}
+
+.ripple:active::after {
+    transform: scale(2);
+    opacity: 0;
+    transition: 0s;
+}
