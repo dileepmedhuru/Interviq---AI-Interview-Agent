@@ -11,6 +11,9 @@ ai-interview-agent/
 │   │   ├── signup.html
 │   │   ├── dashboard.html
 │   │   ├── interview.html
+│   │   ├── forgot_password.html
+│   │   ├── reset_password.html
+│   │   ├── verify.html
 │   │   ├── report.html
 │   │   └── profile.html
 │   │
@@ -83,3 +86,4 @@ ai-interview-agent/
 ├── .env.example
 ├── .gitignore
 └── README.md
+
