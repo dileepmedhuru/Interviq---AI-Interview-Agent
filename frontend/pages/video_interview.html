@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Video Interview — Interview Agent</title>
+    <link rel="icon" href="../public/favicon.ico" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/base.css" />
+    <link rel="stylesheet" href="../css/3d-effects.css" />
+    <link rel="stylesheet" href="../css/animations.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: #0a0a1a;
+            color: #fff;
+            font-family: var(--font);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ── Header ── */
+        .vi-header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 56px;
+            background: rgba(10,10,26,0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(127,119,221,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1.5rem;
+            z-index: 100;
+        }
+
+        .vi-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .vi-logo {
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--purple-400), var(--accent));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem;
+        }
+
+        .vi-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .vi-progress {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .vi-progress-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .vi-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            transition: all 0.3s;
+        }
+
+        .vi-dot.done { background: var(--success); }
+        .vi-dot.active { background: var(--accent); transform: scale(1.3); }
+
+        .vi-timer {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.7);
+            font-variant-numeric: tabular-nums;
+            background: rgba(255,255,255,0.08);
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        /* ── Main video area ── */
+        .vi-main {
+            position: fixed;
+            inset: 56px 0 100px 0;
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 12px;
+            padding: 12px;
+        }
+
+        /* ── Interviewer panel ── */
+        .vi-interviewer {
+            position: relative;
+            background: linear-gradient(145deg, #1a1830, #0f0e1e);
+            border-radius: 16px;
+            border: 1px solid rgba(127,119,221,0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .vi-interviewer-bg {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 30%, rgba(83,74,183,0.15) 0%, transparent 70%);
+        }
+
+        /* Avatar */
+        .vi-avatar-wrap {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .vi-avatar {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #2a2450, #1a1830);
+            border: 3px solid rgba(127,119,221,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            position: relative;
+            box-shadow:
+                0 0 0 6px rgba(83,74,183,0.1),
+                0 0 40px rgba(83,74,183,0.2);
+            transition: all 0.3s;
+        }
+
+        .vi-avatar.speaking {
+            border-color: var(--accent);
+            box-shadow:
+                0 0 0 6px rgba(83,74,183,0.2),
+                0 0 60px rgba(83,74,183,0.4);
+            animation: avatar-pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes avatar-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+
+        /* Sound wave animation */
+        .vi-soundwave {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            height: 32px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .vi-soundwave.active { opacity: 1; }
+
+        .vi-soundwave span {
+            width: 4px;
+            border-radius: 2px;
+            background: var(--accent);
+            animation: soundwave 1s ease-in-out infinite;
+        }
+
+        .vi-soundwave span:nth-child(1) { height: 8px; animation-delay: 0s; }
+        .vi-soundwave span:nth-child(2) { height: 20px; animation-delay: 0.1s; }
+        .vi-soundwave span:nth-child(3) { height: 28px; animation-delay: 0.2s; }
+        .vi-soundwave span:nth-child(4) { height: 16px; animation-delay: 0.3s; }
+        .vi-soundwave span:nth-child(5) { height: 24px; animation-delay: 0.15s; }
+        .vi-soundwave span:nth-child(6) { height: 12px; animation-delay: 0.25s; }
+        .vi-soundwave span:nth-child(7) { height: 20px; animation-delay: 0.05s; }
+
+        @keyframes soundwave {
+            0%, 100% { transform: scaleY(0.5); opacity: 0.5; }
+            50% { transform: scaleY(1); opacity: 1; }
+        }
+
+        .vi-interviewer-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .vi-interviewer-role {
+            font-size: 0.78rem;
+            color: rgba(255,255,255,0.4);
+            margin-top: 2px;
+        }
+
+        /* Question display */
+        .vi-question-box {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(10,10,26,0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(127,119,221,0.3);
+            border-radius: 12px;
+            padding: 16px 20px;
+            z-index: 2;
+        }
+
+        .vi-question-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--accent-light);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .vi-question-text {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .vi-typing-dots {
+            display: inline-flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .vi-typing-dots span {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--accent-light);
+            animation: typing-bounce 1.2s ease-in-out infinite;
+        }
+
+        .vi-typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+        .vi-typing-dots span:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes typing-bounce {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-5px); opacity: 1; }
+        }
+
+        /* ── User panel ── */
+        .vi-user-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* User camera */
+        .vi-user-cam {
+            flex: 1;
+            background: #0f0e1e;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #user-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 16px;
+            transform: scaleX(-1);
+        }
+
+        .vi-cam-off {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            color: rgba(255,255,255,0.4);
+            font-size: 0.85rem;
+        }
+
+        .vi-cam-off-icon {
+            font-size: 2.5rem;
+            opacity: 0.3;
+        }
+
+        .vi-user-label {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.6);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .vi-recording-dot {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            background: var(--danger);
+            animation: blink 1s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
+
+        /* Notes/transcript panel */
+        .vi-notes {
+            background: #0f0e1e;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 14px;
+            height: 180px;
+            overflow-y: auto;
+        }
+
+        .vi-notes-title {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.4);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .vi-transcript-line {
+            font-size: 0.8rem;
+            line-height: 1.6;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 6px;
+            padding-left: 8px;
+            border-left: 2px solid rgba(127,119,221,0.3);
+        }
+
+        /* ── Bottom controls ── */
+        .vi-controls {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 100px;
+            background: rgba(10,10,26,0.95);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid rgba(127,119,221,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            padding: 0 2rem;
+        }
+
+        .vi-answer-input-wrap {
+            flex: 1;
+            max-width: 600px;
+            position: relative;
+        }
+
+        .vi-answer-input {
+            width: 100%;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(127,119,221,0.3);
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: #fff;
+            font-family: var(--font);
+            font-size: 0.9rem;
+            resize: none;
+            height: 60px;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        .vi-answer-input:focus {
+            border-color: var(--accent-light);
+        }
+
+        .vi-answer-input::placeholder {
+            color: rgba(255,255,255,0.3);
+        }
+
+        /* Control buttons */
+        .vi-btn {
+            width: 52px; height: 52px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .vi-btn:hover { transform: scale(1.1); }
+        .vi-btn:active { transform: scale(0.95); }
+
+        .vi-btn-mic {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .vi-btn-mic.active {
+            background: var(--danger);
+            border-color: var(--danger);
+            animation: mic-pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes mic-pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(226,75,74,0.4); }
+            50% { box-shadow: 0 0 0 12px rgba(226,75,74,0); }
+        }
+
+        .vi-btn-cam {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .vi-btn-cam.off {
+            background: rgba(226,75,74,0.2);
+            border-color: rgba(226,75,74,0.4);
+        }
+
+        .vi-btn-submit {
+            background: linear-gradient(135deg, var(--accent), var(--purple-400));
+            border: none;
+            width: 60px; height: 60px;
+            box-shadow: 0 4px 16px rgba(83,74,183,0.4);
+        }
+
+        .vi-btn-end {
+            background: rgba(226,75,74,0.15);
+            border: 1px solid rgba(226,75,74,0.3);
+            color: var(--danger);
+            font-size: 0.75rem;
+            width: auto;
+            padding: 0 16px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        /* ── Complete overlay ── */
+        .vi-complete {
+            position: fixed;
+            inset: 0;
+            background: rgba(10,10,26,0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            display: none;
+        }
+
+        .vi-complete-card {
+            background: #1a1830;
+            border: 1px solid rgba(127,119,221,0.3);
+            border-radius: 24px;
+            padding: 3rem 2.5rem;
+            text-align: center;
+            max-width: 420px;
+            width: 90%;
+        }
+
+        .vi-complete-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .vi-complete-card h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .vi-complete-card p {
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        /* ── Loading overlay ── */
+        .vi-loading {
+            position: fixed;
+            inset: 0;
+            background: #0a0a1a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            z-index: 300;
+        }
+
+        .vi-loading p {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.9rem;
+        }
+
+        /* Scrollbar */
+        .vi-notes::-webkit-scrollbar { width: 4px; }
+        .vi-notes::-webkit-scrollbar-thumb { background: rgba(127,119,221,0.3); border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+<!-- Loading -->
+<div class="vi-loading" id="vi-loading">
+    <div class="spinner spinner-lg" style="border-color:rgba(127,119,221,0.3);border-top-color:var(--accent)"></div>
+    <p id="loading-text">Preparing your interview...</p>
+</div>
+
+<!-- Header -->
+<header class="vi-header">
+    <div class="vi-header-left">
+        <div class="vi-logo">🎯</div>
+        <span class="vi-title" id="vi-role">Interview</span>
+    </div>
+    <div class="vi-progress">
+        <div class="vi-progress-dots" id="progress-dots"></div>
+        <span id="vi-progress-text">0/0</span>
+    </div>
+    <div class="vi-timer" id="vi-timer">⏱ 00:00</div>
+</header>
+
+<!-- Main -->
+<main class="vi-main">
+
+    <!-- Interviewer -->
+    <div class="vi-interviewer">
+        <div class="vi-interviewer-bg"></div>
+        <div class="vi-avatar-wrap">
+            <div class="vi-avatar" id="vi-avatar">🤖</div>
+            <div class="vi-soundwave" id="soundwave">
+                <span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span>
+            </div>
+            <div>
+                <div class="vi-interviewer-name">Alex Chen</div>
+                <div class="vi-interviewer-role">Senior Technical Interviewer</div>
+            </div>
+        </div>
+
+        <!-- Question box -->
+        <div class="vi-question-box">
+            <div class="vi-question-label">📋 Current question</div>
+            <div class="vi-question-text" id="vi-question-text">
+                <div class="vi-typing-dots">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User panel -->
+    <div class="vi-user-panel">
+        <!-- Camera -->
+        <div class="vi-user-cam">
+            <video id="user-video" autoplay muted playsinline></video>
+            <div class="vi-cam-off hidden" id="cam-off">
+                <div class="vi-cam-off-icon">📷</div>
+                <span>Camera off</span>
+            </div>
+            <div class="vi-user-label" id="user-label">You</div>
+            <div class="vi-recording-dot" id="rec-dot" style="display:none"></div>
+        </div>
+
+        <!-- Live transcript -->
+        <div class="vi-notes">
+            <div class="vi-notes-title">Live transcript</div>
+            <div id="transcript-content">
+                <div class="vi-transcript-line" style="color:rgba(255,255,255,0.3);font-style:italic">
+                    Your speech will appear here...
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Controls -->
+<div class="vi-controls">
+    <button class="vi-btn vi-btn-cam" id="cam-btn" title="Toggle camera">📷</button>
+    <button class="vi-btn vi-btn-mic" id="mic-btn" title="Hold to speak / click to toggle">🎤</button>
+
+    <div class="vi-answer-input-wrap">
+        <textarea
+            class="vi-answer-input"
+            id="vi-answer"
+            placeholder="Type your answer or use the microphone above... (Ctrl+Enter to submit)"
+        ></textarea>
+    </div>
+
+    <button class="vi-btn vi-btn-submit" id="submit-btn" title="Submit answer">➤</button>
+    <button class="vi-btn vi-btn-end" id="end-btn">End ✕</button>
+</div>
+
+<!-- Complete overlay -->
+<div class="vi-complete" id="vi-complete">
+    <div class="vi-complete-card">
+        <div class="vi-complete-icon">🎉</div>
+        <h2>Interview Complete!</h2>
+        <p>Great job! Your responses have been recorded. Generating your evaluation report now...</p>
+        <button id="get-report-btn" class="btn btn-primary btn-lg ripple" style="width:100%">
+            View my report →
+        </button>
+    </div>
+</div>
+
+<div id="toast-container"></div>
+<script type="module" src="../js/video-interview.js"></script>
+</body>
+</html>

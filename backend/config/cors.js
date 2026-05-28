@@ -1,8 +1,11 @@
-const corsOptions = {
+const cors = require('cors');
+
+const corsOptions = cors({
     origin: function (origin, callback) {
         const allowed = [
             process.env.FRONTEND_URL,
             'http://localhost:3000',
+            'http://localhost:5000',
             'http://localhost:5500',
             'http://127.0.0.1:5500',
         ];
@@ -15,6 +18,6 @@ const corsOptions = {
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-};
+});
 
 module.exports = corsOptions;

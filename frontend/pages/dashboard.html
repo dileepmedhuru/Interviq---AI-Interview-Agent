@@ -19,12 +19,12 @@
 
     <!-- Nav -->
     <nav class="nav">
-        <a class="nav-brand" href="dashboard.html">
+        <a class="nav-brand" href="/pages/dashboard.html">
             <div class="nav-logo">🎯</div>
             Interview Agent
         </a>
         <div class="nav-actions">
-            <a href="profile.html" class="nav-user">
+            <a href="/pages/profile.html" class="nav-user">
                 <div class="avatar avatar-sm" id="nav-avatar">?</div>
                 <span class="nav-user-name" id="nav-name">…</span>
             </a>
@@ -72,7 +72,6 @@
             <div>
                 <div class="section-heading">
                     <h3>Recent interviews</h3>
-                    <a href="history.html" class="btn btn-ghost btn-sm" style="font-size:0.8rem">View all →</a>
                 </div>
 
                 <div class="interviews-section" id="interview-list">
@@ -97,74 +96,125 @@
 
             <!-- Right: quick start + resume -->
             <div>
+
                 <!-- Quick start card -->
                 <div class="quick-start-card">
                     <h3>Start a new interview</h3>
                     <p>Pick a role, paste your resume, and begin practising in seconds.</p>
-                    <button id="open-modal-btn" class="btn btn-white btn-sm">
-                        + New interview
-                    </button>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:0.5rem">
+                        <button id="open-modal-btn" class="btn btn-white btn-sm">
+                            💬 Chat interview
+                        </button>
+                        <button id="open-video-modal-btn" class="btn btn-sm"
+                            style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3)">
+                            🎥 Video interview
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Resume card -->
-                <div class="card resume-card">
+                <div class="card resume-card" style="margin-top:1.25rem">
                     <div class="section-heading" style="margin-bottom:1rem">
                         <h3 style="font-size:0.95rem">Your resume</h3>
                     </div>
 
+                    <!-- Active resume row (hidden until loaded) -->
                     <div id="resume-active-wrap" class="hidden">
-                        <div class="resume-active">
+                        <div class="resume-active" style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface-2);border-radius:var(--radius-md);border:1px solid var(--border)">
                             <div class="resume-active-icon">📄</div>
-                            <div class="resume-active-info">
-                                <div class="resume-active-name" id="resume-name">—</div>
-                                <div class="resume-active-sub">Active resume</div>
+                            <div class="resume-active-info" style="flex:1;min-width:0">
+                                <div class="resume-active-name" id="resume-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;font-size:0.875rem">—</div>
+                                <div class="resume-active-sub" style="font-size:0.75rem;color:var(--text-muted)">Active resume</div>
                             </div>
+                            <button id="change-resume-btn" class="btn btn-ghost btn-sm" style="flex-shrink:0;font-size:0.75rem">
+                                Change
+                            </button>
                         </div>
                     </div>
 
-                    <label class="upload-zone mt-2" for="resume-file">
-                        <div class="upload-zone-icon">📤</div>
-                        <p><strong>Click to upload</strong> a PDF or plain text file</p>
-                        <p style="font-size:0.75rem;margin-top:4px;color:var(--text-muted)">Max 5 MB</p>
-                        <input type="file" id="resume-file" accept=".pdf,.txt" style="display:none" />
-                    </label>
-                    <span id="resume-file-label" class="text-xs text-muted mt-1" style="display:block"></span>
+                    <!-- Upload zone shown when no resume OR change clicked -->
+                    <div id="upload-zone-wrap">
+                        <label class="upload-zone" for="resume-file" style="margin-top:0.75rem;display:block;cursor:pointer">
+                            <div class="upload-zone-icon">📤</div>
+                            <p><strong>Click to upload</strong> a PDF or plain text file</p>
+                            <p style="font-size:0.75rem;margin-top:4px;color:var(--text-muted)">Max 5 MB</p>
+                            <input type="file" id="resume-file" accept=".pdf,.txt" style="display:none" />
+                        </label>
+                        <span id="resume-file-label" class="text-xs text-muted" style="display:block;margin-top:4px"></span>
+                    </div>
+
                 </div>
             </div>
         </div>
     </main>
 </div>
 
-<!-- New interview modal -->
+<!-- ── New interview modal ───────────────────────────── -->
 <div id="new-interview-modal" class="modal-backdrop hidden">
     <div class="modal">
         <div class="modal-header">
-            <span class="modal-title">New interview</span>
+            <span class="modal-title" id="modal-title">New interview</span>
             <button id="close-modal-btn" class="modal-close">✕</button>
         </div>
 
+        <!-- Mode badge -->
+        <div style="margin-bottom:1.25rem">
+            <span id="mode-badge" class="chip">💬 Chat mode</span>
+        </div>
+
         <form id="new-interview-form" novalidate>
+
+            <!-- Role -->
             <div class="field">
                 <label for="role">Target role <span style="color:var(--danger)">*</span></label>
-                <input id="role" type="text" class="input" placeholder="e.g. Frontend Engineer, Product Manager" required />
+                <input id="role" type="text" class="input"
+                    placeholder="e.g. Frontend Engineer, Data Scientist" required />
             </div>
 
+            <!-- Experience level -->
             <div class="field">
                 <label for="exp-level">Experience level</label>
                 <select id="exp-level" class="input">
-                    <option value="entry">Entry level (0-2 yrs)</option>
-                    <option value="mid" selected>Mid level (2-5 yrs)</option>
-                    <option value="senior">Senior (5-8 yrs)</option>
+                    <option value="entry">Entry level (0–2 yrs)</option>
+                    <option value="mid" selected>Mid level (2–5 yrs)</option>
+                    <option value="senior">Senior (5–8 yrs)</option>
                     <option value="lead">Lead / Staff (8+ yrs)</option>
                 </select>
             </div>
 
+            <!-- Resume source tabs -->
             <div class="field">
-                <label for="resume-text">Paste your resume <span style="color:var(--danger)">*</span></label>
-                <textarea id="resume-text" class="input" rows="8" placeholder="Paste your resume text here…" required></textarea>
+                <label>Resume source</label>
+                <div class="tab-bar" style="margin-bottom:1rem">
+                    <button type="button" class="tab-btn active" id="tab-uploaded">📄 Use uploaded resume</button>
+                    <button type="button" class="tab-btn"        id="tab-paste">✏️ Paste text</button>
+                </div>
+
+                <!-- Uploaded resume section -->
+                <div id="resume-uploaded-section">
+                    <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface-2);border-radius:var(--radius-md);border:1px solid var(--border)">
+                        <span style="font-size:1.5rem">📄</span>
+                        <div style="flex:1;min-width:0">
+                            <div id="modal-resume-name" style="font-weight:600;font-size:0.875rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-primary)">
+                                No resume uploaded yet
+                            </div>
+                            <div style="font-size:0.75rem;color:var(--text-muted)">Your active resume</div>
+                        </div>
+                    </div>
+                    <p class="text-xs text-muted" style="margin-top:6px">
+                        No resume? Switch to the "Paste text" tab above.
+                    </p>
+                </div>
+
+                <!-- Paste text section -->
+                <div id="resume-paste-section" class="hidden">
+                    <textarea id="resume-text" class="input" rows="7"
+                        placeholder="Paste your full resume text here…"></textarea>
+                </div>
             </div>
 
-            <button id="start-btn" type="submit" class="btn btn-primary btn-full btn-lg ripple" style="margin-top:0.5rem">
+            <button id="start-btn" type="submit"
+                class="btn btn-primary btn-full btn-lg ripple" style="margin-top:0.5rem">
                 Start interview →
             </button>
         </form>

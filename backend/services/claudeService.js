@@ -1,19 +1,19 @@
-const Anthropic = require('@anthropic-ai/sdk');
+const Groq = require('groq-sdk');
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-const MODEL = 'claude-sonnet-4-20250514';
+const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const MODEL = 'llama-3.3-70b-versatile';
 
-async function callClaude(prompt, maxTokens = 1500) {
-    const response = await client.messages.create({
+async function callAI(prompt, maxTokens = 1500) {
+    const response = await client.chat.completions.create({
         model: MODEL,
         max_tokens: maxTokens,
         messages: [{ role: 'user', content: prompt }],
     });
-    return response.content.filter((b) => b.type === 'text').map((b) => b.text).join('');
+    return response.choices[0].message.content;
 }
 
 async function parseResumeAndGenerateQuestions({ resumeText, role, expLevel }) {
-    const prompt = `You are an expert technical interviewer and resume analyst.
+    const prompt = `You are a friendly and encouraging interview coach helping a beginner build confidence.
 
 Resume:
 """
@@ -23,23 +23,37 @@ ${resumeText.slice(0, 4000)}
 Target role: ${role}
 Experience level: ${expLevel}
 
-Tasks:
-1. Extract the top 6-8 skills from this resume most relevant to the role.
-2. Extract up to 3 work experiences (title, company, duration).
-3. Generate exactly 5 personalized interview questions (mix of behavioral, technical, situational) tailored to this person's background.
-4. Write a 1-sentence candidate summary.
+Generate exactly 6 interview questions following these STRICT rules:
+1. Questions must be BASIC and confidence-building, not intimidating
+2. One question from each programming language mentioned in resume (e.g. Python basics, C basics)
+3. One simple coding question (e.g. write a function, basic algorithm) from their strongest language
+4. Two questions about their actual projects (simple, what they built and why)
+5. One soft skill question (simple, about teamwork or learning)
+6. Avoid deep system design, distributed systems, or advanced architecture questions
+7. Frame questions positively and encouragingly
+
+BAD example: "How would you design a distributed system?"
+GOOD example: "Can you explain what Flask does and how you used it in your project?"
+
+BAD example: "Describe scalable image processing architecture"  
+GOOD example: "Walk me through how your handwriting recognition project works in simple terms"
 
 Respond ONLY in valid JSON (no markdown, no backticks):
 {
   "skills": ["skill1","skill2"],
   "experience": [{"title":"","company":"","duration":""}],
   "questions": [
-    {"id":1,"text":"question text","type":"behavioral|technical|situational"}
+    {"id":1,"text":"question text","type":"technical","category":"python"},
+    {"id":2,"text":"question text","type":"technical","category":"coding"},
+    {"id":3,"text":"question text","type":"technical","category":"project"},
+    {"id":4,"text":"question text","type":"technical","category":"project"},
+    {"id":5,"text":"question text","type":"behavioral","category":"softskill"},
+    {"id":6,"text":"question text","type":"technical","category":"basics"}
   ],
   "summary": "one sentence summary"
 }`;
 
-    const raw = await callClaude(prompt);
+    const raw = await callAI(prompt);
     return JSON.parse(raw.replace(/```json|```/g, '').trim());
 }
 
@@ -52,7 +66,7 @@ The next question to ask is: "${nextQuestion}"
 
 Write a brief 1-2 sentence natural transition: acknowledge their answer warmly (without over-praising), then ask the next question. Keep it conversational and professional. No markdown.`;
 
-    return callClaude(prompt, 300);
+    return callAI(prompt, 300);
 }
 
 async function generateClosing(lastAnswer) {
@@ -60,7 +74,7 @@ async function generateClosing(lastAnswer) {
 
 Write a warm 2-sentence closing: thank them genuinely, let them know their evaluation report is being prepared. Keep it brief and professional. No markdown.`;
 
-    return callClaude(prompt, 200);
+    return callAI(prompt, 200);
 }
 
 async function evaluateInterview({ answers, role, expLevel }) {
@@ -94,12 +108,12 @@ Respond ONLY in valid JSON (no markdown, no backticks):
   "areasToImprove": ["area 1","area 2"]
 }`;
 
-    const raw = await callClaude(prompt, 1500);
+    const raw = await callAI(prompt, 1500);
     return JSON.parse(raw.replace(/```json|```/g, '').trim());
 }
 
 module.exports = {
-    callClaude,
+    callClaude: callAI,
     parseResumeAndGenerateQuestions,
     generateFollowUp,
     generateClosing,

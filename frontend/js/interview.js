@@ -262,3 +262,43 @@ function escHtml(str = '') {
         { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]
     ));
 }
+// Add to interview.js
+function initVoice() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    const voiceBtn = document.getElementById('voice-btn');
+    const textarea = document.getElementById('answer-input');
+    let isListening = false;
+
+    voiceBtn?.addEventListener('click', () => {
+        if (isListening) {
+            recognition.stop();
+            voiceBtn.classList.remove('pulse-ring');
+            voiceBtn.textContent = '🎙️';
+        } else {
+            recognition.start();
+            voiceBtn.classList.add('pulse-ring');
+            voiceBtn.textContent = '⏹️';
+        }
+        isListening = !isListening;
+    });
+
+    recognition.onresult = (event) => {
+        const transcript = Array.from(event.results)
+            .map(r => r[0].transcript).join('');
+        textarea.value = transcript;
+        document.getElementById('char-count').textContent = transcript.length;
+        document.getElementById('submit-answer-btn').disabled = transcript.length < 10;
+    };
+
+    recognition.onerror = () => {
+        isListening = false;
+        voiceBtn?.classList.remove('pulse-ring');
+    };
+}
