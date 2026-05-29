@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>History — Interview Agent</title>
+    <link rel="icon" href="../public/favicon.ico"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="../css/base.css"/>
+    <link rel="stylesheet" href="../css/3d-effects.css"/>
+    <link rel="stylesheet" href="../css/animations.css"/>
+    <link rel="stylesheet" href="../css/components.css"/>
+    <link rel="stylesheet" href="../css/dashboard.css"/>
+</head>
+<body>
+<div class="dashboard-layout">
+
+    <nav class="nav">
+        <a class="nav-brand" href="/pages/dashboard.html">
+            <div class="nav-logo">🎯</div> Interview Agent
+        </a>
+        <div class="nav-actions">
+            <a href="/pages/dashboard.html" class="btn btn-secondary btn-sm">← Dashboard</a>
+            <button class="btn btn-ghost btn-sm" data-action="logout">Sign out</button>
+        </div>
+    </nav>
+
+    <main class="dashboard-body page-enter">
+        <div class="page-header">
+            <h1>Interview History</h1>
+            <p>All your past interview sessions.</p>
+        </div>
+
+        <!-- Filter bar -->
+        <div style="display:flex;gap:10px;margin-bottom:1.5rem;flex-wrap:wrap;align-items:center">
+            <select id="filter-status" class="input" style="width:auto;padding:8px 14px;font-size:0.85rem">
+                <option value="">All statuses</option>
+                <option value="completed">Completed</option>
+                <option value="in_progress">In progress</option>
+            </select>
+            <span class="text-sm text-muted" id="total-count"></span>
+        </div>
+
+        <!-- List -->
+        <div id="history-list" style="display:flex;flex-direction:column;gap:10px">
+            <div class="skeleton" style="height:72px;border-radius:var(--radius-lg)"></div>
+            <div class="skeleton" style="height:72px;border-radius:var(--radius-lg)"></div>
+            <div class="skeleton" style="height:72px;border-radius:var(--radius-lg)"></div>
+        </div>
+
+        <div id="no-history" class="empty-state hidden">
+            <div class="empty-state-icon">🎙️</div>
+            <h4>No interviews yet</h4>
+            <p>Start your first mock interview from the dashboard.</p>
+            <a href="/pages/dashboard.html" class="btn btn-primary btn-sm" style="margin-top:1rem">Go to Dashboard</a>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="pagination" style="display:none"></div>
+    </main>
+</div>
+
+<!-- Delete confirm modal -->
+<div id="delete-modal" class="modal-backdrop hidden">
+    <div class="modal" style="max-width:380px">
+        <div class="modal-header">
+            <span class="modal-title">Delete interview?</span>
+            <button class="modal-close" id="cancel-delete">✕</button>
+        </div>
+        <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:1.5rem">
+            This will permanently delete this interview and its report. This cannot be undone.
+        </p>
+        <div style="display:flex;gap:10px">
+            <button id="cancel-delete-btn" class="btn btn-secondary btn-full">Cancel</button>
+            <button id="confirm-delete-btn" class="btn btn-danger btn-full">Delete</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast-container"></div>
+<script type="module">
+import { interviewApi, authApi } from '../js/api.js';
+import { requireAuth, showToast, $, $$, formatDate, formatDuration, scoreColor, initials, setLoading } from '../js/utils.js';
+
+let currentPage  = 1;
+let deleteTarget = null;
+
+(async () => {
+    await requireAuth();
+    await loadHistory();
+    setupFilters();
+    setupDeleteModal();
+    setupLogout();
+})();
+
+async function loadHistory(page = 1) {
+    const list  = $('#history-list');
+    const empty = $('#no-history');
+    const pgEl  = $('#pagination');
+
+    list.innerHTML = `
+        <div class="skeleton" style="height:72px;border-radius:var(--radius-lg)"></div>
+        <div class="skeleton" style="height:72px;border-radius:var(--radius-lg)"></div>`;
+
+    try {
+        const { interviews, total, pages } = await interviewApi.history(page, 10);
+        currentPage = page;
+        $('#total-count').textContent = `${total} interview${total !== 1 ? 's' : ''}`;
+
+        const filterStatus = $('#filter-status')?.value;
+        const filtered = filterStatus
+            ? interviews.filter(iv => iv.status === filterStatus)
+            : interviews;
+
+        if (!filtered.length) {
+            list.innerHTML = '';
+            empty.classList.remove('hidden');
+            pgEl.style.display = 'none';
+            return;
+        }
+        empty.classList.add('hidden');
+
+        list.innerHTML = filtered.map(iv => {
+            const score = iv.report?.scores?.overall;
+            const scoreHtml = score
+                ? `<span style="font-weight:700;font-size:0.95rem;color:${scoreColor(score)}">${score}/10</span>`
+                : '';
+            const duration = iv.duration ? formatDuration(iv.duration) : '—';
+            const statusColor = { completed:'var(--success)', in_progress:'var(--warning)', abandoned:'var(--text-muted)' }[iv.status] || 'var(--text-muted)';
+
+            return `
+            <div class="card card-hover" style="padding:1rem 1.25rem" data-id="${iv._id}">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+                    <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0">
+                        <div class="avatar avatar-sm" style="flex-shrink:0">${initials(iv.role)}</div>
+                        <div style="min-width:0">
+                            <div style="font-weight:600;font-size:0.9rem;color:var(--text-primary);
+                                white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(iv.role)}</div>
+                            <div style="font-size:0.75rem;color:var(--text-muted);margin-top:2px">
+                                ${iv.expLevel} · ${formatDate(iv.createdAt)} · ⏱ ${duration}
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+                        ${scoreHtml}
+                        <span class="chip" style="font-size:0.7rem;color:${statusColor};border-color:${statusColor};background:none">
+                            ${iv.status.replace('_',' ')}
+                        </span>
+                        ${score ? `<a href="/pages/report.html?id=${iv._id}" class="btn btn-secondary btn-sm">View</a>` : ''}
+                        <button class="btn btn-sm" data-delete="${iv._id}"
+                            style="color:var(--danger);border-color:rgba(226,75,74,0.3);background:rgba(226,75,74,0.05)"
+                            title="Delete interview">🗑</button>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+
+        // Delete buttons
+        list.querySelectorAll('[data-delete]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                deleteTarget = btn.dataset.delete;
+                $('#delete-modal').classList.remove('hidden');
+            });
+        });
+
+        // Pagination
+        if (pages > 1) {
+            pgEl.style.display = 'flex';
+            pgEl.innerHTML = Array.from({length: pages}, (_, i) => i + 1).map(p => `
+                <button class="page-btn ${p === page ? 'active' : ''}" data-page="${p}">${p}</button>
+            `).join('');
+            pgEl.querySelectorAll('[data-page]').forEach(btn => {
+                btn.addEventListener('click', () => loadHistory(parseInt(btn.dataset.page)));
+            });
+        } else {
+            pgEl.style.display = 'none';
+        }
+
+    } catch (err) {
+        list.innerHTML = '';
+        empty.classList.remove('hidden');
+        showToast('Could not load history', 'error');
+    }
+}
+
+function setupFilters() {
+    $('#filter-status')?.addEventListener('change', () => loadHistory(1));
+}
+
+function setupDeleteModal() {
+    const modal   = $('#delete-modal');
+    const confirm = $('#confirm-delete-btn');
+    const cancel1 = $('#cancel-delete');
+    const cancel2 = $('#cancel-delete-btn');
+
+    const closeModal = () => { modal.classList.add('hidden'); deleteTarget = null; };
+    cancel1?.addEventListener('click', closeModal);
+    cancel2?.addEventListener('click', closeModal);
+
+    confirm?.addEventListener('click', async () => {
+        if (!deleteTarget) return;
+        setLoading(confirm, true, 'Deleting…');
+        try {
+            await interviewApi.delete(deleteTarget);
+            showToast('Interview deleted', 'success');
+            closeModal();
+            await loadHistory(currentPage);
+        } catch (err) {
+            showToast(err.message || 'Could not delete', 'error');
+        } finally {
+            setLoading(confirm, false, 'Delete');
+        }
+    });
+}
+
+function setupLogout() {
+    $$('[data-action="logout"]').forEach(el => {
+        el.addEventListener('click', async () => {
+            try { await authApi.logout(); } catch(_) {}
+            sessionStorage.clear();
+            location.href = '/pages/login.html';
+        });
+    });
+}
+
+function escHtml(str='') {
+    return str.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+</script>
+</body>
+</html>
