@@ -13,7 +13,6 @@
     <link rel="stylesheet" href="../css/components.css" />
     <link rel="stylesheet" href="../css/dashboard.css" />
     <style>
-        /* ── Interview format preview ── */
         .format-steps {
             display: flex; flex-direction: column; gap: 8px;
             margin: 1rem 0 1.25rem;
@@ -40,8 +39,6 @@
             border-radius: 20px; background: rgba(255,255,255,0.2);
             color: #fff; white-space: nowrap;
         }
-
-        /* Start button full-width vibrant */
         .btn-start-interview {
             width: 100%;
             background: #fff;
@@ -85,7 +82,6 @@
     <!-- Body -->
     <main class="dashboard-body page-enter">
 
-        <!-- Header -->
         <div class="page-header">
             <h1>Dashboard</h1>
             <p>Track your interview practice and performance.</p>
@@ -126,7 +122,6 @@
                 </div>
 
                 <div class="interviews-section" id="interview-list">
-                    <!-- Skeleton -->
                     <div class="skeleton" style="height:66px;border-radius:var(--radius-lg)"></div>
                     <div class="skeleton" style="height:66px;border-radius:var(--radius-lg)"></div>
                     <div class="skeleton" style="height:66px;border-radius:var(--radius-lg)"></div>
@@ -138,7 +133,6 @@
                     <p>Start your first mock interview to see results here.</p>
                 </div>
 
-                <!-- Trend -->
                 <div class="trend-wrap mt-3" id="trend-section" style="display:none">
                     <div class="trend-label">Score trend (last 5)</div>
                     <div id="trend-chart"></div>
@@ -147,13 +141,11 @@
 
             <!-- Right: quick start + resume -->
             <div>
-
-                <!-- Quick start card — SINGLE INTERVIEW BUTTON -->
+                <!-- Quick start card -->
                 <div class="quick-start-card">
                     <h3>Start a new interview</h3>
                     <p>3-section AI interview: MCQ → Coding → Video. Personalised from your resume.</p>
 
-                    <!-- Format preview -->
                     <div class="format-steps">
                         <div class="format-step">
                             <div class="format-step-icon">📝</div>
@@ -192,7 +184,6 @@
                         <h3 style="font-size:0.95rem">Your resume</h3>
                     </div>
 
-                    <!-- Active resume row -->
                     <div id="resume-active-wrap" class="hidden">
                         <div class="resume-active" style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface-2);border-radius:var(--radius-md);border:1px solid var(--border)">
                             <div class="resume-active-icon">📄</div>
@@ -200,13 +191,10 @@
                                 <div class="resume-active-name" id="resume-name" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;font-size:0.875rem">—</div>
                                 <div class="resume-active-sub" style="font-size:0.75rem;color:var(--text-muted)">Active resume</div>
                             </div>
-                            <button id="change-resume-btn" class="btn btn-ghost btn-sm" style="flex-shrink:0;font-size:0.75rem">
-                                Change
-                            </button>
+                            <button id="change-resume-btn" class="btn btn-ghost btn-sm" style="flex-shrink:0;font-size:0.75rem">Change</button>
                         </div>
                     </div>
 
-                    <!-- Upload zone -->
                     <div id="upload-zone-wrap">
                         <label class="upload-zone" for="resume-file" style="margin-top:0.75rem;display:block;cursor:pointer">
                             <div class="upload-zone-icon">📤</div>
@@ -214,7 +202,6 @@
                             <p style="font-size:0.75rem;margin-top:4px;color:var(--text-muted)">Max 5 MB</p>
                             <input type="file" id="resume-file" accept=".pdf,.txt" style="display:none" />
                         </label>
-                        <span id="resume-file-label" class="text-xs text-muted" style="display:block;margin-top:4px"></span>
                     </div>
                 </div>
             </div>
@@ -222,7 +209,7 @@
     </main>
 </div>
 
-<!-- ── New interview modal ─────────────────────────────────────────── -->
+<!-- New interview modal -->
 <div id="new-interview-modal" class="modal-backdrop hidden">
     <div class="modal">
         <div class="modal-header">
@@ -230,7 +217,6 @@
             <button id="close-modal-btn" class="modal-close">✕</button>
         </div>
 
-        <!-- Format chips -->
         <div style="display:flex;gap:8px;margin-bottom:1.25rem;flex-wrap:wrap">
             <span class="chip">📝 5 MCQ</span>
             <span class="chip chip-teal">💻 2 Coding</span>
@@ -239,14 +225,12 @@
 
         <form id="new-interview-form" novalidate>
 
-            <!-- Role -->
             <div class="field">
                 <label for="role">Target role <span style="color:var(--danger)">*</span></label>
                 <input id="role" type="text" class="input"
                     placeholder="e.g. Frontend Engineer, Data Scientist" required />
             </div>
 
-            <!-- Experience level -->
             <div class="field">
                 <label for="exp-level">Experience level</label>
                 <select id="exp-level" class="input">
@@ -257,15 +241,13 @@
                 </select>
             </div>
 
-            <!-- Resume source tabs -->
             <div class="field">
                 <label>Resume source</label>
                 <div class="tab-bar" style="margin-bottom:1rem">
                     <button type="button" class="tab-btn active" id="tab-uploaded">📄 Use uploaded resume</button>
-                    <button type="button" class="tab-btn"        id="tab-paste">✏️ Paste text</button>
+                    <button type="button" class="tab-btn" id="tab-paste">✏️ Paste text</button>
                 </div>
 
-                <!-- Uploaded resume section -->
                 <div id="resume-uploaded-section">
                     <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface-2);border-radius:var(--radius-md);border:1px solid var(--border)">
                         <span style="font-size:1.5rem">📄</span>
@@ -281,7 +263,6 @@
                     </p>
                 </div>
 
-                <!-- Paste text section -->
                 <div id="resume-paste-section" class="hidden">
                     <textarea id="resume-text" class="input" rows="7"
                         placeholder="Paste your full resume text here…"></textarea>
@@ -297,46 +278,152 @@
 </div>
 
 <div id="toast-container"></div>
-<script type="module" src="../js/dashboard.js"></script>
 <script type="module">
-// Patch dashboard.js: override the modal open to go to unified-interview
-import { resumeApi, interviewApi } from '../js/api.js';
-import { showToast, $, hideEl, showEl, setLoading } from '../js/utils.js';
+import { resumeApi, interviewApi, authApi } from '../js/api.js';
+import { requireAuth, showToast, $, $$, formatDate, scoreColor, initials, setLoading, hideEl, showEl } from '../js/utils.js';
 
-// Override openModal to not need mode
-document.getElementById('open-modal-btn')?.addEventListener('click', async () => {
-    const modal = $('#new-interview-modal');
-    modal?.classList.remove('hidden');
+let currentUser = null;
+
+(async () => {
+    currentUser = await requireAuth();
+    if (!currentUser) return;
+    renderNav();
+    await Promise.all([loadStats(), loadRecentInterviews(), loadActiveResume()]);
+    setupModal();
+    setupLogout();
+    setupResumeUpload();
+})();
+
+function renderNav() {
+    const avatarEl = $('#nav-avatar');
+    const nameEl   = $('#nav-name');
+    if (avatarEl) avatarEl.textContent = initials(currentUser.name);
+    if (nameEl)   nameEl.textContent   = currentUser.name;
+}
+
+async function loadActiveResume() {
     try {
         const { resume } = await resumeApi.getActive();
-        if (resume) {
-            const nameEl = $('#modal-resume-name');
-            if (nameEl) nameEl.textContent = resume.originalName;
-        }
+        if (resume) showActiveResume(resume.originalName);
     } catch (_) {}
-});
+}
 
-// Override form submit destination to unified interview
-const form = document.getElementById('new-interview-form');
-if (form) {
-    // Remove existing listener by cloning
-    const newForm = form.cloneNode(true);
-    form.parentNode.replaceChild(newForm, form);
+async function loadStats() {
+    try {
+        const { stats } = await (await import('../js/api.js')).userApi.getStats();
+        setText('#stat-total',     stats.total ?? 0);
+        setText('#stat-completed', stats.completed ?? 0);
+        setText('#stat-avg',       stats.avgScore ? `${stats.avgScore}/10` : '—');
+        setText('#stat-best',      stats.best     ? `${stats.best}/10`     : '—');
+        if (stats.trend?.length >= 2) {
+            document.getElementById('trend-section').style.display = 'block';
+            renderTrend(stats.trend);
+        }
+    } catch (err) {
+        console.error('Stats error:', err);
+    }
+}
 
-    newForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const role     = newForm.querySelector('#role').value.trim();
-        const expLevel = newForm.querySelector('#exp-level').value;
-        const btn      = newForm.querySelector('#start-btn');
-        if (!role) { showToast('Please enter a target role', 'warning'); return; }
+function renderTrend(trend) {
+    const wrap = $('#trend-chart');
+    if (!wrap || trend.length < 2) return;
+    const max = 10, h = 60, w = wrap.clientWidth || 260;
+    const step = w / (trend.length - 1);
+    const points = trend.map((t, i) => `${i * step},${h - (t.score / max) * h}`).join(' ');
+    wrap.innerHTML = `
+    <svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="width:100%;height:60px">
+      <defs>
+        <linearGradient id="tg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.3"/>
+          <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <polyline points="${points}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>
+      ${trend.map((t, i) => {
+          const x = i * step, y = h - (t.score / max) * h;
+          return `<circle cx="${x}" cy="${y}" r="3" fill="var(--accent)"/>`;
+      }).join('')}
+    </svg>`;
+}
 
-        const usingPaste = !newForm.querySelector('#resume-paste-section').classList.contains('hidden');
-        const resumeText = usingPaste ? newForm.querySelector('#resume-text')?.value?.trim() : null;
-
-        if (usingPaste && !resumeText) {
-            showToast('Please paste your resume text', 'warning');
+async function loadRecentInterviews() {
+    const list  = $('#interview-list');
+    const empty = $('#no-interviews');
+    if (!list) return;
+    try {
+        const { interviews } = await interviewApi.history(1, 5);
+        if (!interviews || interviews.length === 0) {
+            list.innerHTML = '';
+            showEl(empty);
             return;
         }
+        hideEl(empty);
+        list.innerHTML = interviews.map(iv => {
+            const score = iv.report?.scores?.overall;
+            const dot   = score ? `<span class="chip" style="background:none;color:${scoreColor(score)};border-color:${scoreColor(score)}">${score}/10</span>` : '';
+            const statusColor = { completed:'var(--success)', in_progress:'var(--warning)' }[iv.status] || 'var(--text-muted)';
+            const badge = `<span class="chip" style="font-size:0.7rem;color:${statusColor};border-color:${statusColor};background:none">${iv.status.replace('_',' ')}</span>`;
+            return `
+            <a href="/pages/report.html?id=${iv._id}" class="interview-row card card-hover">
+              <div class="interview-row-left">
+                <div class="avatar avatar-sm">${initials(iv.role)}</div>
+                <div>
+                  <div class="font-semibold">${escHtml(iv.role)}</div>
+                  <div class="text-xs text-muted">${iv.expLevel} · ${formatDate(iv.createdAt)}</div>
+                </div>
+              </div>
+              <div class="interview-row-right">${dot}${badge}</div>
+            </a>`;
+        }).join('');
+    } catch (err) {
+        list.innerHTML = '';
+        showEl(empty);
+    }
+}
+
+function setupModal() {
+    const modal    = $('#new-interview-modal');
+    const closeBtn = $('#close-modal-btn');
+    const form     = $('#new-interview-form');
+    const btn      = $('#start-btn');
+
+    $('#open-modal-btn')?.addEventListener('click', async () => {
+        modal?.classList.remove('hidden');
+        try {
+            const { resume } = await resumeApi.getActive();
+            if (resume) {
+                const nameEl = $('#modal-resume-name');
+                if (nameEl) nameEl.textContent = resume.originalName;
+            }
+        } catch (_) {}
+    });
+
+    closeBtn?.addEventListener('click', () => modal?.classList.add('hidden'));
+    modal?.addEventListener('click', (e) => { if (e.target === modal) modal.classList.add('hidden'); });
+
+    $('#tab-uploaded')?.addEventListener('click', () => {
+        $('#tab-uploaded').classList.add('active');
+        $('#tab-paste').classList.remove('active');
+        showEl($('#resume-uploaded-section'));
+        hideEl($('#resume-paste-section'));
+    });
+
+    $('#tab-paste')?.addEventListener('click', () => {
+        $('#tab-paste').classList.add('active');
+        $('#tab-uploaded').classList.remove('active');
+        hideEl($('#resume-uploaded-section'));
+        showEl($('#resume-paste-section'));
+    });
+
+    form?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const role     = $('#role').value.trim();
+        const expLevel = $('#exp-level').value;
+        if (!role) { showToast('Please enter a target role', 'warning'); return; }
+
+        const usingPaste = !$('#resume-paste-section').classList.contains('hidden');
+        const resumeText = usingPaste ? $('#resume-text')?.value?.trim() : null;
+        if (usingPaste && !resumeText) { showToast('Please paste your resume text', 'warning'); return; }
 
         setLoading(btn, true, 'Preparing interview…');
         try {
@@ -352,15 +439,54 @@ if (form) {
                 }
                 body.resumeId = resume.id || resume._id;
             }
-
             const { interview } = await interviewApi.setup(body);
-            // Always go to unified interview
-            window.location.href = `/pages/unified-interview.html?id=${interview.id}`;
+            // Always go to unified interview page
+            window.location.href = `/pages/interview.html?id=${interview.id}`;
         } catch (err) {
             showToast(err.message || 'Could not start interview', 'error');
             setLoading(btn, false, '🚀 Start Interview →');
         }
     });
+}
+
+function setupResumeUpload() {
+    $('#change-resume-btn')?.addEventListener('click', () => {
+        $('#upload-zone-wrap')?.classList.toggle('hidden');
+    });
+    $('#resume-file')?.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        try {
+            showToast('Uploading...', 'info');
+            await resumeApi.uploadFile(file);
+            showToast('Resume saved ✅', 'success');
+            showActiveResume(file.name);
+        } catch (err) {
+            showToast(err.message || 'Upload failed', 'error');
+        }
+    });
+}
+
+function showActiveResume(name) {
+    showEl($('#resume-active-wrap'));
+    hideEl($('#upload-zone-wrap'));
+    const nameEl = $('#resume-name');
+    if (nameEl) nameEl.textContent = name;
+}
+
+function setupLogout() {
+    $$('[data-action="logout"]').forEach(el => {
+        el.addEventListener('click', async () => {
+            try { await authApi.logout(); } catch (_) {}
+            sessionStorage.clear();
+            window.location.href = '/pages/login.html';
+        });
+    });
+}
+
+function setText(sel, val) { const el=$(sel); if(el) el.textContent=val; }
+function escHtml(str='') {
+    return str.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 </script>
 </body>
