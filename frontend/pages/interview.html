@@ -590,9 +590,16 @@ let isCamOn     = true;
 // Local answer store
 let localAnswers = [];
 
-const getSection1Qs = () => interview?.questions?.filter(q => q.section === 1) || [];
-const getSection2Qs = () => interview?.questions?.filter(q => q.section === 2) || [];
-const getSection3Qs = () => interview?.questions?.filter(q => q.section === 3) || [];
+// Robust filters: handle section as number OR string, with category fallback
+const getSection1Qs = () => interview?.questions?.filter(q =>
+    Number(q.section) === 1 || (!q.section && q.category === 'mcq')
+) || [];
+const getSection2Qs = () => interview?.questions?.filter(q =>
+    Number(q.section) === 2 || (!q.section && q.category === 'coding')
+) || [];
+const getSection3Qs = () => interview?.questions?.filter(q =>
+    Number(q.section) === 3 || (!q.section && (q.category === 'technical' || q.category === 'behavioral' || q.category === 'open'))
+) || [];
 
 // ═══════════════════════ BOOTSTRAP ═══════════════════════
 (async () => {
@@ -657,6 +664,19 @@ function startSection1() {
     currentSection = 1;
     mcqIndex = 0;
     updatePills(1);
+
+    // Safety check — log questions so you can debug if filter still fails
+    console.log('All questions:', interview?.questions?.map(q => ({id:q.id, section:q.section, category:q.category})));
+    console.log('Section 1 Qs:', getSection1Qs().length);
+    console.log('Section 2 Qs:', getSection2Qs().length);
+    console.log('Section 3 Qs:', getSection3Qs().length);
+
+    if (getSection1Qs().length === 0) {
+        showToast('No MCQ questions found — check console', 'error');
+        console.error('Section 1 empty. Raw questions:', JSON.stringify(interview?.questions));
+        return;
+    }
+
     showEl($('#section1-wrap'));
     buildMcqDots();
     showMcqQuestion(0);
