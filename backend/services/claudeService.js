@@ -45,64 +45,9 @@ Respond ONLY with valid JSON, no markdown, no backticks, no extra text:
       "explanation": "Binary search halves the search space each step, giving O(log n)."
     },
     {
-      "id": 2,
-      "section": 1,
-      "text": "Which HTTP method is used to update a resource?",
-      "type": "technical",
-      "category": "mcq",
-      "options": ["GET", "POST", "PUT", "DELETE"],
-      "correctAnswer": 2,
-      "language": null,
-      "explanation": "PUT replaces a resource entirely; PATCH partially updates it."
-    },
-    {
-      "id": 3,
-      "section": 1,
-      "text": "What does SQL JOIN do?",
-      "type": "technical",
-      "category": "mcq",
-      "options": ["Deletes rows", "Combines rows from two tables", "Creates a new table", "Filters duplicates"],
-      "correctAnswer": 1,
-      "language": null,
-      "explanation": "JOIN combines rows from two or more tables based on a related column."
-    },
-    {
-      "id": 4,
-      "section": 1,
-      "text": "Which data structure is LIFO?",
-      "type": "technical",
-      "category": "mcq",
-      "options": ["Queue", "Stack", "Heap", "Graph"],
-      "correctAnswer": 1,
-      "language": null,
-      "explanation": "Stack uses Last In First Out order."
-    },
-    {
-      "id": 5,
-      "section": 1,
-      "text": "What is a closure in programming?",
-      "type": "technical",
-      "category": "mcq",
-      "options": ["A loop construct", "A function with access to its outer scope", "A database connection", "A type of class"],
-      "correctAnswer": 1,
-      "language": null,
-      "explanation": "A closure is a function that remembers variables from the enclosing scope."
-    },
-    {
       "id": 6,
       "section": 2,
       "text": "Write a function to check if a string is a palindrome.",
-      "type": "technical",
-      "category": "coding",
-      "options": null,
-      "correctAnswer": null,
-      "language": "python",
-      "explanation": null
-    },
-    {
-      "id": 7,
-      "section": 2,
-      "text": "Write a function to find the two numbers in an array that sum to a target value.",
       "type": "technical",
       "category": "coding",
       "options": null,
@@ -122,64 +67,9 @@ Respond ONLY with valid JSON, no markdown, no backticks, no extra text:
       "explanation": null
     },
     {
-      "id": 9,
-      "section": 3,
-      "text": "What is the difference between SQL and NoSQL databases? When would you choose each?",
-      "type": "technical",
-      "category": "technical",
-      "options": null,
-      "correctAnswer": null,
-      "language": null,
-      "explanation": null
-    },
-    {
-      "id": 10,
-      "section": 3,
-      "text": "How do you handle errors and exceptions in production code?",
-      "type": "technical",
-      "category": "technical",
-      "options": null,
-      "correctAnswer": null,
-      "language": null,
-      "explanation": null
-    },
-    {
-      "id": 11,
-      "section": 3,
-      "text": "Explain the concept of database indexing and when to use it.",
-      "type": "technical",
-      "category": "technical",
-      "options": null,
-      "correctAnswer": null,
-      "language": null,
-      "explanation": null
-    },
-    {
-      "id": 12,
-      "section": 3,
-      "text": "How do you approach performance optimization in a web application?",
-      "type": "technical",
-      "category": "technical",
-      "options": null,
-      "correctAnswer": null,
-      "language": null,
-      "explanation": null
-    },
-    {
       "id": 13,
       "section": 3,
       "text": "Tell me about a challenging technical problem you solved. What was your approach?",
-      "type": "behavioral",
-      "category": "behavioral",
-      "options": null,
-      "correctAnswer": null,
-      "language": null,
-      "explanation": null
-    },
-    {
-      "id": 14,
-      "section": 3,
-      "text": "Describe a time you had a disagreement with a teammate. How did you resolve it?",
       "type": "behavioral",
       "category": "behavioral",
       "options": null,
@@ -190,14 +80,17 @@ Respond ONLY with valid JSON, no markdown, no backticks, no extra text:
   ]
 }
 
-Now generate the actual questions tailored to the resume and role above. Keep the exact same JSON structure but make questions specific to the candidate's skills and the target role.`;
+Now generate ALL 14 questions tailored to the resume and role above. Keep the exact same JSON structure.
+Questions 1-5: section=1, category="mcq", include options array and correctAnswer index and explanation.
+Questions 6-7: section=2, category="coding", include language field.
+Questions 8-12: section=3, category="technical".
+Questions 13-14: section=3, category="behavioral".`;
 
     const raw = await callAI(prompt, 3500);
     let parsed;
     try {
         parsed = JSON.parse(raw.replace(/```json\n?|```\n?/g, '').trim());
     } catch (e) {
-        // Try to extract JSON from response
         const match = raw.match(/\{[\s\S]*\}/);
         if (match) {
             parsed = JSON.parse(match[0]);
@@ -206,19 +99,44 @@ Now generate the actual questions tailored to the resume and role above. Keep th
         }
     }
 
-    // Ensure all questions have required fields with fallbacks
+    // ── CRITICAL: normalise every question so section+category are ALWAYS present ──
     if (parsed.questions && Array.isArray(parsed.questions)) {
-        parsed.questions = parsed.questions.map((q, i) => ({
-            id:            q.id || i + 1,
-            section:       q.section || (i < 5 ? 1 : i < 7 ? 2 : 3),
-            text:          q.text || 'Question unavailable',
-            type:          q.type || 'technical',
-            category:      q.category || (i < 5 ? 'mcq' : i < 7 ? 'coding' : 'technical'),
-            options:       q.options || null,
-            correctAnswer: typeof q.correctAnswer === 'number' ? q.correctAnswer : null,
-            language:      q.language || null,
-            explanation:   q.explanation || null,
-        }));
+        parsed.questions = parsed.questions.map((q, i) => {
+            // Derive section from position if missing
+            let section = Number(q.section);
+            if (!section || isNaN(section)) {
+                if (i < 5)       section = 1;
+                else if (i < 7)  section = 2;
+                else             section = 3;
+            }
+
+            // Derive category from section / existing field if missing
+            let category = q.category;
+            if (!category) {
+                if (section === 1) category = 'mcq';
+                else if (section === 2) category = 'coding';
+                else if (q.type === 'behavioral') category = 'behavioral';
+                else category = 'technical';
+            }
+
+            // Derive type from category if missing
+            let type = q.type;
+            if (!type) {
+                type = category === 'behavioral' ? 'behavioral' : 'technical';
+            }
+
+            return {
+                id:            q.id            ?? (i + 1),
+                section,
+                text:          q.text          || 'Question unavailable',
+                type,
+                category,
+                options:       Array.isArray(q.options) ? q.options : null,
+                correctAnswer: typeof q.correctAnswer === 'number' ? q.correctAnswer : null,
+                language:      q.language      || null,
+                explanation:   q.explanation   || null,
+            };
+        });
     }
 
     return parsed;
