@@ -750,7 +750,13 @@ const genericStarters = {
     ruby: '# Write your solution here\n\n',
     sql: '-- Write your SQL query here\n\n',
 };
-
+function buildStarter(fnName, lang) {
+    if (lang === 'python') return `def ${fnName}(nums):\n    # your code here\n    pass\n`;
+    if (lang === 'java') return `public class Solution {\n    public static int ${fnName}(int[] nums) {\n        // your code here\n        return 0;\n    }\n}\n`;
+    if (lang === 'cpp') return `#include <iostream>\nusing namespace std;\n\nauto ${fnName}(auto... args) {\n    // your code here\n}\n`;
+    // default JS/TS
+    return `function ${fnName}(nums) {\n    // your code here\n}\n`;
+}
 function startSection2() {
     currentSection = 2; codeIndex = 0;
     showEl($('#section2-wrap'));
@@ -955,7 +961,9 @@ function showCodeQuestion(idx) {
 
     // ── Load starter code ──
     const ta = $('#code-textarea');
-    ta.value = q.starterCode || genericStarters[lang] || '// Write your solution here\n\n';
+    const fnSig = q.functionSignature || 'solution';
+    setText('#fn-sig-display', fnSig);
+    ta.value = q.starterCode || buildStarter(fnSig, lang);
 
     // ── Update dot states ──
     qs.forEach((_,i) => {
@@ -973,7 +981,8 @@ function showCodeQuestion(idx) {
 function resetToStarter() {
     const qs = getS2(), q = qs[codeIndex];
     const lang = $('#code-lang').value;
-    $('#code-textarea').value = q.starterCode || genericStarters[lang] || '// Write your solution here\n\n';
+    const fnSig = q.functionSignature || 'solution';
+    $('#code-textarea').value = q.starterCode || buildStarter(fnSig, lang); '// Write your solution here\n\n';
     clearOutput();
     resetTestCaseUI();
     showToast('Editor reset to starter code', 'info', 2000);
@@ -1059,21 +1068,19 @@ function runJsWithTests(code, testCases, fnName) {
     // Execute the student code
     let userFn = null;
     try {
-        const wrapper = new Function('console', code + (fnName ? `\nreturn typeof ${fnName} !== 'undefined' ? ${fnName} : null;` : '\nreturn null;'));
-        userFn = wrapper(fakeConsole);
+        const __scope = {};
+        const wrapper = new Function('console', '__scope',
+            code + (fnName
+                ? `\n__scope.fn = typeof ${fnName} !== 'undefined' ? ${fnName} : null;`
+                : '\n__scope.fn = null;')
+        );
+        wrapper(fakeConsole, __scope);
+        userFn = __scope.fn;
     } catch (e) {
         showOutput(`❌ Syntax/Runtime Error:\n${e.message}`, 'error');
         markAllTestsFailed(testCases, 'error');
         updateTestSummary(0, testCases.length);
         return;
-    }
-
-    // If no named function, try to find any function exported
-    if (!userFn && fnName) {
-        try {
-            const scopeWrapper = new Function('console', code + `\nif(typeof ${fnName}==='function') return ${fnName}; return null;`);
-            userFn = scopeWrapper(fakeConsole);
-        } catch(_) {}
     }
 
     let passed = 0, total = testCases.length;
