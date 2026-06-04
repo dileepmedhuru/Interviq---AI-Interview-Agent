@@ -96,7 +96,7 @@
 .score-dot.skipped { background: var(--warning); border-color: var(--warning); color: #fff; }
 .score-dot.active  { border-color: var(--accent); color: var(--accent); background: var(--purple-50); }
 
-/* ===== ENHANCED CODE EDITOR ===== */
+/* CODE EDITOR */
 .code-editor-shell {
     border-radius: 14px; overflow: hidden;
     border: 1px solid rgba(255,255,255,.08);
@@ -137,23 +137,19 @@
 }
 .run-btn:hover { opacity: .85; transform: translateY(-1px); }
 .run-btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
-#code-textarea {
-    width: 100%; min-height: 240px; max-height: 400px;
-    background: #0d0d1a; color: #cdd0e3;
-    font-family: 'JetBrains Mono', monospace; font-size: 0.875rem;
-    line-height: 1.75; padding: 16px 18px;
-    border: none; outline: none; resize: vertical; tab-size: 4;
-    caret-color: var(--accent-light);
-}
-#code-textarea::placeholder { color: rgba(255,255,255,.2); }
-
-/* Free-form hint banner */
 .editor-hint {
     display: flex; align-items: center; gap: 8px;
-    padding: 8px 16px; background: rgba(127,119,221,.12);
-    border-bottom: 1px solid rgba(127,119,221,.15);
-    font-size: 0.75rem; color: rgba(200,198,240,.7);
+    padding: 7px 16px; background: rgba(127,119,221,.08);
+    border-bottom: 1px solid rgba(127,119,221,.12);
+    font-size: 0.72rem; color: rgba(200,198,240,.6);
     font-family: 'JetBrains Mono', monospace;
+    flex-wrap: wrap;
+}
+.editor-hint kbd {
+    display: inline-flex; align-items: center;
+    padding: 1px 5px; border-radius: 4px;
+    background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2);
+    color: rgba(255,255,255,.8); font-size: 0.68rem; font-family: inherit;
 }
 .editor-hint strong { color: var(--accent-light); }
 .reset-starter-btn {
@@ -164,8 +160,16 @@
     white-space: nowrap; transition: background .2s;
 }
 .reset-starter-btn:hover { background: rgba(127,119,221,.3); }
-
-/* Test cases panel */
+#code-textarea {
+    width: 100%; min-height: 260px; max-height: 420px;
+    background: #0d0d1a; color: #cdd0e3;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.875rem;
+    line-height: 1.75; padding: 16px 18px;
+    border: none; outline: none; resize: vertical; tab-size: 4;
+    caret-color: var(--accent-light);
+    white-space: pre; overflow-wrap: normal; overflow-x: auto;
+}
+#code-textarea::placeholder { color: rgba(255,255,255,.2); }
 .test-panel {
     background: #080714; border-top: 1px solid rgba(255,255,255,.06);
     padding: 12px 16px;
@@ -185,39 +189,36 @@
 .test-summary.all-pass { background: rgba(29,158,117,.2); color: #1D9E75; border: 1px solid rgba(29,158,117,.3); }
 .test-summary.some-fail { background: rgba(226,75,74,.15); color: #E24B4A; border: 1px solid rgba(226,75,74,.25); }
 .test-summary.not-run { background: rgba(255,255,255,.06); color: rgba(255,255,255,.3); border: 1px solid rgba(255,255,255,.1); }
-
 .test-cases-list { display: flex; flex-direction: column; gap: 6px; }
 .test-case-row {
     display: flex; align-items: center; gap: 10px;
     padding: 8px 12px; border-radius: 8px;
     background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06);
     font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
-    transition: background .2s;
+    transition: all .25s;
 }
 .test-case-row.pass { border-color: rgba(29,158,117,.3); background: rgba(29,158,117,.06); }
 .test-case-row.fail { border-color: rgba(226,75,74,.3); background: rgba(226,75,74,.06); }
-.test-case-row.running { border-color: rgba(239,159,39,.3); background: rgba(239,159,39,.06); }
-.test-case-row.hidden-case { opacity: .5; }
+.test-case-row.running { border-color: rgba(239,159,39,.3); background: rgba(239,159,39,.06); animation: test-pulse .8s ease infinite; }
+.test-case-row.hidden-case { opacity: .45; filter: blur(0.3px); }
+@keyframes test-pulse { 0%,100%{opacity:.7}50%{opacity:1} }
 .test-icon { font-size: 0.9rem; flex-shrink: 0; width: 18px; text-align: center; }
-.test-input { color: rgba(200,198,240,.6); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.test-arrow { color: rgba(255,255,255,.25); font-size: 0.8rem; flex-shrink: 0; }
-.test-expected { color: rgba(255,255,255,.4); flex-shrink: 0; }
-.test-got { flex-shrink: 0; }
-.test-got.correct { color: #1D9E75; }
-.test-got.wrong { color: #E24B4A; }
-.test-hidden-label { color: rgba(255,255,255,.2); font-style: italic; font-size: 0.7rem; }
-
+.test-input { color: rgba(200,198,240,.65); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.test-arrow { color: rgba(255,255,255,.2); font-size: 0.8rem; flex-shrink: 0; }
+.test-expected { color: rgba(255,255,255,.35); flex-shrink: 0; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.test-got { flex-shrink: 0; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.test-got.correct { color: #1D9E75; font-weight: 600; }
+.test-got.wrong   { color: #E24B4A; font-weight: 600; }
 .output-panel {
     background: #070714; border-top: 1px solid rgba(255,255,255,.06);
     padding: 12px 18px; font-family: 'JetBrains Mono', monospace;
     font-size: 0.82rem; line-height: 1.7; min-height: 52px;
-    max-height: 120px; overflow-y: auto; color: #a8e6cf;
+    max-height: 160px; overflow-y: auto; color: #a8e6cf;
     white-space: pre-wrap; display: none;
 }
 .output-panel.visible { display: block; }
 .output-panel.error { color: #f87171; }
 .output-panel.info  { color: #93c5fd; }
-
 .code-actions { display: flex; gap: 10px; margin-top: .75rem; align-items: center; justify-content: space-between; }
 .code-actions-right { display: flex; gap: 8px; }
 
@@ -228,48 +229,24 @@
     color: #fff; position: relative; overflow: hidden;
     box-shadow: 0 8px 28px rgba(83,74,183,.3); margin-bottom: 1.25rem;
 }
-.q-card::before {
-    content:''; position:absolute; top:-50%; right:-15%;
-    width:280px; height:280px; border-radius:50%;
-    background:rgba(255,255,255,.05); pointer-events:none;
-}
+.q-card::before { content:''; position:absolute; top:-50%; right:-15%; width:280px; height:280px; border-radius:50%; background:rgba(255,255,255,.05); pointer-events:none; }
 .q-num { font-size:.72rem; font-weight:700; color:rgba(255,255,255,.55); letter-spacing:.08em; text-transform:uppercase; margin-bottom:8px; }
-.q-tag {
-    display:inline-flex; align-items:center; gap:5px;
-    padding:3px 10px; border-radius:20px; font-size:.68rem;
-    font-weight:700; text-transform:uppercase; letter-spacing:.05em;
-    margin-bottom:12px; background:rgba(255,255,255,.15);
-    border:1px solid rgba(255,255,255,.2); color:rgba(255,255,255,.9);
-}
+.q-tag { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:20px; font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; margin-bottom:12px; background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.2); color:rgba(255,255,255,.9); }
 .q-text { font-size:1rem; font-weight:500; color:#fff; line-height:1.65; }
-
-/* Q PROGRESS DOTS */
 .q-progress-dots { display:flex; gap:5px; align-items:center; margin-bottom:1rem; flex-wrap: wrap; }
 .qd { width:9px; height:9px; border-radius:50%; background:var(--border-strong); transition:all .3s; }
 .qd.done { background:var(--success); }
 .qd.active { background:var(--accent); transform:scale(1.4); }
 .qd.skipped { background:var(--warning); }
-
-/* NAV BUTTONS */
 .nav-btns { display:flex; align-items:center; justify-content:space-between; margin-top:1rem; gap:10px; }
-.skip-btn {
-    display:flex; align-items:center; gap:6px;
-    padding:8px 16px; border-radius:10px; border:1px solid var(--border-strong);
-    background:none; color:var(--text-muted); font-size:.82rem; font-weight:500;
-    cursor:pointer; transition:all .2s;
-}
+.skip-btn { display:flex; align-items:center; gap:6px; padding:8px 16px; border-radius:10px; border:1px solid var(--border-strong); background:none; color:var(--text-muted); font-size:.82rem; font-weight:500; cursor:pointer; transition:all .2s; }
 .skip-btn:hover { color:var(--text-primary); background:var(--surface-2); }
 
 /* VIDEO SECTION */
 #section3-wrap { background:#080816; margin: 0 -1.5rem; padding: 1.5rem; min-height: calc(100vh - 64px); }
 .video-layout { display: grid; grid-template-columns: 1fr 300px; gap: 14px; height: calc(100vh - 280px); min-height: 400px; }
 @media (max-width: 820px) { .video-layout { grid-template-columns: 1fr; height: auto; } }
-.ai-panel {
-    position: relative; background: linear-gradient(145deg, #1a1830, #0f0e1e);
-    border-radius: 18px; border: 1px solid rgba(127,119,221,.2);
-    display: flex; flex-direction: column; align-items: center;
-    justify-content: center; overflow: hidden; min-height: 300px;
-}
+.ai-panel { position: relative; background: linear-gradient(145deg, #1a1830, #0f0e1e); border-radius: 18px; border: 1px solid rgba(127,119,221,.2); display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; min-height: 300px; }
 .ai-panel-bg { position:absolute; inset:0; background:radial-gradient(ellipse at 50% 30%, rgba(83,74,183,.18) 0%, transparent 70%); }
 .ai-avatar-wrap { position:relative; z-index:1; text-align:center; }
 .ai-avatar { width:150px; height:150px; border-radius:50%; background:linear-gradient(145deg,#2a2450,#1a1830); border:3px solid rgba(127,119,221,.4); display:flex; align-items:center; justify-content:center; font-size:4rem; margin:0 auto 1rem; box-shadow:0 0 0 8px rgba(83,74,183,.08),0 0 40px rgba(83,74,183,.2); transition:all .3s; }
@@ -323,84 +300,29 @@ body.video-mode .interview-header { background: rgba(10,10,26,.92); border-color
 .vi-q-type-behavioral { background:rgba(239,159,39,.2); color:var(--amber-400); border:1px solid rgba(239,159,39,.3); }
 .vi-q-type-technical { background:rgba(127,119,221,.2); color:var(--accent-light); border:1px solid rgba(127,119,221,.3); }
 
-/* ===== LEETCODE-STYLE PROBLEM CARD ===== */
-.problem-card {
-    background: var(--surface);
-    border: 1px solid var(--border-strong);
-    border-radius: 16px;
-    margin-bottom: 1.25rem;
-    overflow: hidden;
-    box-shadow: var(--shadow-sm);
-}
-.problem-card-header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 20px 0;
-}
+/* PROBLEM CARD */
+.problem-card { background: var(--surface); border: 1px solid var(--border-strong); border-radius: 16px; margin-bottom: 1.25rem; overflow: hidden; box-shadow: var(--shadow-sm); }
+.problem-card-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px 0; }
 .problem-meta { display: flex; align-items: center; gap: 10px; }
-.problem-num {
-    font-size: 0.72rem; font-weight: 700; color: var(--text-muted);
-    letter-spacing: .07em; text-transform: uppercase;
-}
-.problem-tag {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 3px 10px; border-radius: 20px; font-size: .68rem;
-    font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
-    background: var(--purple-50); color: var(--accent);
-    border: 1px solid var(--border-strong);
-}
-.problem-difficulty {
-    font-size: 0.72rem; font-weight: 700; padding: 3px 10px;
-    border-radius: 20px;
-}
+.problem-num { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); letter-spacing: .07em; text-transform: uppercase; }
+.problem-tag { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; background: var(--purple-50); color: var(--accent); border: 1px solid var(--border-strong); }
+.problem-difficulty { font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
 .problem-difficulty.easy   { background: rgba(29,158,117,.1); color: var(--success); border: 1px solid rgba(29,158,117,.25); }
 .problem-difficulty.medium { background: rgba(239,159,39,.1); color: var(--warning); border: 1px solid rgba(239,159,39,.25); }
 .problem-difficulty.hard   { background: rgba(226,75,74,.1);  color: var(--danger);  border: 1px solid rgba(226,75,74,.25); }
-
-.problem-title {
-    font-size: 1.05rem; font-weight: 700; color: var(--text-primary);
-    padding: 10px 20px 4px; margin: 0; letter-spacing: -0.01em;
-}
-.problem-desc {
-    font-size: 0.9rem; color: var(--text-secondary); line-height: 1.7;
-    padding: 0 20px 16px; margin: 0;
-}
-.problem-examples {
-    padding: 0 20px 16px;
-    display: flex; flex-direction: column; gap: 12px;
-}
+.problem-title { font-size: 1.05rem; font-weight: 700; color: var(--text-primary); padding: 10px 20px 4px; margin: 0; letter-spacing: -0.01em; }
+.problem-desc { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.7; padding: 0 20px 16px; margin: 0; }
+.problem-examples { padding: 0 20px 16px; display: flex; flex-direction: column; gap: 12px; }
 .example-block { display: flex; flex-direction: column; gap: 6px; }
-.example-label {
-    font-size: 0.78rem; font-weight: 700; color: var(--text-primary);
-    letter-spacing: .01em;
-}
-.example-code {
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 16px;
-    font-family: 'JetBrains Mono', 'Fira Code', monospace;
-    font-size: 0.82rem; line-height: 1.8;
-}
+.example-label { font-size: 0.78rem; font-weight: 700; color: var(--text-primary); letter-spacing: .01em; }
+.example-code { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.82rem; line-height: 1.8; }
 .example-line { display: flex; gap: 8px; flex-wrap: wrap; align-items: baseline; }
 .example-key { color: var(--text-muted); font-size: 0.8rem; }
 .example-val { color: var(--text-primary); font-weight: 500; }
-.example-explanation {
-    color: var(--text-secondary); font-size: 0.8rem;
-    font-style: italic; margin-top: 2px;
-}
-.problem-constraints {
-    padding: 12px 20px 16px;
-    border-top: 1px solid var(--border);
-}
-.constraints-title {
-    font-size: 0.78rem; font-weight: 700; color: var(--text-muted);
-    text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px;
-}
-.constraint-item {
-    font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
-    color: var(--text-secondary); line-height: 1.8;
-    display: flex; align-items: baseline; gap: 6px;
-}
+.example-explanation { color: var(--text-secondary); font-size: 0.8rem; font-style: italic; margin-top: 2px; }
+.problem-constraints { padding: 12px 20px 16px; border-top: 1px solid var(--border); }
+.constraints-title { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+.constraint-item { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--text-secondary); line-height: 1.8; display: flex; align-items: baseline; gap: 6px; }
 .constraint-item::before { content: '•'; color: var(--text-muted); flex-shrink: 0; }
     </style>
 </head>
@@ -415,7 +337,6 @@ body.video-mode .interview-header { background: rgba(10,10,26,.92); border-color
 </div>
 
 <div class="interview-layout">
-<!-- HEADER -->
 <header class="interview-header">
     <div class="interview-header-left">
         <a href="/pages/dashboard.html" class="btn btn-ghost btn-sm btn-icon" style="font-size:1.1rem">←</a>
@@ -435,10 +356,8 @@ body.video-mode .interview-header { background: rgba(10,10,26,.92); border-color
     </div>
 </header>
 
-<!-- MAIN BODY -->
 <main class="interview-body" id="main-body">
 
-    <!-- Loading -->
     <div id="loading-state" style="text-align:center;padding:5rem 0">
         <div class="spinner spinner-lg" style="margin:0 auto 1.25rem"></div>
         <p class="text-muted">Preparing your personalised interview…</p>
@@ -463,11 +382,10 @@ body.video-mode .interview-header { background: rgba(10,10,26,.92); border-color
         </div>
     </div>
 
-    <!-- SECTION 2: CODING (Enhanced) -->
+    <!-- SECTION 2: CODING -->
     <div id="section2-wrap" class="hidden">
         <div class="q-progress-dots" id="code-progress-dots"></div>
 
-        <!-- LeetCode-style problem card -->
         <div class="problem-card">
             <div class="problem-card-header">
                 <div class="problem-meta">
@@ -502,14 +420,13 @@ body.video-mode .interview-header { background: rgba(10,10,26,.92); border-color
                 </div>
                 <button class="run-btn" id="run-btn">▶ Run &amp; Test</button>
             </div>
-            <!-- Free-form hint bar -->
             <div class="editor-hint" id="editor-hint">
-                <span>Write your solution freely. Required function: <strong id="fn-sig-display">solution</strong></span>
-                <button class="reset-starter-btn" id="reset-starter-btn" title="Reset to starter code">↺ Reset starter</button>
+                <span>Required fn: <strong id="fn-sig-display">solution</strong></span>
+                <span style="margin-left:4px"><kbd>Tab</kbd> indent &nbsp;·&nbsp; <kbd>Ctrl+Enter</kbd> run</span>
+                <button class="reset-starter-btn" id="reset-starter-btn">↺ Reset</button>
             </div>
             <textarea id="code-textarea" spellcheck="false"
-                placeholder="// Write your solution here — you have full control over the editor"></textarea>
-            <!-- Test cases panel -->
+                placeholder="// Write your solution here"></textarea>
             <div class="test-panel" id="test-panel">
                 <div class="test-panel-header">
                     <span class="test-panel-title">Test Cases</span>
@@ -587,7 +504,7 @@ body.video-mode .interview-header { background: rgba(10,10,26,.92); border-color
         <div class="complete-icon-big">🎉</div>
         <h2 style="font-size:1.6rem;font-weight:800;letter-spacing:-.03em;margin-bottom:8px">Interview Complete!</h2>
         <p style="color:var(--text-secondary);max-width:400px;margin:0 auto 2rem">
-            You've completed all 3 sections. Generating your full evaluation report now…
+            You've completed all 3 sections. Generating your evaluation report now…
         </p>
         <button id="get-report-btn" class="btn btn-primary btn-lg ripple">
             <span class="spinner spinner-sm hidden" id="report-spinner"></span>
@@ -603,6 +520,7 @@ body.video-mode .interview-header { background: rgba(10,10,26,.92); border-color
 import { interviewApi } from '../js/api.js';
 import { requireAuth, showToast, $, hideEl, showEl, setLoading } from '../js/utils.js';
 
+
 // ═══ STATE ═══
 let interview      = null;
 let currentSection = 1;
@@ -614,9 +532,41 @@ let codeIndex = 0, isRunning = false;
 let viIndex = 0, mediaStream = null, recognition = null, isMicOn = false, isCamOn = true;
 let localAnswers = [];
 
-const getS1 = () => interview?.questions?.filter(q => Number(q.section) === 1 || (!q.section && q.category === 'mcq')) || [];
-const getS2 = () => interview?.questions?.filter(q => Number(q.section) === 2 || (!q.section && q.category === 'coding')) || [];
-const getS3 = () => interview?.questions?.filter(q => Number(q.section) === 3 || (!q.section && ['technical','behavioral','open'].includes(q.category))) || [];
+// ── Normalise section/category fields ──────────────────────────────────────────
+function normaliseQuestions(questions) {
+    if (!questions) return [];
+    return questions.map((q, i) => {
+        let section = Number(q.section);
+        if (!section || isNaN(section)) {
+            if (i < 5)      section = 1;
+            else if (i < 7) section = 2;
+            else            section = 3;
+        }
+        let category = q.category;
+        if (!category) {
+            if (section === 1)                    category = 'mcq';
+            else if (section === 2)               category = 'coding';
+            else if (q.type === 'behavioral')     category = 'behavioral';
+            else                                  category = 'technical';
+        }
+        // FIX: coerce tc.hidden to real booleans once, at normalisation time
+        if (Array.isArray(q.testCases)) {
+            q.testCases = q.testCases.map((tc, idx) => ({
+                ...tc,
+                hidden: tc.hidden === true || tc.hidden === 1 || tc.hidden === 'true',
+                input:           tc.input           || '',
+                inputCode:       tc.inputCode        || '[]',
+                expected:        String(tc.expected  ?? 'null'),
+                expectedDisplay: tc.expectedDisplay  || String(tc.expected ?? '?'),
+            }));
+        }
+        return { ...q, section, category };
+    });
+}
+
+const getS1 = () => (interview?.questions || []).filter(q => Number(q.section) === 1);
+const getS2 = () => (interview?.questions || []).filter(q => Number(q.section) === 2);
+const getS3 = () => (interview?.questions || []).filter(q => Number(q.section) === 3);
 
 // ═══ BOOTSTRAP ═══
 (async () => {
@@ -626,6 +576,7 @@ const getS3 = () => interview?.questions?.filter(q => Number(q.section) === 3 ||
     try {
         const data = await interviewApi.get(id);
         interview = data.interview;
+        interview.questions = normaliseQuestions(interview.questions);   // ← normalise early
         if (interview.status === 'completed' && interview.report) { location.href = `/pages/report.html?id=${interview._id}`; return; }
         setText('#header-role', interview.role);
         setText('#header-level', interview.expLevel + ' level');
@@ -638,7 +589,7 @@ const getS3 = () => interview?.questions?.filter(q => Number(q.section) === 3 ||
 // ═══ SECTION OVERLAY ═══
 const sectionMeta = {
     1: { badge:'📝', title:'Section 1 — Multiple Choice', desc:'5 MCQ questions to test your conceptual knowledge. Select the best answer, or skip if unsure.' },
-    2: { badge:'💻', title:'Section 2 — Coding Challenge', desc:'2 coding problems. Write free-form code and run hidden test cases. You can skip if needed.' },
+    2: { badge:'💻', title:'Section 2 — Coding Challenge', desc:'2 coding problems. Write your solution and run it against test cases. Skip if needed.' },
     3: { badge:'🎥', title:'Section 3 — Video Interview', desc:'7 questions with AI interviewer Alex: 5 technical + 2 behavioral. Speak or type answers.' },
 };
 function showSectionOverlay(section, onStart) {
@@ -664,7 +615,9 @@ function startTimer() {
     }, 1000);
 }
 
-// ═══ SECTION 1: MCQ ═══
+// ═══════════════════════════════════════════════════════
+// SECTION 1: MCQ
+// ═══════════════════════════════════════════════════════
 function startSection1() {
     currentSection = 1; mcqIndex = 0; updatePills(1);
     if (getS1().length === 0) { showToast('No MCQ questions found', 'error'); return; }
@@ -734,29 +687,35 @@ function endSection1() {
     showSectionOverlay(2, () => startSection2());
 }
 
-// ═══ SECTION 2: CODING (Enhanced) ═══
+// ═══════════════════════════════════════════════════════
+// SECTION 2: CODING
+// ═══════════════════════════════════════════════════════
 const langBadge = { javascript:'JS', python:'PY', typescript:'TS', java:'JAVA', c:'C', cpp:'C++', go:'GO', rust:'RS', ruby:'RB', sql:'SQL' };
 
-// Generic starters per language (free-form, no forced function structure)
-const genericStarters = {
-    javascript: '// Write your solution here\n// You can use any approach you like\n\n',
-    python: '# Write your solution here\n# You can use any approach you like\n\n',
-    typescript: '// Write your solution here\n\n',
-    java: 'public class Solution {\n    // Write your solution here\n}\n',
-    c: '#include <stdio.h>\n\n// Write your solution here\n',
-    cpp: '#include <iostream>\nusing namespace std;\n\n// Write your solution here\n',
-    go: 'package main\n\nimport "fmt"\n\n// Write your solution here\n',
-    rust: 'fn main() {\n    // Write your solution here\n}\n',
-    ruby: '# Write your solution here\n\n',
-    sql: '-- Write your SQL query here\n\n',
-};
 function buildStarter(fnName, lang) {
-    if (lang === 'python') return `def ${fnName}(nums):\n    # your code here\n    pass\n`;
-    if (lang === 'java') return `public class Solution {\n    public static int ${fnName}(int[] nums) {\n        // your code here\n        return 0;\n    }\n}\n`;
-    if (lang === 'cpp') return `#include <iostream>\nusing namespace std;\n\nauto ${fnName}(auto... args) {\n    // your code here\n}\n`;
-    // default JS/TS
+    if (lang === 'python')
+        return `def ${fnName}(nums):\n    # your code here\n    pass\n`;
+    if (lang === 'java')
+        return `public class Solution {\n    public static Object ${fnName}(Object... args) {\n        // your code here\n        return null;\n    }\n}\n`;
+    if (lang === 'cpp')
+        return `#include <iostream>\nusing namespace std;\n\nauto ${fnName}() {\n    // your code here\n}\n`;
+    // Default JS/TS
     return `function ${fnName}(nums) {\n    // your code here\n}\n`;
 }
+
+const genericStarters = {
+    javascript: '// Write your solution here\n\n',
+    python:     '# Write your solution here\n\n',
+    typescript: '// Write your solution here\n\n',
+    java:       'public class Solution {\n    // Write your solution here\n}\n',
+    c:          '#include <stdio.h>\n\n// Write your solution here\n',
+    cpp:        '#include <iostream>\nusing namespace std;\n\n// Write your solution here\n',
+    go:         'package main\n\nimport "fmt"\n\n// Write your solution here\n',
+    rust:       'fn main() {\n    // Write your solution here\n}\n',
+    ruby:       '# Write your solution here\n\n',
+    sql:        '-- Write your SQL query here\n\n',
+};
+
 function startSection2() {
     currentSection = 2; codeIndex = 0;
     showEl($('#section2-wrap'));
@@ -777,13 +736,39 @@ function startSection2() {
         clearOutput();
         resetTestCaseUI();
     });
-    $('#code-textarea').addEventListener('keydown', e => {
-        if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); runAndTest(); }
+
+    const ta = $('#code-textarea');
+    ta.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); runAndTest(); return; }
+
+        // Tab → 4 spaces (works for all langs)
         if (e.key === 'Tab') {
             e.preventDefault();
-            const ta = e.target, s = ta.selectionStart, end = ta.selectionEnd;
+            const s = ta.selectionStart, end = ta.selectionEnd;
             ta.value = ta.value.substring(0, s) + '    ' + ta.value.substring(end);
             ta.selectionStart = ta.selectionEnd = s + 4;
+            return;
+        }
+
+        // FIX BUG 3 — Python auto-indent on Enter
+        // When Enter is pressed, carry the indentation of the current line forward.
+        // For Python, also add an extra level after lines ending with ':'
+        if (e.key === 'Enter') {
+            const lang = $('#code-lang').value;
+            const pos = ta.selectionStart;
+            const text = ta.value;
+            // Find start of current line
+            const lineStart = text.lastIndexOf('\n', pos - 1) + 1;
+            const currentLine = text.substring(lineStart, pos);
+            const indent = currentLine.match(/^(\s*)/)[1];
+            let extraIndent = '';
+            if (lang === 'python' && currentLine.trimEnd().endsWith(':')) {
+                extraIndent = '    '; // one extra level for python blocks
+            }
+            e.preventDefault();
+            const newText = text.substring(0, pos) + '\n' + indent + extraIndent + text.substring(ta.selectionEnd);
+            ta.value = newText;
+            ta.selectionStart = ta.selectionEnd = pos + 1 + indent.length + extraIndent.length;
         }
     });
 }
@@ -795,36 +780,15 @@ function buildCodeDots() {
     $(`#cd-0`)?.classList.add('active');
 }
 
-// ── Frontend problem bank (last-resort fallback for examples) ──
+// Frontend fallback examples for well-known problems
 const FRONT_BANK = {
-    maxSubarray: [
-        { input: 'nums = [-2,1,-3,4,-1,2,1,-5,4]', expectedDisplay: '6' },
-        { input: 'nums = [1]', expectedDisplay: '1' },
-    ],
-    twoSum: [
-        { input: 'nums = [2,7,11,15], target = 9', expectedDisplay: '[0, 1]' },
-        { input: 'nums = [3,2,4], target = 6', expectedDisplay: '[1, 2]' },
-    ],
-    reverseString: [
-        { input: 's = "hello"', expectedDisplay: '"olleh"' },
-        { input: 's = "Hannah"', expectedDisplay: '"hannaH"' },
-    ],
-    fibonacci: [
-        { input: 'n = 5', expectedDisplay: '5' },
-        { input: 'n = 10', expectedDisplay: '55' },
-    ],
-    isPalindrome: [
-        { input: 's = "racecar"', expectedDisplay: 'true' },
-        { input: 's = "hello"', expectedDisplay: 'false' },
-    ],
-    factorial: [
-        { input: 'n = 5', expectedDisplay: '120' },
-        { input: 'n = 0', expectedDisplay: '1' },
-    ],
-    binarySearch: [
-        { input: 'nums = [-1,0,3,5,9,12], target = 9', expectedDisplay: '4' },
-        { input: 'nums = [-1,0,3,5,9,12], target = 2', expectedDisplay: '-1' },
-    ],
+    maxSubarray:   [ { input:'nums = [-2,1,-3,4,-1,2,1,-5,4]', expectedDisplay:'6' }, { input:'nums = [1]', expectedDisplay:'1' } ],
+    twoSum:        [ { input:'nums = [2,7,11,15], target = 9', expectedDisplay:'[0, 1]' }, { input:'nums = [3,2,4], target = 6', expectedDisplay:'[1, 2]' } ],
+    reverseString: [ { input:'s = "hello"', expectedDisplay:'"olleh"' }, { input:'s = "Hannah"', expectedDisplay:'"hannaH"' } ],
+    fibonacci:     [ { input:'n = 5', expectedDisplay:'5' }, { input:'n = 10', expectedDisplay:'55' } ],
+    isPalindrome:  [ { input:'s = "racecar"', expectedDisplay:'true' }, { input:'s = "hello"', expectedDisplay:'false' } ],
+    factorial:     [ { input:'n = 5', expectedDisplay:'120' }, { input:'n = 0', expectedDisplay:'1' } ],
+    binarySearch:  [ { input:'nums = [-1,0,3,5,9,12], target = 9', expectedDisplay:'4' }, { input:'nums = [-1,0,3,5,9,12], target = 2', expectedDisplay:'-1' } ],
 };
 function matchProblemBankFrontend(text, fnSig) {
     const t = (text + ' ' + fnSig).toLowerCase();
@@ -847,88 +811,55 @@ function showCodeQuestion(idx) {
     setText('#code-q-num', `Coding ${idx+1} of ${qs.length}`);
     setText('#progress-label', `Coding ${idx+1} / ${qs.length}`);
 
-    // ── Title: derive from functionSignature (nicely formatted), full text as description ──
-    const fullText = q.text || '';
+    // Title
     let title = '';
     if (q.functionSignature) {
-        // camelCase → Title Case with spaces: "maxSubarray" → "Max Subarray"
-        title = q.functionSignature
-            .replace(/([A-Z])/g, ' $1')
-            .replace(/^./, s => s.toUpperCase())
-            .trim();
+        title = q.functionSignature.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase()).trim();
     } else {
-        // Fallback: use first sentence as title (up to 60 chars)
-        const dot = fullText.indexOf('. ');
-        title = dot > 0 && dot < 80 ? fullText.slice(0, dot) : `Problem ${idx + 1}`;
+        const dot = (q.text||'').indexOf('. ');
+        title = dot > 0 && dot < 80 ? q.text.slice(0, dot) : `Problem ${idx+1}`;
     }
     setText('#problem-title', title);
-    // Always show the FULL question text as description
-    setText('#code-q-text', fullText);
+    setText('#code-q-text', q.text || '');
 
-    // ── Difficulty badge ──
+    // Difficulty
     const diffEl = $('#problem-difficulty');
     const expLevel = interview?.expLevel || 'mid';
-    const diff = expLevel === 'entry' ? 'easy' : expLevel === 'senior' || expLevel === 'lead' ? 'hard' : 'medium';
+    const diff = expLevel === 'entry' ? 'easy' : (expLevel === 'senior' || expLevel === 'lead') ? 'hard' : 'medium';
     diffEl.textContent = diff.charAt(0).toUpperCase() + diff.slice(1);
     diffEl.className = `problem-difficulty ${diff}`;
 
-    // ── Render LeetCode-style examples from visible testCases ──
+    // Examples — testCases are already normalised (hidden is a real boolean)
     const examples = $('#problem-examples');
-    const allCases = q.testCases || [];
-    console.log('[DEBUG] testCases for q', idx, JSON.stringify(allCases));
-
-    // Coerce hidden to real boolean — AI sometimes returns "false" string or 0
-    const visibleCases = allCases.filter(tc => {
-        const h = tc.hidden;
-        return h === false || h === 0 || h === 'false' || h === null || h === undefined;
-    });
-    console.log('[DEBUG] visibleCases count:', visibleCases.length);
+    const allCases  = q.testCases || [];
+    const visibleCases = allCases.filter(tc => !tc.hidden);
 
     if (visibleCases.length > 0) {
         examples.innerHTML = visibleCases.map((tc, i) => {
-            const inputDisplay    = tc.input || tc.inputCode || '';
-            const expectedDisplay = tc.expectedDisplay || tc.expected || '';
-            const explanation     = tc.explanation || (i === 0 && q.explanation ? q.explanation : '');
+            const explanation = tc.explanation || (i === 0 && q.explanation ? q.explanation : '');
             return `<div class="example-block">
-                <div class="example-label">Example ${i + 1}:</div>
+                <div class="example-label">Example ${i+1}:</div>
                 <div class="example-code">
-                    <div class="example-line">
-                        <span class="example-key">Input:</span>
-                        <span class="example-val">${escHtml(inputDisplay)}</span>
-                    </div>
-                    <div class="example-line">
-                        <span class="example-key">Output:</span>
-                        <span class="example-val">${escHtml(expectedDisplay)}</span>
-                    </div>
+                    <div class="example-line"><span class="example-key">Input:</span><span class="example-val">${escHtml(tc.input)}</span></div>
+                    <div class="example-line"><span class="example-key">Output:</span><span class="example-val">${escHtml(tc.expectedDisplay)}</span></div>
                     ${explanation ? `<div class="example-line"><span class="example-key">Explanation:</span><span class="example-explanation">${escHtml(explanation)}</span></div>` : ''}
                 </div>
             </div>`;
         }).join('');
     } else if (allCases.length > 0) {
-        // All cases are hidden — show the first two anyway (better UX than blank)
-        examples.innerHTML = allCases.slice(0, 2).map((tc, i) => {
-            const inputDisplay    = tc.input || tc.inputCode || '';
-            const expectedDisplay = tc.expectedDisplay || tc.expected || '';
-            return `<div class="example-block">
-                <div class="example-label">Example ${i + 1}:</div>
-                <div class="example-code">
-                    <div class="example-line">
-                        <span class="example-key">Input:</span>
-                        <span class="example-val">${escHtml(inputDisplay)}</span>
-                    </div>
-                    <div class="example-line">
-                        <span class="example-key">Output:</span>
-                        <span class="example-val">${escHtml(expectedDisplay)}</span>
-                    </div>
-                </div>
-            </div>`;
-        }).join('');
+        // All hidden — show first two anyway
+        examples.innerHTML = allCases.slice(0, 2).map((tc, i) => `<div class="example-block">
+            <div class="example-label">Example ${i+1}:</div>
+            <div class="example-code">
+                <div class="example-line"><span class="example-key">Input:</span><span class="example-val">${escHtml(tc.input)}</span></div>
+                <div class="example-line"><span class="example-key">Output:</span><span class="example-val">${escHtml(tc.expectedDisplay)}</span></div>
+            </div>
+        </div>`).join('');
     } else {
-        // No test cases at all — build examples from problem bank as last resort
-        const known = matchProblemBankFrontend(q.text || '', q.functionSignature || '');
+        const known = matchProblemBankFrontend(q.text||'', q.functionSignature||'');
         if (known) {
-            examples.innerHTML = known.slice(0, 2).map((tc, i) => `<div class="example-block">
-                <div class="example-label">Example ${i + 1}:</div>
+            examples.innerHTML = known.slice(0,2).map((tc,i) => `<div class="example-block">
+                <div class="example-label">Example ${i+1}:</div>
                 <div class="example-code">
                     <div class="example-line"><span class="example-key">Input:</span><span class="example-val">${escHtml(tc.input)}</span></div>
                     <div class="example-line"><span class="example-key">Output:</span><span class="example-val">${escHtml(tc.expectedDisplay)}</span></div>
@@ -939,314 +870,314 @@ function showCodeQuestion(idx) {
         }
     }
 
-    // ── Note: show explanation only when no visible examples carry it ──
+    // Constraints / note
     const constraintsEl = $('#problem-constraints');
     if (q.explanation && visibleCases.length === 0) {
         constraintsEl.classList.remove('hidden');
-        constraintsEl.innerHTML = `<div class="constraints-title">Note</div>
-            <div class="constraint-item">${escHtml(q.explanation)}</div>`;
+        constraintsEl.innerHTML = `<div class="constraints-title">Note</div><div class="constraint-item">${escHtml(q.explanation)}</div>`;
     } else {
         constraintsEl.classList.add('hidden');
     }
 
-    // ── Set language ──
+    // Language
     const lang = q.language || 'javascript';
     const langEl = $('#code-lang');
     const opt = [...langEl.options].find(o => o.value === lang);
     if (opt) { langEl.value = lang; setText('#lang-badge', langBadge[lang] || lang.toUpperCase()); }
 
-    // ── Function signature hint ──
+    // Function signature hint
     const fnSig = q.functionSignature || 'solution';
     setText('#fn-sig-display', fnSig);
 
-    // ── Load starter code ──
+    // Starter code
     const ta = $('#code-textarea');
-    const fnSig = q.functionSignature || 'solution';
-    setText('#fn-sig-display', fnSig);
     ta.value = q.starterCode || buildStarter(fnSig, lang);
 
-    // ── Update dot states ──
+    // Dot states
     qs.forEach((_,i) => {
-        const d = $(`#cd-${i}`); if (!d) return;
+        const d=$(`#cd-${i}`); if(!d) return;
         d.classList.remove('active','done','skipped');
         if (i < idx) d.classList.add('done');
         else if (i === idx) d.classList.add('active');
     });
 
-    // ── Clear output & render test stubs ──
     clearOutput();
     renderTestCaseStubs(q.testCases || []);
 }
 
 function resetToStarter() {
-    const qs = getS2(), q = qs[codeIndex];
-    const lang = $('#code-lang').value;
-    const fnSig = q.functionSignature || 'solution';
-    $('#code-textarea').value = q.starterCode || buildStarter(fnSig, lang); '// Write your solution here\n\n';
-    clearOutput();
-    resetTestCaseUI();
-    showToast('Editor reset to starter code', 'info', 2000);
+    const qs=getS2(), q=qs[codeIndex];
+    const lang=$('#code-lang').value, fnSig=q.functionSignature||'solution';
+    $('#code-textarea').value = q.starterCode || buildStarter(fnSig, lang);
+    clearOutput(); resetTestCaseUI();
+    showToast('Editor reset to starter code','info',2000);
 }
 
+// ── FIX BUG 5: renderTestCaseStubs uses normalised boolean tc.hidden ──────────
 function renderTestCaseStubs(testCases) {
-    const list = $('#test-cases-list');
-    const summary = $('#test-summary');
-    summary.className = 'test-summary not-run';
-    summary.textContent = 'not run yet';
-
+    const list=$('#test-cases-list'), summary=$('#test-summary');
+    summary.className='test-summary not-run'; summary.textContent='not run yet';
     if (!testCases || testCases.length === 0) {
-        list.innerHTML = '<div style="font-size:.75rem;color:rgba(255,255,255,.25);font-family:monospace;padding:4px 0">No test cases available — run your code to check</div>';
+        list.innerHTML='<div style="font-size:.75rem;color:rgba(255,255,255,.25);font-family:monospace;padding:4px 0">No test cases available — run your code to check</div>';
         return;
     }
-
     list.innerHTML = testCases.map((tc, i) => {
-        const isHidden = tc.hidden;
+        // tc.hidden is now always a real boolean after normalisation
+        const isHidden = tc.hidden === true;
         return `<div class="test-case-row${isHidden?' hidden-case':''}" id="tc-row-${i}">
             <span class="test-icon" id="tc-icon-${i}">○</span>
             <span class="test-input">${isHidden ? `🔒 Hidden test ${i+1}` : escHtml(tc.input)}</span>
             <span class="test-arrow">→</span>
-            <span class="test-expected" id="tc-exp-${i}">${isHidden ? '???' : escHtml(tc.expectedDisplay || tc.expected)}</span>
+            <span class="test-expected" id="tc-exp-${i}">${isHidden ? '???' : escHtml(tc.expectedDisplay)}</span>
             <span class="test-got" id="tc-got-${i}"></span>
         </div>`;
     }).join('');
 }
 
-function resetTestCaseUI() {
-    const qs = getS2(), q = qs[codeIndex];
-    renderTestCaseStubs(q.testCases || []);
-}
-
-function clearOutput() {
-    const op = $('#output-panel');
-    op.className = 'output-panel'; op.textContent = '';
-}
-
+function resetTestCaseUI() { renderTestCaseStubs(getS2()[codeIndex]?.testCases || []); }
+function clearOutput() { const op=$('#output-panel'); op.className='output-panel'; op.textContent=''; }
 function showOutput(text, type='info') {
-    const op = $('#output-panel');
-    op.textContent = text;
-    op.className = `output-panel visible${type==='error'?' error':type==='info'?' info':''}`;
+    const op=$('#output-panel');
+    op.textContent=text;
+    op.className=`output-panel visible${type==='error'?' error':type==='info'?' info':''}`;
 }
 
 // ═══ TEST RUNNER ═══
 async function runAndTest() {
     if (isRunning) return;
-    const code = $('#code-textarea').value.trim();
-    const lang = $('#code-lang').value;
-    if (!code || code.length < 5) { showOutput('⚠️ Write some code first!', 'info'); return; }
+    const code=$('#code-textarea').value.trim();
+    const lang=$('#code-lang').value;
+    if (!code || code.length<5) { showOutput('⚠️ Write some code first!','info'); return; }
 
-    const qs = getS2(), q = qs[codeIndex];
-    const testCases = q.testCases || [];
+    const qs=getS2(), q=qs[codeIndex];
+    const testCases=q.testCases||[];
 
-    isRunning = true;
-    const btn = $('#run-btn');
-    btn.innerHTML = '<span style="display:inline-block;width:10px;height:10px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .65s linear infinite;vertical-align:middle;margin-right:6px"></span>Running…';
-    btn.disabled = true;
-
+    isRunning=true;
+    const btn=$('#run-btn');
+    btn.innerHTML='<span style="display:inline-block;width:10px;height:10px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .65s linear infinite;vertical-align:middle;margin-right:6px"></span>Running…';
+    btn.disabled=true;
     await sleep(200);
 
-    if (lang === 'javascript' || lang === 'typescript') {
+    if (lang==='javascript'||lang==='typescript') {
         runJsWithTests(code, testCases, q.functionSignature);
-    } else if (lang === 'python') {
+    } else if (lang==='python') {
         runPythonAnalysis(code, testCases, q.functionSignature);
     } else {
         runGenericAnalysis(code, lang, testCases);
     }
 
-    isRunning = false;
-    btn.innerHTML = '▶ Run &amp; Test';
-    btn.disabled = false;
+    isRunning=false;
+    btn.innerHTML='▶ Run &amp; Test';
+    btn.disabled=false;
 }
 
+// ── FIX BUG 1 & 2: robust comparison + reveal hidden results after run ──────
 function runJsWithTests(code, testCases, fnName) {
-    const consoleLogs = [];
-    const fakeConsole = {
-        log:   (...a) => consoleLogs.push(a.map(x => typeof x==='object'?JSON.stringify(x):String(x)).join(' ')),
-        error: (...a) => consoleLogs.push('ERR: '+a.join(' ')),
-        warn:  (...a) => consoleLogs.push('WARN: '+a.join(' ')),
+    const consoleLogs=[];
+    const fakeConsole={
+        log:   (...a)=>consoleLogs.push(a.map(x=>typeof x==='object'?JSON.stringify(x):String(x)).join(' ')),
+        error: (...a)=>consoleLogs.push('ERR: '+a.join(' ')),
+        warn:  (...a)=>consoleLogs.push('WARN: '+a.join(' ')),
     };
 
-    // Execute the student code
-    let userFn = null;
+    let userFn=null;
     try {
-        const __scope = {};
-        const wrapper = new Function('console', '__scope',
+        const __scope={};
+        const wrapper=new Function('console','__scope',
             code + (fnName
                 ? `\n__scope.fn = typeof ${fnName} !== 'undefined' ? ${fnName} : null;`
                 : '\n__scope.fn = null;')
         );
         wrapper(fakeConsole, __scope);
-        userFn = __scope.fn;
-    } catch (e) {
-        showOutput(`❌ Syntax/Runtime Error:\n${e.message}`, 'error');
-        markAllTestsFailed(testCases, 'error');
+        userFn=__scope.fn;
+    } catch(e) {
+        showOutput(`❌ Syntax/Runtime Error:\n${e.message}`,'error');
+        markAllTestsFailed(testCases,'error');
         updateTestSummary(0, testCases.length);
         return;
     }
 
-    let passed = 0, total = testCases.length;
-    const results = [];
-
-    if (!testCases || testCases.length === 0) {
-        // No test cases — just run and show console output
-        showOutput(consoleLogs.length ? `✅ Output:\n${consoleLogs.join('\n')}` : '✅ Code ran successfully (no console output)', 'success');
-        updateTestSummary(0, 0);
+    if (!testCases||testCases.length===0) {
+        showOutput(consoleLogs.length?`✅ Output:\n${consoleLogs.join('\n')}`:'✅ Code ran successfully (no console output)','success');
+        updateTestSummary(0,0);
         return;
     }
 
-    testCases.forEach((tc, i) => {
-        const row = $(`#tc-row-${i}`);
-        const icon = $(`#tc-icon-${i}`);
-        const gotEl = $(`#tc-got-${i}`);
-        if (!row) return;
+    let passed=0, total=testCases.length;
 
+    testCases.forEach((tc, i) => {
+        const row=$(`#tc-row-${i}`), icon=$(`#tc-icon-${i}`), gotEl=$(`#tc-got-${i}`), expEl=$(`#tc-exp-${i}`);
+        if (!row) return;
         row.classList.add('running');
 
         if (!userFn) {
-            // Can't run tests without a function — but code ran OK
-            row.classList.remove('running');
-            row.classList.add('fail');
-            if (icon) icon.textContent = '✗';
-            if (gotEl) { gotEl.textContent = `fn "${fnName}" not found`; gotEl.className='test-got wrong'; }
-            results.push(false);
+            row.classList.remove('running'); row.classList.add('fail');
+            if(icon) icon.textContent='✗';
+            if(gotEl){ gotEl.textContent=`fn "${fnName}" not found`; gotEl.className='test-got wrong'; }
+            // FIX BUG 2: reveal hidden expected even on fn-not-found
+            if(tc.hidden && expEl) expEl.textContent = tc.expectedDisplay;
             return;
         }
 
         try {
-            let args = [];
-            if (tc.inputCode && tc.inputCode !== '[]') {
-                try { args = JSON.parse(tc.inputCode); } catch(_) { args = []; }
+            let args=[];
+            if (tc.inputCode && tc.inputCode!=='[]') {
+                try { args=JSON.parse(tc.inputCode); } catch(_) { args=[]; }
             }
-            const result = userFn(...args);
-            const resultStr = JSON.stringify(result);
-            const expectedStr = tc.expected;
+            const result=userFn(...args);
 
-            // Compare: try JSON equality first, then string
-            let isPass = false;
-            try {
-                isPass = JSON.stringify(JSON.parse(resultStr)) === JSON.stringify(JSON.parse(expectedStr));
-            } catch(_) {
-                isPass = resultStr === expectedStr || String(result) === expectedStr;
-            }
+            // ── FIX BUG 1: deep-equal comparison, not stringify-of-stringify ──
+            const isPass = deepEqual(result, safeParseExpected(tc.expected));
 
-            row.classList.remove('running');
-            row.classList.add(isPass ? 'pass' : 'fail');
-            if (icon) icon.textContent = isPass ? '✓' : '✗';
+            row.classList.remove('running'); row.classList.add(isPass?'pass':'fail');
+            if(icon) icon.textContent=isPass?'✓':'✗';
+
+            const resultStr = JSON.stringify(result) ?? String(result);
+            const shortResult = resultStr.length>40 ? resultStr.slice(0,40)+'…' : resultStr;
 
             if (!tc.hidden) {
-                if (gotEl) {
-                    gotEl.textContent = `got: ${resultStr.length > 30 ? resultStr.slice(0,30)+'…' : resultStr}`;
-                    gotEl.className = `test-got ${isPass?'correct':'wrong'}`;
-                }
+                if(gotEl){ gotEl.textContent=`got: ${shortResult}`; gotEl.className=`test-got ${isPass?'correct':'wrong'}`; }
             } else {
-                // Hidden: reveal expected after run
-                const expEl = $(`#tc-exp-${i}`);
-                if (expEl) expEl.textContent = isPass ? tc.expectedDisplay || tc.expected : '???';
-                if (gotEl) {
-                    gotEl.textContent = isPass ? '✓ pass' : '✗ fail';
-                    gotEl.className = `test-got ${isPass?'correct':'wrong'}`;
-                }
+                // FIX BUG 2: always reveal hidden case result after run
+                if(expEl) expEl.textContent = tc.expectedDisplay;
+                if(gotEl){ gotEl.textContent=isPass?'✓ pass':`✗ got: ${shortResult}`; gotEl.className=`test-got ${isPass?'correct':'wrong'}`; }
             }
 
-            if (isPass) passed++;
-            results.push(isPass);
-        } catch (e) {
-            row.classList.remove('running');
-            row.classList.add('fail');
-            if (icon) icon.textContent = '✗';
-            if (gotEl) { gotEl.textContent = `error: ${e.message.slice(0,40)}`; gotEl.className='test-got wrong'; }
-            results.push(false);
+            if(isPass) passed++;
+        } catch(e) {
+            row.classList.remove('running'); row.classList.add('fail');
+            if(icon) icon.textContent='✗';
+            if(tc.hidden && expEl) expEl.textContent=tc.expectedDisplay; // reveal on error too
+            if(gotEl){ gotEl.textContent=`error: ${e.message.slice(0,40)}`; gotEl.className='test-got wrong'; }
         }
     });
 
     updateTestSummary(passed, total);
-
-    const logOutput = consoleLogs.length ? `\nConsole output:\n${consoleLogs.join('\n')}` : '';
-    if (passed === total) {
-        showOutput(`✅ All ${total} test${total!==1?'s':''} passed!${logOutput}`, 'success');
-    } else {
-        showOutput(`${passed}/${total} tests passed.${logOutput}\n\nHint: Review the failing cases and adjust your approach.`, 'info');
-    }
+    const logOutput=consoleLogs.length?`\nConsole output:\n${consoleLogs.join('\n')}`:'';
+    if (passed===total)
+        showOutput(`✅ All ${total} test${total!==1?'s':''} passed!${logOutput}`,'success');
+    else
+        showOutput(`${passed}/${total} tests passed.${logOutput}\n\nHint: Review the failing cases and adjust your approach.`,'info');
 }
 
+// ── Deep-equal helper (handles arrays, primitives, null) ─────────────────────
+function deepEqual(a, b) {
+    if (a === b) return true;
+    if (a === null || b === null) return a === b;
+    if (typeof a !== typeof b) {
+        // Allow numeric-string comparison: result=6, expected="6"
+        if (typeof a === 'number' && typeof b === 'string') return String(a) === b;
+        if (typeof a === 'string' && typeof b === 'number') return a === String(b);
+        if (typeof a === 'boolean' && typeof b === 'string') return String(a) === b;
+        return false;
+    }
+    if (Array.isArray(a) && Array.isArray(b)) {
+        if (a.length !== b.length) return false;
+        // For index-pair results like twoSum, sort before compare
+        const sa=[...a].sort((x,y)=>x-y), sb=[...b].sort((x,y)=>x-y);
+        return sa.every((v,i) => deepEqual(v, sb[i]));
+    }
+    if (typeof a === 'object') {
+        const ka=Object.keys(a).sort(), kb=Object.keys(b).sort();
+        if (ka.join()!==kb.join()) return false;
+        return ka.every(k => deepEqual(a[k], b[k]));
+    }
+    return false;
+}
+
+function safeParseExpected(expected) {
+    if (expected === undefined || expected === null) return null;
+    const s = String(expected).trim();
+    try { return JSON.parse(s); } catch(_) { return s; }
+}
+
+// ── FIX BUG 4: Python/other analysis never fakes passing tests ───────────────
 function runPythonAnalysis(code, testCases, fnName) {
-    // Static analysis for Python
-    const lines = code.split('\n');
-    const hasFunc   = lines.some(l => l.trim().startsWith('def '));
-    const hasFnName = fnName && lines.some(l => l.trim().startsWith(`def ${fnName}`));
-    const hasReturn = lines.some(l => l.trim().startsWith('return'));
-    const hasPrint  = lines.some(l => l.includes('print('));
-    const hasLoop   = lines.some(l => /^\s*(for|while)\s/.test(l));
+    const lines=code.split('\n');
+    const hasFnName=fnName&&lines.some(l=>l.trim().startsWith(`def ${fnName}`));
+    const hasFunc=lines.some(l=>l.trim().startsWith('def '));
+    const hasReturn=lines.some(l=>l.trim().startsWith('return'));
+    const hasPrint=lines.some(l=>l.includes('print('));
+    const hasLoop=lines.some(l=>/^\s*(for|while)\s/.test(l));
 
-    const checks = [];
-    if (hasFnName) checks.push(`✓ Function "${fnName}" defined`);
-    else if (hasFunc) checks.push(`⚠ Function found but expected "${fnName || 'solution'}"`);
-    if (hasReturn) checks.push('✓ Return statement present');
-    if (hasLoop) checks.push('✓ Loop structure detected');
-    if (hasPrint) checks.push('✓ Print/debug output present');
-    if (checks.length === 0) checks.push('ℹ Basic code structure detected');
+    const checks=[];
+    if(hasFnName) checks.push(`✓ Function "${fnName}" defined`);
+    else if(hasFunc) checks.push(`⚠ Function found but expected "${fnName||'solution'}"`);
+    if(hasReturn) checks.push('✓ Return statement present');
+    if(hasLoop) checks.push('✓ Loop structure detected');
+    if(hasPrint) checks.push('✓ Print/debug output present');
+    if(checks.length===0) checks.push('ℹ Basic code structure detected');
 
-    const canTest = hasFnName || hasFunc;
-    markAllTestsInfo(testCases, canTest ? '(run in browser)' : `(needs "${fnName || 'solution'}")`);
-    updateTestSummary(canTest ? testCases.length : 0, testCases.length);
+    // FIX BUG 4: mark tests as "info / pending" — never as passing
+    markAllTestsInfo(testCases,'(Python: manual review)');
+    updateTestSummary(0, testCases.length, /*pending=*/true);
 
-    showOutput('🐍 Python Analysis:\n' + checks.join('\n') + '\n\nNote: Python tests run statically — actual execution requires a backend runner.\nYour code logic will be evaluated during the interview review.', 'info');
+    showOutput(
+        '🐍 Python Analysis:\n'+checks.join('\n')
+        +'\n\nNote: Python execution requires a server-side runner.'
+        +'\nYour code will be evaluated during interview review.'
+        ,'info'
+    );
 }
 
 function runGenericAnalysis(code, lang, testCases) {
-    markAllTestsInfo(testCases, '(manual review)');
-    updateTestSummary(0, testCases.length);
-    showOutput(`✅ ${lang.toUpperCase()} code recorded.\n\nTest cases for this language require manual review.\nReviewers will evaluate your logic and approach.\n\nClick "Submit code" when ready.`, 'info');
+    // FIX BUG 4: same — never fake passing
+    markAllTestsInfo(testCases,'(manual review)');
+    updateTestSummary(0, testCases.length, /*pending=*/true);
+    showOutput(`✅ ${lang.toUpperCase()} code recorded.\n\nTest cases require manual review.\nReviewers will evaluate your logic.\n\nClick "Submit code" when ready.`,'info');
 }
 
 function markAllTestsFailed(testCases, reason) {
-    (testCases||[]).forEach((_,i) => {
-        const row=$(`#tc-row-${i}`), icon=$(`#tc-icon-${i}`), got=$(`#tc-got-${i}`);
+    (testCases||[]).forEach((_,i)=>{
+        const row=$(`#tc-row-${i}`),icon=$(`#tc-icon-${i}`),got=$(`#tc-got-${i}`),exp=$(`#tc-exp-${i}`);
         if(row){row.classList.remove('running');row.classList.add('fail');}
         if(icon) icon.textContent='✗';
         if(got){got.textContent=reason;got.className='test-got wrong';}
     });
 }
 function markAllTestsInfo(testCases, note) {
-    (testCases||[]).forEach((_,i) => {
-        const icon=$(`#tc-icon-${i}`), got=$(`#tc-got-${i}`);
+    (testCases||[]).forEach((tc,i)=>{
+        const icon=$(`#tc-icon-${i}`),got=$(`#tc-got-${i}`),exp=$(`#tc-exp-${i}`);
         if(icon) icon.textContent='ℹ';
         if(got){got.textContent=note;got.className='test-got';}
+        // Don't reveal expected for pending non-JS tests
     });
 }
-function updateTestSummary(passed, total) {
-    const el = $('#test-summary');
-    if (total === 0) { el.className='test-summary not-run'; el.textContent='no test cases'; return; }
-    if (passed === total) { el.className='test-summary all-pass'; el.textContent=`${passed}/${total} passed ✓`; }
-    else { el.className='test-summary some-fail'; el.textContent=`${passed}/${total} passed`; }
+// FIX BUG 4: added `pending` param — pending tests shown as grey, not green
+function updateTestSummary(passed, total, pending=false) {
+    const el=$('#test-summary');
+    if(total===0){el.className='test-summary not-run';el.textContent='no test cases';return;}
+    if(pending){el.className='test-summary not-run';el.textContent=`${total} pending (manual review)`;return;}
+    if(passed===total){el.className='test-summary all-pass';el.textContent=`${passed}/${total} passed ✓`;}
+    else{el.className='test-summary some-fail';el.textContent=`${passed}/${total} passed`;}
 }
 
 function handleCodeSubmit() {
-    const code = $('#code-textarea').value.trim();
-    const lang = $('#code-lang').value;
-    if (!code || code.length < 5) { showToast('Write some code before submitting', 'warning'); return; }
-    const qs = getS2();
-    saveAnswer(qs[codeIndex]?.text||'', `[CODE:${lang.toUpperCase()}]\n${code}`);
-    const d = $(`#cd-${codeIndex}`);
-    if (d) { d.classList.remove('active'); d.classList.add('done'); }
-    showToast('Code submitted! ✅', 'success');
-    if (codeIndex < qs.length-1) showCodeQuestion(codeIndex+1);
-    else endSection2();
+    const code=$('#code-textarea').value.trim(), lang=$('#code-lang').value;
+    if(!code||code.length<5){showToast('Write some code before submitting','warning');return;}
+    const qs=getS2();
+    saveAnswer(qs[codeIndex]?.text||'',`[CODE:${lang.toUpperCase()}]\n${code}`);
+    const d=$(`#cd-${codeIndex}`);
+    if(d){d.classList.remove('active');d.classList.add('done');}
+    showToast('Code submitted! ✅','success');
+    if(codeIndex<qs.length-1) showCodeQuestion(codeIndex+1); else endSection2();
 }
 function handleCodeSkip() {
-    const qs = getS2(), d = $(`#cd-${codeIndex}`);
-    if (d) { d.classList.remove('active'); d.classList.add('skipped'); }
-    saveAnswer(qs[codeIndex]?.text||'', '[Skipped]');
-    if (codeIndex < qs.length-1) showCodeQuestion(codeIndex+1);
-    else endSection2();
+    const qs=getS2(), d=$(`#cd-${codeIndex}`);
+    if(d){d.classList.remove('active');d.classList.add('skipped');}
+    saveAnswer(qs[codeIndex]?.text||'','[Skipped]');
+    if(codeIndex<qs.length-1) showCodeQuestion(codeIndex+1); else endSection2();
 }
 function endSection2() {
     hideEl($('#section2-wrap')); updatePills(3);
     showSectionOverlay(3, () => startSection3());
 }
 
-// ═══ SECTION 3: VIDEO ═══
+// ═══════════════════════════════════════════════════════
+// SECTION 3: VIDEO
+// ═══════════════════════════════════════════════════════
 async function startSection3() {
-    currentSection = 3; viIndex = 0;
+    currentSection=3; viIndex=0;
     document.body.classList.add('video-mode');
     showEl($('#section3-wrap'));
     buildViDots(); await initCamera(); initSpeech(); await showViQuestion(0);
@@ -1254,85 +1185,90 @@ async function startSection3() {
     $('#vi-skip-btn').addEventListener('click', handleViSkip);
     $('#vi-mic-btn').addEventListener('click', toggleMic);
     $('#vi-cam-btn').addEventListener('click', toggleCam);
-    $('#vi-answer').addEventListener('keydown', e => { if(e.key==='Enter'&&e.ctrlKey){e.preventDefault();handleViSubmit();} });
+    $('#vi-answer').addEventListener('keydown', e=>{if(e.key==='Enter'&&e.ctrlKey){e.preventDefault();handleViSubmit();}});
 }
 function buildViDots() {
-    const qs = getS3();
-    $('#vi-progress-dots').innerHTML = qs.map((q,i) =>
+    const qs=getS3();
+    $('#vi-progress-dots').innerHTML=qs.map((q,i)=>
         `<div class="qd" id="vd-${i}" title="${q.category==='behavioral'?'🧠 Behavioral':'⚙️ Technical'}"></div>`
-    ).join('') + `<span style="font-size:.72rem;color:rgba(255,255,255,.4);margin-left:6px">Video Interview</span>`;
+    ).join('')+`<span style="font-size:.72rem;color:rgba(255,255,255,.4);margin-left:6px">Video Interview</span>`;
     $(`#vd-0`)?.classList.add('active');
 }
 async function showViQuestion(idx) {
-    const qs = getS3();
-    if (idx >= qs.length) { endSection3(); return; }
-    viIndex = idx; const q = qs[idx];
-    $('#vi-q-text').innerHTML = '<div class="vi-typing-dots"><span></span><span></span><span></span></div>';
-    $('#vi-answer').value = '';
-    qs.forEach((_,i) => {
-        const d=$(`#vd-${i}`); if(!d) return;
+    const qs=getS3();
+    if(idx>=qs.length){endSection3();return;}
+    viIndex=idx; const q=qs[idx];
+    $('#vi-q-text').innerHTML='<div class="vi-typing-dots"><span></span><span></span><span></span></div>';
+    $('#vi-answer').value='';
+    qs.forEach((_,i)=>{
+        const d=$(`#vd-${i}`);if(!d)return;
         d.classList.remove('active','done','skipped');
-        if(i<idx)d.classList.add('done'); else if(i===idx)d.classList.add('active');
+        if(i<idx)d.classList.add('done');else if(i===idx)d.classList.add('active');
     });
-    setText('#progress-label', `Video ${idx+1} / ${qs.length}`);
+    setText('#progress-label',`Video ${idx+1} / ${qs.length}`);
     await sleep(1000);
-    const introText = idx===0 ? `Hi! I'm Alex, your interviewer. We have ${qs.length} questions — ${qs.filter(q=>q.category!=='behavioral').length} technical and ${qs.filter(q=>q.category==='behavioral').length} behavioral. Let's begin! ${q.text}` : q.text;
-    const typeBadge = q.category==='behavioral' ? `<div class="vi-q-type-badge vi-q-type-behavioral">🧠 Behavioral</div>` : `<div class="vi-q-type-badge vi-q-type-technical">⚙️ Technical</div>`;
-    $('#vi-q-text').innerHTML = typeBadge + '<div>' + escHtml(q.text) + '</div>';
+    const introText=idx===0
+        ?`Hi! I'm Alex, your interviewer. We have ${qs.length} questions — ${qs.filter(q=>q.category!=='behavioral').length} technical and ${qs.filter(q=>q.category==='behavioral').length} behavioral. Let's begin! ${q.text}`
+        :q.text;
+    const typeBadge=q.category==='behavioral'
+        ?`<div class="vi-q-type-badge vi-q-type-behavioral">🧠 Behavioral</div>`
+        :`<div class="vi-q-type-badge vi-q-type-technical">⚙️ Technical</div>`;
+    $('#vi-q-text').innerHTML=typeBadge+'<div>'+escHtml(q.text)+'</div>';
     await speakText(introText);
 }
 async function handleViSubmit() {
-    if (isSubmitting) return;
-    const answer = $('#vi-answer').value.trim();
-    if (!answer || answer.length < 5) { showToast('Please give a more complete answer', 'warning'); return; }
-    isSubmitting = true;
-    if (isMicOn) { recognition?.stop(); isMicOn=false; updateMicBtn(); $('#rec-dot').classList.add('hidden'); }
-    const btn = $('#vi-submit-btn'); btn.disabled=true; btn.textContent='⏳';
-    const qs = getS3(); saveAnswer(qs[viIndex]?.text||'', answer);
-    const d = $(`#vd-${viIndex}`); if(d){d.classList.remove('active');d.classList.add('done');}
-    isSubmitting=false; btn.disabled=false; btn.textContent='➤';
-    if (viIndex < qs.length-1) await showViQuestion(viIndex+1); else endSection3();
+    if(isSubmitting)return;
+    const answer=$('#vi-answer').value.trim();
+    if(!answer||answer.length<5){showToast('Please give a more complete answer','warning');return;}
+    isSubmitting=true;
+    if(isMicOn){recognition?.stop();isMicOn=false;updateMicBtn();$('#rec-dot').classList.add('hidden');}
+    const btn=$('#vi-submit-btn');btn.disabled=true;btn.textContent='⏳';
+    const qs=getS3();saveAnswer(qs[viIndex]?.text||'',answer);
+    const d=$(`#vd-${viIndex}`);if(d){d.classList.remove('active');d.classList.add('done');}
+    isSubmitting=false;btn.disabled=false;btn.textContent='➤';
+    if(viIndex<qs.length-1) await showViQuestion(viIndex+1); else endSection3();
 }
 function handleViSkip() {
-    const qs=getS3(), d=$(`#vd-${viIndex}`);
+    const qs=getS3(),d=$(`#vd-${viIndex}`);
     if(d){d.classList.remove('active');d.classList.add('skipped');}
     saveAnswer(qs[viIndex]?.text||'','[Skipped]');
     if(viIndex<qs.length-1) showViQuestion(viIndex+1); else endSection3();
 }
 function endSection3() {
     if(isMicOn){recognition?.stop();isMicOn=false;}
-    window.speechSynthesis?.cancel(); mediaStream?.getTracks().forEach(t=>t.stop());
-    document.body.classList.remove('video-mode'); hideEl($('#section3-wrap')); clearInterval(timerInterval);
-    showEl($('#complete-wrap')); $('#get-report-btn').addEventListener('click', handleEvaluate);
+    window.speechSynthesis?.cancel();mediaStream?.getTracks().forEach(t=>t.stop());
+    document.body.classList.remove('video-mode');hideEl($('#section3-wrap'));clearInterval(timerInterval);
+    showEl($('#complete-wrap'));$('#get-report-btn').addEventListener('click',handleEvaluate);
 }
 async function initCamera() {
-    try { mediaStream=await navigator.mediaDevices.getUserMedia({video:true,audio:false}); const v=$('#user-video'); if(v)v.srcObject=mediaStream; isCamOn=true; }
-    catch(_) { isCamOn=false; showEl($('#cam-off')); hideEl($('#user-video')); }
+    try{mediaStream=await navigator.mediaDevices.getUserMedia({video:true,audio:false});const v=$('#user-video');if(v)v.srcObject=mediaStream;isCamOn=true;}
+    catch(_){isCamOn=false;showEl($('#cam-off'));hideEl($('#user-video'));}
 }
 function toggleCam() {
-    isCamOn=!isCamOn; const v=$('#user-video'),off=$('#cam-off'),btn=$('#vi-cam-btn');
+    isCamOn=!isCamOn;const v=$('#user-video'),off=$('#cam-off'),btn=$('#vi-cam-btn');
     if(isCamOn){showEl(v);hideEl(off);btn.classList.remove('off');initCamera();}
     else{hideEl(v);showEl(off);btn.classList.add('off');mediaStream?.getTracks().forEach(t=>t.stop());}
 }
 function initSpeech() {
-    const SR=window.SpeechRecognition||window.webkitSpeechRecognition; if(!SR)return;
-    recognition=new SR(); recognition.continuous=true; recognition.interimResults=true; recognition.lang='en-US';
-    recognition.onresult=e=>{ const t=Array.from(e.results).map(r=>r[0].transcript).join(''); $('#vi-answer').value=t; const w=$('#transcript-content'); if(w)w.innerHTML=`<div class="transcript-line">${escHtml(t)}</div>`; };
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return;
+    recognition=new SR();recognition.continuous=true;recognition.interimResults=true;recognition.lang='en-US';
+    recognition.onresult=e=>{const t=Array.from(e.results).map(r=>r[0].transcript).join('');$('#vi-answer').value=t;const w=$('#transcript-content');if(w)w.innerHTML=`<div class="transcript-line">${escHtml(t)}</div>`;};
     recognition.onerror=()=>{isMicOn=false;updateMicBtn();$('#rec-dot').classList.add('hidden');};
 }
 function toggleMic() {
     if(!recognition){showToast('Speech recognition not supported in this browser','warning');return;}
     isMicOn=!isMicOn;
-    if(isMicOn){recognition.start();$('#rec-dot').classList.remove('hidden');} else{recognition.stop();$('#rec-dot').classList.add('hidden');}
+    if(isMicOn){recognition.start();$('#rec-dot').classList.remove('hidden');}else{recognition.stop();$('#rec-dot').classList.add('hidden');}
     updateMicBtn();
 }
-function updateMicBtn() { const btn=$('#vi-mic-btn'); if(!btn)return; if(isMicOn)btn.classList.add('recording'); else btn.classList.remove('recording'); }
+function updateMicBtn(){const btn=$('#vi-mic-btn');if(!btn)return;if(isMicOn)btn.classList.add('recording');else btn.classList.remove('recording');}
 function speakText(text) {
-    return new Promise(resolve => {
+    return new Promise(resolve=>{
         if(!window.speechSynthesis){resolve();return;}
         window.speechSynthesis.cancel();
-        const u=new SpeechSynthesisUtterance(text); u.rate=0.9; u.pitch=1.0; u.volume=1.0;
-        const vs=window.speechSynthesis.getVoices(); const v=vs.find(v=>v.name.includes('Google')&&v.lang.startsWith('en'))||vs.find(v=>v.lang.startsWith('en'))||vs[0];
+        const u=new SpeechSynthesisUtterance(text);u.rate=0.9;u.pitch=1.0;u.volume=1.0;
+        const vs=window.speechSynthesis.getVoices();
+        const v=vs.find(v=>v.name.includes('Google')&&v.lang.startsWith('en'))||vs.find(v=>v.lang.startsWith('en'))||vs[0];
         if(v)u.voice=v;
         u.onstart=()=>{$('#ai-avatar').classList.add('speaking');$('#soundwave').classList.add('active');};
         u.onend=()=>{$('#ai-avatar').classList.remove('speaking');$('#soundwave').classList.remove('active');resolve();};
@@ -1342,20 +1278,20 @@ function speakText(text) {
 }
 
 // ═══ ANSWERS & EVALUATE ═══
-function saveAnswer(question, answer) { localAnswers.push({question,answer,answeredAt:new Date().toISOString()}); }
+function saveAnswer(question,answer){localAnswers.push({question,answer,answeredAt:new Date().toISOString()});}
 async function handleEvaluate() {
-    const btn=$('#get-report-btn'), spinner=$('#report-spinner');
-    showEl(spinner); setLoading(btn,true,'Generating report…');
-    try {
-        const totalQs = interview.questions?.length||1;
+    const btn=$('#get-report-btn'),spinner=$('#report-spinner');
+    showEl(spinner);setLoading(btn,true,'Generating report…');
+    try{
+        const totalQs=interview.questions?.length||1;
         for(let i=0;i<localAnswers.length;i++){
-            try{ await interviewApi.answer(interview._id,{questionIndex:Math.min(i,totalQs-1),answer:localAnswers[i].answer}); }catch(_){}
+            try{await interviewApi.answer(interview._id,{questionIndex:Math.min(i,totalQs-1),answer:localAnswers[i].answer});}catch(_){}
         }
         await interviewApi.evaluate(interview._id);
         location.href=`/pages/report.html?id=${interview._id}`;
-    } catch(err) {
+    }catch(err){
         showToast(err.message||'Could not generate report','error');
-        hideEl(spinner); setLoading(btn,false,'Get My Report →');
+        hideEl(spinner);setLoading(btn,false,'Get My Report →');
     }
 }
 
@@ -1363,6 +1299,7 @@ async function handleEvaluate() {
 function setText(sel,val){const el=$(sel);if(el)el.textContent=val;}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 function escHtml(str=''){return String(str).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
 </script>
 </body>
 </html>
