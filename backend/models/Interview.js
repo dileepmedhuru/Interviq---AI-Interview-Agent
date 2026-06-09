@@ -9,6 +9,12 @@ const testCaseSchema = new mongoose.Schema({
     explanation:     { type: String, default: null },
 }, { _id: false });
 
+const exampleSchema = new mongoose.Schema({
+    input:       { type: String, default: '' },
+    output:      { type: String, default: '' },
+    explanation: { type: String, default: null },
+}, { _id: false });
+
 const questionSchema = new mongoose.Schema({
     id:                Number,
     section:           { type: Number, enum: [1, 2, 3], default: null },
@@ -22,6 +28,11 @@ const questionSchema = new mongoose.Schema({
     functionSignature: String,
     starterCode:       String,
     testCases:         { type: [testCaseSchema], default: undefined },
+    // LeetCode-style rich fields
+    title:             { type: String, default: null },
+    difficulty:        { type: String, enum: ['easy', 'medium', 'hard', null], default: null },
+    constraints:       { type: [String], default: [] },
+    examples:          { type: [exampleSchema], default: [] },
 }, { _id: false });
 
 const answerSchema = new mongoose.Schema({

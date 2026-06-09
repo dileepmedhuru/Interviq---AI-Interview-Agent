@@ -10,181 +10,575 @@ async function callAI(prompt, maxTokens = 1500) {
     return response.choices[0].message.content;
 }
 
-// ─── Hardcoded well-known problem banks keyed by common algorithm topics ────────
-// Used as fallback when AI doesn't generate good test cases
+// ─── Expanded problem bank — 25 diverse algorithmic problems ─────────────────
 const PROBLEM_BANK = {
-    maxSubarray: {
-        functionSignature: 'maxSubarray',
-        starterCode: 'function maxSubarray(nums) {\n  // your code here\n}',
-        testCases: [
-            { input: 'nums = [-2,1,-3,4,-1,2,1,-5,4]', inputCode: '[[-2,1,-3,4,-1,2,1,-5,4]]', expected: '6', expectedDisplay: '6', hidden: false },
-            { input: 'nums = [1]', inputCode: '[[1]]', expected: '1', expectedDisplay: '1', hidden: false },
-            { input: 'nums = [5,4,-1,7,8]', inputCode: '[[5,4,-1,7,8]]', expected: '23', expectedDisplay: '23', hidden: true },
-            { input: 'nums = [-1,-2,-3]', inputCode: '[[-1,-2,-3]]', expected: '-1', expectedDisplay: '-1', hidden: true },
-        ],
-    },
     twoSum: {
+        title: 'Two Sum',
+        difficulty: 'easy',
+        description: 'Given an array of integers `nums` and an integer `target`, return the indices of the two numbers that add up to `target`. You may assume exactly one solution exists, and you may not use the same element twice.',
+        constraints: ['2 ≤ nums.length ≤ 10⁴', '-10⁹ ≤ nums[i] ≤ 10⁹', 'Exactly one valid answer exists'],
+        examples: [
+            { input: 'nums = [2,7,11,15], target = 9', output: '[0,1]', explanation: 'nums[0] + nums[1] = 2 + 7 = 9' },
+            { input: 'nums = [3,2,4], target = 6',     output: '[1,2]', explanation: 'nums[1] + nums[2] = 2 + 4 = 6' },
+        ],
         functionSignature: 'twoSum',
-        starterCode: 'function twoSum(nums, target) {\n  // your code here\n}',
+        starterCode: 'function twoSum(nums, target) {\n    // your code here\n}',
         testCases: [
-            { input: 'nums = [2,7,11,15], target = 9', inputCode: '[[2,7,11,15], 9]', expected: '[0,1]', expectedDisplay: '[0, 1]', hidden: false },
-            { input: 'nums = [3,2,4], target = 6', inputCode: '[[3,2,4], 6]', expected: '[1,2]', expectedDisplay: '[1, 2]', hidden: false },
-            { input: 'nums = [3,3], target = 6', inputCode: '[[3,3], 6]', expected: '[0,1]', expectedDisplay: '[0, 1]', hidden: true },
+            { input: 'nums = [2,7,11,15], target = 9', inputCode: '[[2,7,11,15], 9]',    expected: '[0,1]',    expectedDisplay: '[0, 1]',    hidden: false },
+            { input: 'nums = [3,2,4], target = 6',     inputCode: '[[3,2,4], 6]',         expected: '[1,2]',    expectedDisplay: '[1, 2]',    hidden: false },
+            { input: 'nums = [3,3], target = 6',       inputCode: '[[3,3], 6]',            expected: '[0,1]',    expectedDisplay: '[0, 1]',    hidden: true  },
+            { input: 'nums = [1,5,3,7], target = 8',   inputCode: '[[1,5,3,7], 8]',        expected: '[1,3]',    expectedDisplay: '[1, 3]',    hidden: true  },
         ],
     },
+
+    maxSubarray: {
+        title: 'Maximum Subarray',
+        difficulty: 'medium',
+        description: 'Given an integer array `nums`, find the contiguous subarray which has the largest sum, and return its sum. A subarray must contain at least one number.',
+        constraints: ['1 ≤ nums.length ≤ 10⁵', '-10⁴ ≤ nums[i] ≤ 10⁴'],
+        examples: [
+            { input: 'nums = [-2,1,-3,4,-1,2,1,-5,4]', output: '6',  explanation: 'Subarray [4,-1,2,1] has the largest sum = 6' },
+            { input: 'nums = [5,4,-1,7,8]',             output: '23', explanation: 'The entire array is the subarray' },
+        ],
+        functionSignature: 'maxSubarray',
+        starterCode: 'function maxSubarray(nums) {\n    // your code here\n}',
+        testCases: [
+            { input: 'nums = [-2,1,-3,4,-1,2,1,-5,4]', inputCode: '[[-2,1,-3,4,-1,2,1,-5,4]]', expected: '6',   expectedDisplay: '6',   hidden: false },
+            { input: 'nums = [1]',                      inputCode: '[[1]]',                      expected: '1',   expectedDisplay: '1',   hidden: false },
+            { input: 'nums = [5,4,-1,7,8]',             inputCode: '[[5,4,-1,7,8]]',             expected: '23',  expectedDisplay: '23',  hidden: true  },
+            { input: 'nums = [-1,-2,-3]',               inputCode: '[[-1,-2,-3]]',               expected: '-1',  expectedDisplay: '-1',  hidden: true  },
+        ],
+    },
+
     reverseString: {
+        title: 'Reverse String',
+        difficulty: 'easy',
+        description: 'Write a function that reverses a string. The input string is given as a character array. You must do it in-place with O(1) extra memory. Return the reversed string.',
+        constraints: ['1 ≤ s.length ≤ 10⁵', 's[i] is a printable ASCII character'],
+        examples: [
+            { input: 's = "hello"',   output: '"olleh"' },
+            { input: 's = "Hannah"',  output: '"hannaH"' },
+        ],
         functionSignature: 'reverseString',
-        starterCode: 'function reverseString(s) {\n  // your code here\n}',
+        starterCode: 'function reverseString(s) {\n    // your code here\n}',
         testCases: [
-            { input: 's = "hello"', inputCode: '["hello"]', expected: '"olleh"', expectedDisplay: '"olleh"', hidden: false },
-            { input: 's = "Hannah"', inputCode: '["Hannah"]', expected: '"hannaH"', expectedDisplay: '"hannaH"', hidden: false },
-            { input: 's = "racecar"', inputCode: '["racecar"]', expected: '"racecar"', expectedDisplay: '"racecar"', hidden: true },
+            { input: 's = "hello"',    inputCode: '["hello"]',    expected: '"olleh"',   expectedDisplay: '"olleh"',   hidden: false },
+            { input: 's = "Hannah"',   inputCode: '["Hannah"]',   expected: '"hannaH"',  expectedDisplay: '"hannaH"',  hidden: false },
+            { input: 's = "racecar"',  inputCode: '["racecar"]',  expected: '"racecar"', expectedDisplay: '"racecar"', hidden: true  },
+            { input: 's = "abcde"',    inputCode: '["abcde"]',    expected: '"edcba"',   expectedDisplay: '"edcba"',   hidden: true  },
         ],
     },
+
     fibonacci: {
+        title: 'Fibonacci Number',
+        difficulty: 'easy',
+        description: 'The Fibonacci numbers form a sequence where each number is the sum of the two preceding ones. Given `n`, calculate `F(n)` where F(0) = 0, F(1) = 1.',
+        constraints: ['0 ≤ n ≤ 30'],
+        examples: [
+            { input: 'n = 5',  output: '5',  explanation: 'F(5) = F(4) + F(3) = 3 + 2 = 5' },
+            { input: 'n = 10', output: '55', explanation: 'F(10) = 55' },
+        ],
         functionSignature: 'fibonacci',
-        starterCode: 'function fibonacci(n) {\n  // your code here\n}',
+        starterCode: 'function fibonacci(n) {\n    // your code here\n}',
         testCases: [
-            { input: 'n = 5', inputCode: '[5]', expected: '5', expectedDisplay: '5', hidden: false },
+            { input: 'n = 5',  inputCode: '[5]',  expected: '5',  expectedDisplay: '5',  hidden: false },
             { input: 'n = 10', inputCode: '[10]', expected: '55', expectedDisplay: '55', hidden: false },
-            { input: 'n = 0', inputCode: '[0]', expected: '0', expectedDisplay: '0', hidden: true },
-            { input: 'n = 1', inputCode: '[1]', expected: '1', expectedDisplay: '1', hidden: true },
+            { input: 'n = 0',  inputCode: '[0]',  expected: '0',  expectedDisplay: '0',  hidden: true  },
+            { input: 'n = 1',  inputCode: '[1]',  expected: '1',  expectedDisplay: '1',  hidden: true  },
         ],
     },
+
     isPalindrome: {
+        title: 'Valid Palindrome',
+        difficulty: 'easy',
+        description: 'A phrase is a palindrome if, after converting all uppercase letters to lowercase and removing all non-alphanumeric characters, it reads the same forward and backward. Given a string `s`, return `true` if it is a palindrome, or `false` otherwise.',
+        constraints: ['1 ≤ s.length ≤ 2 × 10⁵', 's consists only of printable ASCII characters'],
+        examples: [
+            { input: 's = "racecar"',                    output: 'true',  explanation: '"racecar" reads the same forwards and backwards' },
+            { input: 's = "hello"',                      output: 'false', explanation: '"hello" is not a palindrome' },
+        ],
         functionSignature: 'isPalindrome',
-        starterCode: 'function isPalindrome(s) {\n  // your code here\n}',
+        starterCode: 'function isPalindrome(s) {\n    // your code here\n}',
         testCases: [
-            { input: 's = "racecar"', inputCode: '["racecar"]', expected: 'true', expectedDisplay: 'true', hidden: false },
-            { input: 's = "hello"', inputCode: '["hello"]', expected: 'false', expectedDisplay: 'false', hidden: false },
-            { input: 's = "A man a plan a canal Panama"', inputCode: '["amanaplanacanalpanama"]', expected: 'true', expectedDisplay: 'true', hidden: true },
+            { input: 's = "racecar"',                    inputCode: '["racecar"]',                    expected: 'true',  expectedDisplay: 'true',  hidden: false },
+            { input: 's = "hello"',                      inputCode: '["hello"]',                      expected: 'false', expectedDisplay: 'false', hidden: false },
+            { input: 's = "A man a plan a canal Panama"', inputCode: '["amanaplanacanalpanama"]',       expected: 'true',  expectedDisplay: 'true',  hidden: true  },
+            { input: 's = "race a car"',                  inputCode: '["race a car"]',                 expected: 'false', expectedDisplay: 'false', hidden: true  },
         ],
     },
+
     factorial: {
+        title: 'Factorial',
+        difficulty: 'easy',
+        description: 'Given a non-negative integer `n`, return its factorial. The factorial of n is defined as n! = 1 × 2 × … × n. Special case: 0! = 1.',
+        constraints: ['0 ≤ n ≤ 12'],
+        examples: [
+            { input: 'n = 5', output: '120', explanation: '5! = 5 × 4 × 3 × 2 × 1 = 120' },
+            { input: 'n = 0', output: '1',   explanation: '0! = 1 by definition' },
+        ],
         functionSignature: 'factorial',
-        starterCode: 'function factorial(n) {\n  // your code here\n}',
+        starterCode: 'function factorial(n) {\n    // your code here\n}',
         testCases: [
-            { input: 'n = 5', inputCode: '[5]', expected: '120', expectedDisplay: '120', hidden: false },
-            { input: 'n = 0', inputCode: '[0]', expected: '1', expectedDisplay: '1', hidden: false },
-            { input: 'n = 7', inputCode: '[7]', expected: '5040', expectedDisplay: '5040', hidden: true },
+            { input: 'n = 5', inputCode: '[5]', expected: '120',  expectedDisplay: '120',  hidden: false },
+            { input: 'n = 0', inputCode: '[0]', expected: '1',    expectedDisplay: '1',    hidden: false },
+            { input: 'n = 7', inputCode: '[7]', expected: '5040', expectedDisplay: '5040', hidden: true  },
+            { input: 'n = 1', inputCode: '[1]', expected: '1',    expectedDisplay: '1',    hidden: true  },
         ],
     },
+
     binarySearch: {
+        title: 'Binary Search',
+        difficulty: 'easy',
+        description: 'Given an array of integers `nums` which is sorted in ascending order, and an integer `target`, write a function to search `target` in `nums`. If `target` exists, return its index. Otherwise, return -1. You must write an algorithm with O(log n) runtime complexity.',
+        constraints: ['1 ≤ nums.length ≤ 10⁴', '-10⁴ < nums[i], target < 10⁴', 'All integers in nums are unique', 'nums is sorted in ascending order'],
+        examples: [
+            { input: 'nums = [-1,0,3,5,9,12], target = 9', output: '4',  explanation: '9 exists at index 4' },
+            { input: 'nums = [-1,0,3,5,9,12], target = 2', output: '-1', explanation: '2 does not exist in nums' },
+        ],
         functionSignature: 'binarySearch',
-        starterCode: 'function binarySearch(nums, target) {\n  // your code here\n  // return index, or -1 if not found\n}',
+        starterCode: 'function binarySearch(nums, target) {\n    // return index, or -1 if not found\n}',
         testCases: [
-            { input: 'nums = [-1,0,3,5,9,12], target = 9', inputCode: '[[-1,0,3,5,9,12], 9]', expected: '4', expectedDisplay: '4', hidden: false },
+            { input: 'nums = [-1,0,3,5,9,12], target = 9', inputCode: '[[-1,0,3,5,9,12], 9]', expected: '4',  expectedDisplay: '4',  hidden: false },
             { input: 'nums = [-1,0,3,5,9,12], target = 2', inputCode: '[[-1,0,3,5,9,12], 2]', expected: '-1', expectedDisplay: '-1', hidden: false },
-            { input: 'nums = [1], target = 1', inputCode: '[[1], 1]', expected: '0', expectedDisplay: '0', hidden: true },
+            { input: 'nums = [1], target = 1',              inputCode: '[[1], 1]',               expected: '0',  expectedDisplay: '0',  hidden: true  },
+            { input: 'nums = [1,3,5,7,9], target = 6',     inputCode: '[[1,3,5,7,9], 6]',       expected: '-1', expectedDisplay: '-1', hidden: true  },
+        ],
+    },
+
+    validParentheses: {
+        title: 'Valid Parentheses',
+        difficulty: 'easy',
+        description: 'Given a string `s` containing just the characters `(`, `)`, `{`, `}`, `[` and `]`, determine if the input string is valid. A string is valid if every open bracket is closed by the same type of bracket in the correct order.',
+        constraints: ['1 ≤ s.length ≤ 10⁴', 's consists of parentheses only ()[]{}'],
+        examples: [
+            { input: 's = "()"',     output: 'true' },
+            { input: 's = "()[]{}"', output: 'true' },
+            { input: 's = "(]"',     output: 'false' },
+        ],
+        functionSignature: 'isValid',
+        starterCode: 'function isValid(s) {\n    // your code here\n}',
+        testCases: [
+            { input: 's = "()"',      inputCode: '["()"]',      expected: 'true',  expectedDisplay: 'true',  hidden: false },
+            { input: 's = "()[]{}"',  inputCode: '["()[]{}"]',  expected: 'true',  expectedDisplay: 'true',  hidden: false },
+            { input: 's = "(]"',      inputCode: '["(]"]',      expected: 'false', expectedDisplay: 'false', hidden: true  },
+            { input: 's = "([)]"',    inputCode: '["([)]"]',    expected: 'false', expectedDisplay: 'false', hidden: true  },
+        ],
+    },
+
+    climbingStairs: {
+        title: 'Climbing Stairs',
+        difficulty: 'easy',
+        description: 'You are climbing a staircase. It takes `n` steps to reach the top. Each time you can either climb 1 or 2 steps. In how many distinct ways can you climb to the top?',
+        constraints: ['1 ≤ n ≤ 45'],
+        examples: [
+            { input: 'n = 2', output: '2',  explanation: 'Two ways: (1+1) or (2)' },
+            { input: 'n = 3', output: '3',  explanation: 'Three ways: (1+1+1), (1+2), (2+1)' },
+        ],
+        functionSignature: 'climbStairs',
+        starterCode: 'function climbStairs(n) {\n    // your code here\n}',
+        testCases: [
+            { input: 'n = 2',  inputCode: '[2]',  expected: '2',  expectedDisplay: '2',  hidden: false },
+            { input: 'n = 3',  inputCode: '[3]',  expected: '3',  expectedDisplay: '3',  hidden: false },
+            { input: 'n = 5',  inputCode: '[5]',  expected: '8',  expectedDisplay: '8',  hidden: true  },
+            { input: 'n = 10', inputCode: '[10]', expected: '89', expectedDisplay: '89', hidden: true  },
+        ],
+    },
+
+    mergeSortedArrays: {
+        title: 'Merge Sorted Array',
+        difficulty: 'easy',
+        description: 'You are given two integer arrays `nums1` and `nums2`, sorted in non-decreasing order. Merge `nums2` into `nums1` as one sorted array and return it. The number of elements initialized in `nums1` and `nums2` are `m` and `n` respectively.',
+        constraints: ['nums1.length == m + n', 'nums2.length == n', '0 ≤ m, n ≤ 200'],
+        examples: [
+            { input: 'nums1 = [1,2,3], nums2 = [2,5,6]', output: '[1,2,2,3,5,6]' },
+            { input: 'nums1 = [1], nums2 = []',           output: '[1]' },
+        ],
+        functionSignature: 'mergeSortedArrays',
+        starterCode: 'function mergeSortedArrays(nums1, nums2) {\n    // return merged sorted array\n}',
+        testCases: [
+            { input: 'nums1 = [1,2,3], nums2 = [2,5,6]', inputCode: '[[1,2,3],[2,5,6]]', expected: '[1,2,2,3,5,6]', expectedDisplay: '[1,2,2,3,5,6]', hidden: false },
+            { input: 'nums1 = [1], nums2 = []',           inputCode: '[[1],[]]',           expected: '[1]',           expectedDisplay: '[1]',           hidden: false },
+            { input: 'nums1 = [], nums2 = [1]',           inputCode: '[[],[1]]',           expected: '[1]',           expectedDisplay: '[1]',           hidden: true  },
+            { input: 'nums1 = [1,3,5], nums2 = [2,4,6]', inputCode: '[[1,3,5],[2,4,6]]', expected: '[1,2,3,4,5,6]', expectedDisplay: '[1,2,3,4,5,6]', hidden: true  },
+        ],
+    },
+
+    countVowels: {
+        title: 'Count Vowels',
+        difficulty: 'easy',
+        description: 'Given a string `s`, return the number of vowels in the string. Vowels are: a, e, i, o, u (both uppercase and lowercase count).',
+        constraints: ['1 ≤ s.length ≤ 10⁵', 's consists of printable ASCII characters'],
+        examples: [
+            { input: 's = "hello"',        output: '2', explanation: 'e and o are vowels' },
+            { input: 's = "Interview"',    output: '4', explanation: 'I, e, i, e are vowels' },
+        ],
+        functionSignature: 'countVowels',
+        starterCode: 'function countVowels(s) {\n    // your code here\n}',
+        testCases: [
+            { input: 's = "hello"',        inputCode: '["hello"]',        expected: '2', expectedDisplay: '2', hidden: false },
+            { input: 's = "Interview"',    inputCode: '["Interview"]',    expected: '4', expectedDisplay: '4', hidden: false },
+            { input: 's = "rhythm"',       inputCode: '["rhythm"]',       expected: '0', expectedDisplay: '0', hidden: true  },
+            { input: 's = "aeiou"',        inputCode: '["aeiou"]',        expected: '5', expectedDisplay: '5', hidden: true  },
+        ],
+    },
+
+    removeDuplicates: {
+        title: 'Remove Duplicates from Sorted Array',
+        difficulty: 'easy',
+        description: 'Given an integer array `nums` sorted in non-decreasing order, remove duplicates in-place such that each unique element appears only once. Return the array of unique elements in sorted order.',
+        constraints: ['1 ≤ nums.length ≤ 3 × 10⁴', '-100 ≤ nums[i] ≤ 100', 'nums is sorted in non-decreasing order'],
+        examples: [
+            { input: 'nums = [1,1,2]',          output: '[1,2]' },
+            { input: 'nums = [0,0,1,1,1,2,2,3,3,4]', output: '[0,1,2,3,4]' },
+        ],
+        functionSignature: 'removeDuplicates',
+        starterCode: 'function removeDuplicates(nums) {\n    // return array with duplicates removed\n}',
+        testCases: [
+            { input: 'nums = [1,1,2]',               inputCode: '[[1,1,2]]',               expected: '[1,2]',       expectedDisplay: '[1,2]',       hidden: false },
+            { input: 'nums = [0,0,1,1,1,2,2,3,3,4]', inputCode: '[[0,0,1,1,1,2,2,3,3,4]]', expected: '[0,1,2,3,4]', expectedDisplay: '[0,1,2,3,4]', hidden: false },
+            { input: 'nums = [1,2,3]',               inputCode: '[[1,2,3]]',               expected: '[1,2,3]',     expectedDisplay: '[1,2,3]',     hidden: true  },
+            { input: 'nums = [1,1,1,1]',             inputCode: '[[1,1,1,1]]',             expected: '[1]',         expectedDisplay: '[1]',         hidden: true  },
+        ],
+    },
+
+    longestCommonPrefix: {
+        title: 'Longest Common Prefix',
+        difficulty: 'easy',
+        description: 'Write a function to find the longest common prefix string amongst an array of strings. If there is no common prefix, return an empty string `""`.',
+        constraints: ['1 ≤ strs.length ≤ 200', '0 ≤ strs[i].length ≤ 200', 'strs[i] consists of only lowercase English letters'],
+        examples: [
+            { input: 'strs = ["flower","flow","flight"]', output: '"fl"',  explanation: 'Common prefix is "fl"' },
+            { input: 'strs = ["dog","racecar","car"]',    output: '""',    explanation: 'No common prefix' },
+        ],
+        functionSignature: 'longestCommonPrefix',
+        starterCode: 'function longestCommonPrefix(strs) {\n    // your code here\n}',
+        testCases: [
+            { input: 'strs = ["flower","flow","flight"]', inputCode: '[["flower","flow","flight"]]', expected: '"fl"',      expectedDisplay: '"fl"',      hidden: false },
+            { input: 'strs = ["dog","racecar","car"]',    inputCode: '[["dog","racecar","car"]]',    expected: '""',        expectedDisplay: '""',        hidden: false },
+            { input: 'strs = ["interview","inter","int"]',inputCode: '[["interview","inter","int"]]',expected: '"int"',     expectedDisplay: '"int"',     hidden: true  },
+            { input: 'strs = ["a"]',                      inputCode: '[["a"]]',                      expected: '"a"',       expectedDisplay: '"a"',       hidden: true  },
+        ],
+    },
+
+    fizzBuzz: {
+        title: 'FizzBuzz',
+        difficulty: 'easy',
+        description: 'Given an integer `n`, return an array of strings from 1 to n where: multiples of 3 are "Fizz", multiples of 5 are "Buzz", multiples of both 3 and 5 are "FizzBuzz", and all other numbers are the number itself as a string.',
+        constraints: ['1 ≤ n ≤ 10⁴'],
+        examples: [
+            { input: 'n = 5',  output: '["1","2","Fizz","4","Buzz"]' },
+            { input: 'n = 15', output: '["1","2","Fizz","4","Buzz","Fizz","7","8","Fizz","Buzz","11","Fizz","13","14","FizzBuzz"]' },
+        ],
+        functionSignature: 'fizzBuzz',
+        starterCode: 'function fizzBuzz(n) {\n    // return array of strings\n}',
+        testCases: [
+            { input: 'n = 3',  inputCode: '[3]',  expected: '["1","2","Fizz"]',                       expectedDisplay: '["1","2","Fizz"]',              hidden: false },
+            { input: 'n = 5',  inputCode: '[5]',  expected: '["1","2","Fizz","4","Buzz"]',            expectedDisplay: '["1","2","Fizz","4","Buzz"]',   hidden: false },
+            { input: 'n = 15', inputCode: '[15]', expected: '["1","2","Fizz","4","Buzz","Fizz","7","8","Fizz","Buzz","11","Fizz","13","14","FizzBuzz"]', expectedDisplay: '...FizzBuzz at 15', hidden: true },
+            { input: 'n = 1',  inputCode: '[1]',  expected: '["1"]',                                 expectedDisplay: '["1"]',                         hidden: true  },
+        ],
+    },
+
+    reverseInteger: {
+        title: 'Reverse Integer',
+        difficulty: 'medium',
+        description: 'Given a signed 32-bit integer `x`, return `x` with its digits reversed. If reversing `x` causes the value to go outside the signed 32-bit integer range [-2³¹, 2³¹ - 1], return 0.',
+        constraints: ['-2³¹ ≤ x ≤ 2³¹ - 1'],
+        examples: [
+            { input: 'x = 123',  output: '321' },
+            { input: 'x = -123', output: '-321' },
+            { input: 'x = 120',  output: '21' },
+        ],
+        functionSignature: 'reverseInteger',
+        starterCode: 'function reverseInteger(x) {\n    // your code here\n}',
+        testCases: [
+            { input: 'x = 123',   inputCode: '[123]',   expected: '321',  expectedDisplay: '321',  hidden: false },
+            { input: 'x = -123',  inputCode: '[-123]',  expected: '-321', expectedDisplay: '-321', hidden: false },
+            { input: 'x = 120',   inputCode: '[120]',   expected: '21',   expectedDisplay: '21',   hidden: true  },
+            { input: 'x = 0',     inputCode: '[0]',     expected: '0',    expectedDisplay: '0',    hidden: true  },
+        ],
+    },
+
+    missingNumber: {
+        title: 'Missing Number',
+        difficulty: 'easy',
+        description: 'Given an array `nums` containing `n` distinct numbers in the range `[0, n]`, return the only number in the range that is missing from the array.',
+        constraints: ['n == nums.length', '1 ≤ n ≤ 10⁴', '0 ≤ nums[i] ≤ n', 'All numbers in nums are unique'],
+        examples: [
+            { input: 'nums = [3,0,1]',     output: '2', explanation: 'n = 3, range is [0,3], 2 is missing' },
+            { input: 'nums = [0,1]',        output: '2', explanation: 'n = 2, range is [0,2], 2 is missing' },
+        ],
+        functionSignature: 'missingNumber',
+        starterCode: 'function missingNumber(nums) {\n    // your code here\n}',
+        testCases: [
+            { input: 'nums = [3,0,1]',     inputCode: '[[3,0,1]]',     expected: '2', expectedDisplay: '2', hidden: false },
+            { input: 'nums = [0,1]',        inputCode: '[[0,1]]',        expected: '2', expectedDisplay: '2', hidden: false },
+            { input: 'nums = [9,6,4,2,3,5,7,0,1]', inputCode: '[[9,6,4,2,3,5,7,0,1]]', expected: '8', expectedDisplay: '8', hidden: true },
+            { input: 'nums = [0]',          inputCode: '[[0]]',          expected: '1', expectedDisplay: '1', hidden: true  },
+        ],
+    },
+
+    containsDuplicate: {
+        title: 'Contains Duplicate',
+        difficulty: 'easy',
+        description: 'Given an integer array `nums`, return `true` if any value appears at least twice in the array, and return `false` if every element is distinct.',
+        constraints: ['1 ≤ nums.length ≤ 10⁵', '-10⁹ ≤ nums[i] ≤ 10⁹'],
+        examples: [
+            { input: 'nums = [1,2,3,1]',   output: 'true',  explanation: '1 appears twice' },
+            { input: 'nums = [1,2,3,4]',   output: 'false', explanation: 'All elements distinct' },
+        ],
+        functionSignature: 'containsDuplicate',
+        starterCode: 'function containsDuplicate(nums) {\n    // your code here\n}',
+        testCases: [
+            { input: 'nums = [1,2,3,1]',    inputCode: '[[1,2,3,1]]',    expected: 'true',  expectedDisplay: 'true',  hidden: false },
+            { input: 'nums = [1,2,3,4]',    inputCode: '[[1,2,3,4]]',    expected: 'false', expectedDisplay: 'false', hidden: false },
+            { input: 'nums = [1,1,1,3,3,4,3,2,4,2]', inputCode: '[[1,1,1,3,3,4,3,2,4,2]]', expected: 'true', expectedDisplay: 'true', hidden: true },
+            { input: 'nums = [1]',           inputCode: '[[1]]',           expected: 'false', expectedDisplay: 'false', hidden: true  },
+        ],
+    },
+
+    moveZeroes: {
+        title: 'Move Zeroes',
+        difficulty: 'easy',
+        description: 'Given an integer array `nums`, move all `0`s to the end of it while maintaining the relative order of the non-zero elements. Return the resulting array. Do it in-place.',
+        constraints: ['1 ≤ nums.length ≤ 10⁴', '-2³¹ ≤ nums[i] ≤ 2³¹ - 1'],
+        examples: [
+            { input: 'nums = [0,1,0,3,12]', output: '[1,3,12,0,0]' },
+            { input: 'nums = [0]',           output: '[0]' },
+        ],
+        functionSignature: 'moveZeroes',
+        starterCode: 'function moveZeroes(nums) {\n    // move zeroes to end, return array\n}',
+        testCases: [
+            { input: 'nums = [0,1,0,3,12]', inputCode: '[[0,1,0,3,12]]', expected: '[1,3,12,0,0]', expectedDisplay: '[1,3,12,0,0]', hidden: false },
+            { input: 'nums = [0]',           inputCode: '[[0]]',           expected: '[0]',          expectedDisplay: '[0]',          hidden: false },
+            { input: 'nums = [1,0,0,2,3]',   inputCode: '[[1,0,0,2,3]]',  expected: '[1,2,3,0,0]',  expectedDisplay: '[1,2,3,0,0]',  hidden: true  },
+            { input: 'nums = [1,2,3]',        inputCode: '[[1,2,3]]',       expected: '[1,2,3]',      expectedDisplay: '[1,2,3]',      hidden: true  },
+        ],
+    },
+
+    singleNumber: {
+        title: 'Single Number',
+        difficulty: 'easy',
+        description: 'Given a non-empty array of integers `nums`, every element appears twice except for one. Find that single one. Your solution must run in O(n) time and use only O(1) extra space.',
+        constraints: ['1 ≤ nums.length ≤ 3 × 10⁴', '-3 × 10⁴ ≤ nums[i] ≤ 3 × 10⁴', 'Every element appears exactly twice except for one element'],
+        examples: [
+            { input: 'nums = [2,2,1]',         output: '1' },
+            { input: 'nums = [4,1,2,1,2]',     output: '4' },
+        ],
+        functionSignature: 'singleNumber',
+        starterCode: 'function singleNumber(nums) {\n    // your code here\n}',
+        testCases: [
+            { input: 'nums = [2,2,1]',          inputCode: '[[2,2,1]]',          expected: '1', expectedDisplay: '1', hidden: false },
+            { input: 'nums = [4,1,2,1,2]',      inputCode: '[[4,1,2,1,2]]',      expected: '4', expectedDisplay: '4', hidden: false },
+            { input: 'nums = [1]',               inputCode: '[[1]]',               expected: '1', expectedDisplay: '1', hidden: true  },
+            { input: 'nums = [0,0,7,4,4]',       inputCode: '[[0,0,7,4,4]]',       expected: '7', expectedDisplay: '7', hidden: true  },
+        ],
+    },
+
+    maxProfit: {
+        title: 'Best Time to Buy and Sell Stock',
+        difficulty: 'easy',
+        description: 'You are given an array `prices` where `prices[i]` is the price of a given stock on the i-th day. You want to maximize your profit by choosing a single day to buy and a later day to sell. Return the maximum profit you can achieve. If no profit is possible, return 0.',
+        constraints: ['1 ≤ prices.length ≤ 10⁵', '0 ≤ prices[i] ≤ 10⁴'],
+        examples: [
+            { input: 'prices = [7,1,5,3,6,4]', output: '5',  explanation: 'Buy on day 2 (price=1), sell on day 5 (price=6), profit = 6-1 = 5' },
+            { input: 'prices = [7,6,4,3,1]',   output: '0',  explanation: 'No profitable transaction possible' },
+        ],
+        functionSignature: 'maxProfit',
+        starterCode: 'function maxProfit(prices) {\n    // your code here\n}',
+        testCases: [
+            { input: 'prices = [7,1,5,3,6,4]', inputCode: '[[7,1,5,3,6,4]]', expected: '5', expectedDisplay: '5', hidden: false },
+            { input: 'prices = [7,6,4,3,1]',   inputCode: '[[7,6,4,3,1]]',   expected: '0', expectedDisplay: '0', hidden: false },
+            { input: 'prices = [1,2]',          inputCode: '[[1,2]]',          expected: '1', expectedDisplay: '1', hidden: true  },
+            { input: 'prices = [2,4,1]',        inputCode: '[[2,4,1]]',        expected: '2', expectedDisplay: '2', hidden: true  },
+        ],
+    },
+
+    productExceptSelf: {
+        title: 'Product of Array Except Self',
+        difficulty: 'medium',
+        description: 'Given an integer array `nums`, return an array `answer` such that `answer[i]` is equal to the product of all the elements of `nums` except `nums[i]`. You must write an algorithm that runs in O(n) time and without using the division operation.',
+        constraints: ['2 ≤ nums.length ≤ 10⁵', '-30 ≤ nums[i] ≤ 30'],
+        examples: [
+            { input: 'nums = [1,2,3,4]',  output: '[24,12,8,6]' },
+            { input: 'nums = [-1,1,0,-3,3]', output: '[0,0,9,0,0]' },
+        ],
+        functionSignature: 'productExceptSelf',
+        starterCode: 'function productExceptSelf(nums) {\n    // your code here\n}',
+        testCases: [
+            { input: 'nums = [1,2,3,4]',     inputCode: '[[1,2,3,4]]',     expected: '[24,12,8,6]',   expectedDisplay: '[24,12,8,6]',   hidden: false },
+            { input: 'nums = [2,3,4]',        inputCode: '[[2,3,4]]',        expected: '[12,8,6]',      expectedDisplay: '[12,8,6]',      hidden: false },
+            { input: 'nums = [-1,1,0,-3,3]',  inputCode: '[[-1,1,0,-3,3]]',  expected: '[0,0,9,0,0]',   expectedDisplay: '[0,0,9,0,0]',   hidden: true  },
+            { input: 'nums = [1,1]',          inputCode: '[[1,1]]',          expected: '[1,1]',         expectedDisplay: '[1,1]',         hidden: true  },
+        ],
+    },
+
+    twoSumII: {
+        title: 'Two Sum II (Sorted Array)',
+        difficulty: 'medium',
+        description: 'Given a 1-indexed array of integers `numbers` that is already sorted in non-decreasing order, find two numbers that add up to a specific `target` number. Return their indices as [index1, index2] (1-indexed). Use O(1) extra space.',
+        constraints: ['2 ≤ numbers.length ≤ 3 × 10⁴', '-1000 ≤ numbers[i] ≤ 1000', 'Exactly one solution exists'],
+        examples: [
+            { input: 'numbers = [2,7,11,15], target = 9', output: '[1,2]', explanation: 'numbers[1] + numbers[2] = 2 + 7 = 9' },
+            { input: 'numbers = [2,3,4], target = 6',     output: '[1,3]' },
+        ],
+        functionSignature: 'twoSumII',
+        starterCode: 'function twoSumII(numbers, target) {\n    // return 1-indexed pair\n}',
+        testCases: [
+            { input: 'numbers = [2,7,11,15], target = 9', inputCode: '[[2,7,11,15], 9]', expected: '[1,2]', expectedDisplay: '[1,2]', hidden: false },
+            { input: 'numbers = [2,3,4], target = 6',     inputCode: '[[2,3,4], 6]',     expected: '[1,3]', expectedDisplay: '[1,3]', hidden: false },
+            { input: 'numbers = [-1,0], target = -1',     inputCode: '[[-1,0], -1]',     expected: '[1,2]', expectedDisplay: '[1,2]', hidden: true  },
+            { input: 'numbers = [1,2,3,4], target = 7',   inputCode: '[[1,2,3,4], 7]',   expected: '[3,4]', expectedDisplay: '[3,4]', hidden: true  },
+        ],
+    },
+
+    groupAnagrams: {
+        title: 'Group Anagrams',
+        difficulty: 'medium',
+        description: 'Given an array of strings `strs`, group the anagrams together. You can return the answer in any order. An anagram is a word formed by rearranging all letters of a different word.',
+        constraints: ['1 ≤ strs.length ≤ 10⁴', '0 ≤ strs[i].length ≤ 100', 'strs[i] consists of lowercase English letters'],
+        examples: [
+            { input: 'strs = ["eat","tea","tan","ate","nat","bat"]', output: '[["bat"],["nat","tan"],["ate","eat","tea"]]', explanation: 'Group words that are anagrams of each other' },
+        ],
+        functionSignature: 'groupAnagrams',
+        starterCode: 'function groupAnagrams(strs) {\n    // return grouped anagrams (order within groups does not matter)\n}',
+        testCases: [
+            { input: 'strs = ["eat","tea","tan","ate","nat","bat"]', inputCode: '[["eat","tea","tan","ate","nat","bat"]]', expected: '[["bat"],["nat","tan"],["ate","eat","tea"]]', expectedDisplay: '3 groups', hidden: false },
+            { input: 'strs = [""]',                                   inputCode: '[[""]]',                                  expected: '[[""]]',                                   expectedDisplay: '[[""]]',   hidden: false },
+            { input: 'strs = ["a"]',                                  inputCode: '[["a"]]',                                 expected: '[["a"]]',                                  expectedDisplay: '[["a"]]',  hidden: true  },
+            { input: 'strs = ["abc","bca","cab","xyz"]',              inputCode: '[["abc","bca","cab","xyz"]]',             expected: '[["abc","bca","cab"],["xyz"]]',             expectedDisplay: '2 groups', hidden: true  },
+        ],
+    },
+
+    maxDepthBinaryTree: {
+        title: 'Maximum Depth of Binary Tree',
+        difficulty: 'easy',
+        description: 'Given a binary tree represented as an array (level-order), return its maximum depth. The maximum depth is the number of nodes along the longest path from the root node to the farthest leaf node. null represents a missing node.',
+        constraints: ['The number of nodes is in range [0, 10⁴]', '-100 ≤ Node.val ≤ 100'],
+        examples: [
+            { input: 'root = [3,9,20,null,null,15,7]', output: '3' },
+            { input: 'root = [1,null,2]',               output: '2' },
+        ],
+        functionSignature: 'maxDepth',
+        starterCode: 'function maxDepth(root) {\n    // root is an array in level-order (null = missing node)\n    // return max depth\n}',
+        testCases: [
+            { input: 'root = [3,9,20,null,null,15,7]', inputCode: '[[3,9,20,null,null,15,7]]', expected: '3', expectedDisplay: '3', hidden: false },
+            { input: 'root = [1,null,2]',               inputCode: '[[1,null,2]]',               expected: '2', expectedDisplay: '2', hidden: false },
+            { input: 'root = []',                        inputCode: '[[]]',                        expected: '0', expectedDisplay: '0', hidden: true  },
+            { input: 'root = [1]',                       inputCode: '[[1]]',                       expected: '1', expectedDisplay: '1', hidden: true  },
+        ],
+    },
+
+    sortColors: {
+        title: 'Sort Colors (Dutch Flag)',
+        difficulty: 'medium',
+        description: 'Given an array `nums` with n objects colored red (0), white (1), or blue (2), sort them in-place so that objects of the same color are adjacent, in the order red, white, and blue. Return the sorted array. You must solve this in one pass using O(1) space.',
+        constraints: ['n == nums.length', '1 ≤ n ≤ 300', 'nums[i] is either 0, 1, or 2'],
+        examples: [
+            { input: 'nums = [2,0,2,1,1,0]', output: '[0,0,1,1,2,2]' },
+            { input: 'nums = [2,0,1]',        output: '[0,1,2]' },
+        ],
+        functionSignature: 'sortColors',
+        starterCode: 'function sortColors(nums) {\n    // sort in-place, return array\n}',
+        testCases: [
+            { input: 'nums = [2,0,2,1,1,0]', inputCode: '[[2,0,2,1,1,0]]', expected: '[0,0,1,1,2,2]', expectedDisplay: '[0,0,1,1,2,2]', hidden: false },
+            { input: 'nums = [2,0,1]',        inputCode: '[[2,0,1]]',        expected: '[0,1,2]',       expectedDisplay: '[0,1,2]',       hidden: false },
+            { input: 'nums = [0]',            inputCode: '[[0]]',            expected: '[0]',           expectedDisplay: '[0]',           hidden: true  },
+            { input: 'nums = [1,0,0,2,1]',   inputCode: '[[1,0,0,2,1]]',   expected: '[0,0,1,1,2]',   expectedDisplay: '[0,0,1,1,2]',   hidden: true  },
         ],
     },
 };
 
-// ─── Match AI question text to a known problem to get reliable test cases ────────
-function matchProblemBank(text, fnSig) {
-    const t = (text + ' ' + (fnSig || '')).toLowerCase();
-    if (t.includes('maximum sum') || t.includes('max subarray') || t.includes('kadane')) return PROBLEM_BANK.maxSubarray;
-    if (t.includes('two sum') || t.includes('twosum') || t.includes('add up to target') || t.includes('two numbers')) return PROBLEM_BANK.twoSum;
-    if (t.includes('reverse') && (t.includes('string') || t.includes('str'))) return PROBLEM_BANK.reverseString;
-    if (t.includes('fibonacci') || t.includes('fib sequence')) return PROBLEM_BANK.fibonacci;
-    if (t.includes('palindrome')) return PROBLEM_BANK.isPalindrome;
-    if (t.includes('factorial')) return PROBLEM_BANK.factorial;
-    if (t.includes('binary search') || t.includes('binarysearch')) return PROBLEM_BANK.binarySearch;
-    return null;
+const PROBLEM_KEYS = Object.keys(PROBLEM_BANK);
+
+// ─── Pool selection with anti-repetition using a per-session used-set ─────────
+// We keep track of which problems were recently generated so the same session
+// never repeats. The set is module-level but very lightweight.
+const _recentlyUsed = new Set();
+
+function pickRandomProblem(exclude = []) {
+    const excludeSet = new Set([..._recentlyUsed, ...exclude]);
+    const available  = PROBLEM_KEYS.filter(k => !excludeSet.has(k));
+    // Reset cooldown when pool is exhausted
+    const pool = available.length >= 2 ? available : PROBLEM_KEYS.filter(k => !new Set(exclude).has(k));
+    const key  = pool[Math.floor(Math.random() * pool.length)];
+    _recentlyUsed.add(key);
+    if (_recentlyUsed.size > Math.floor(PROBLEM_KEYS.length * 0.6)) _recentlyUsed.clear();
+    return { key, ...PROBLEM_BANK[key] };
 }
 
-// ─── Ask AI to generate ONLY test cases for a given problem ──────────────────────
-async function generateTestCasesForProblem(questionText, fnSig, lang) {
-    const prompt = `Generate test cases for this coding problem as JSON only (no markdown, no explanation):
+// Pick two distinct problems for a session, biased by experience level
+function pickProblemsForSession(expLevel = 'mid') {
+    const easyKeys   = ['twoSum','reverseString','fibonacci','isPalindrome','factorial','binarySearch','climbingStairs','countVowels','removeDuplicates','fizzBuzz','missingNumber','containsDuplicate','moveZeroes','singleNumber','maxProfit'];
+    const mediumKeys = ['maxSubarray','validParentheses','mergeSortedArrays','longestCommonPrefix','reverseInteger','productExceptSelf','twoSumII','groupAnagrams','maxDepthBinaryTree','sortColors'];
 
-Problem: "${questionText}"
-Function name: ${fnSig || 'solution'}
-Language: ${lang || 'javascript'}
-
-Respond with ONLY a JSON array of exactly 4 test cases. No other text.
-First 2 have "hidden": false. Last 2 have "hidden": true.
-Each object must have these exact keys:
-- "input": human-readable string like "nums = [1,2,3], target = 5"
-- "inputCode": JSON array of JS arguments like "[[1,2,3], 5]"
-- "expected": the expected return value as a JS literal string like "2" or "[0,1]" or "true"
-- "expectedDisplay": same as expected but formatted for display
-- "hidden": boolean
-
-Example response format:
-[
-  {"input":"nums = [2,7,11,15], target = 9","inputCode":"[[2,7,11,15],9]","expected":"[0,1]","expectedDisplay":"[0, 1]","hidden":false},
-  {"input":"nums = [3,2,4], target = 6","inputCode":"[[3,2,4],6]","expected":"[1,2]","expectedDisplay":"[1, 2]","hidden":false},
-  {"input":"nums = [3,3], target = 6","inputCode":"[[3,3],6]","expected":"[0,1]","expectedDisplay":"[0, 1]","hidden":true},
-  {"input":"nums = [1,5,3,7], target = 8","inputCode":"[[1,5,3,7],8]","expected":"[1,3]","expectedDisplay":"[1, 3]","hidden":true}
-]
-
-Now generate 4 test cases for the problem above. Return ONLY the JSON array.`;
-
-    try {
-        const raw = await callAI(prompt, 800);
-        const clean = raw.replace(/```json\n?|```\n?/g, '').trim();
-        // Find the array in the response
-        const match = clean.match(/\[[\s\S]*\]/);
-        if (!match) return null;
-        const cases = JSON.parse(match[0]);
-        if (!Array.isArray(cases) || cases.length === 0) return null;
-        // Validate each case has the required fields
-        const valid = cases.filter(c => c.input && c.expected !== undefined);
-        if (valid.length < 2) return null;
-        // Ensure first 2 are visible, rest hidden
-        return valid.map((c, i) => ({ ...c, hidden: i >= 2 }));
-    } catch (e) {
-        return null;
+    let pool1, pool2;
+    if (expLevel === 'entry') {
+        pool1 = easyKeys; pool2 = easyKeys;
+    } else if (expLevel === 'mid') {
+        pool1 = easyKeys; pool2 = [...easyKeys, ...mediumKeys];
+    } else {
+        // senior / lead
+        pool1 = [...easyKeys, ...mediumKeys]; pool2 = mediumKeys;
     }
+
+    const available1 = pool1.filter(k => !_recentlyUsed.has(k));
+    const key1 = (available1.length ? available1 : pool1)[Math.floor(Math.random() * (available1.length || pool1.length))];
+    _recentlyUsed.add(key1);
+
+    const pool2filtered = pool2.filter(k => k !== key1 && !_recentlyUsed.has(k));
+    const key2 = (pool2filtered.length ? pool2filtered : pool2.filter(k => k !== key1))[
+        Math.floor(Math.random() * Math.max(pool2filtered.length, 1))
+    ] || pool2.find(k => k !== key1) || pool2[0];
+    _recentlyUsed.add(key2);
+
+    if (_recentlyUsed.size > Math.floor(PROBLEM_KEYS.length * 0.5)) _recentlyUsed.clear();
+
+    return [{ key: key1, ...PROBLEM_BANK[key1] }, { key: key2, ...PROBLEM_BANK[key2] }];
 }
 
 async function parseResumeAndGenerateQuestions({ resumeText, role, expLevel }) {
+    // Pick 2 coding problems BEFORE calling the AI so we inject them directly
+    const [codingQ1, codingQ2] = pickProblemsForSession(expLevel || 'mid');
+
     const prompt = `You are an interview coach. Generate a structured 3-section interview.
 
 Resume:
 """
-${resumeText.slice(0, 4000)}
+${resumeText.slice(0, 3500)}
 """
 Target role: ${role}
-Experience level: ${expLevel}
+Experience level: ${expLevel || 'mid'}
 
 REQUIREMENTS:
-- Section 1: EXACTLY 5 MCQ questions (section:1, category:"mcq")
-- Section 2: EXACTLY 2 coding questions (section:2, category:"coding") — classic algorithmic problems (like LeetCode Easy/Medium). Must include testCases.
+- Section 1: EXACTLY 5 MCQ questions (section:1, category:"mcq") — test conceptual knowledge relevant to the role
+- Section 2: EXACTLY 2 coding questions — ALREADY PROVIDED BELOW, copy them verbatim as JSON
 - Section 3: EXACTLY 7 open questions (section:3) — 5 technical + 2 behavioral
 
 Total: 14 questions. IDs 1-14.
 
-CODING QUESTIONS — critical rules:
-1. Pick well-known algorithmic problems: Two Sum, Maximum Subarray, Valid Parentheses, Reverse String, Fibonacci, Binary Search, FizzBuzz, Palindrome Check, Factorial, Count Vowels, etc.
-2. functionSignature: camelCase JS function name, e.g. "maxSubarray"
-3. starterCode: minimal JS function stub with empty body
-4. testCases: REQUIRED array of EXACTLY 4 objects. First 2 have hidden:false, last 2 have hidden:true.
-   Each testCase object: { "input": "human readable", "inputCode": "JSON array of args", "expected": "JS literal", "expectedDisplay": "readable output", "hidden": bool }
-   Example for maxSubarray:
-   [
-     {"input":"nums = [-2,1,-3,4,-1,2,1,-5,4]","inputCode":"[[-2,1,-3,4,-1,2,1,-5,4]]","expected":"6","expectedDisplay":"6","hidden":false},
-     {"input":"nums = [1]","inputCode":"[[1]]","expected":"1","expectedDisplay":"1","hidden":false},
-     {"input":"nums = [5,4,-1,7,8]","inputCode":"[[5,4,-1,7,8]]","expected":"23","expectedDisplay":"23","hidden":true},
-     {"input":"nums = [-1,-2,-3]","inputCode":"[[-1,-2,-3]]","expected":"-1","expectedDisplay":"-1","hidden":true}
-   ]
+CODING QUESTIONS (section 2) — copy these EXACTLY into your JSON output, do NOT modify them:
+Q6: id=6, section=2, category="coding", text="${codingQ1.description}", functionSignature="${codingQ1.functionSignature}", title="${codingQ1.title}", difficulty="${codingQ1.difficulty}"
+Q7: id=7, section=2, category="coding", text="${codingQ2.description}", functionSignature="${codingQ2.functionSignature}", title="${codingQ2.title}", difficulty="${codingQ2.difficulty}"
 
 Respond ONLY with valid JSON, no markdown, no backticks:
 {
-  "skills": ["skill1", "skill2"],
+  "skills": ["skill1","skill2"],
   "experience": [{"title":"","company":"","duration":""}],
   "summary": "one sentence",
   "questions": [
-    {"id":1,"section":1,"text":"...","type":"technical","category":"mcq","options":["A","B","C","D"],"correctAnswer":0,"language":null,"explanation":"...","functionSignature":null,"starterCode":null,"testCases":null},
-    {"id":6,"section":2,"text":"Given an array of integers, find the maximum sum of a contiguous subarray.","type":"technical","category":"coding","options":null,"correctAnswer":null,"language":"javascript","explanation":"Kadane's algorithm runs in O(n).","functionSignature":"maxSubarray","starterCode":"function maxSubarray(nums) {\\n  // your code here\\n}","testCases":[{"input":"nums = [-2,1,-3,4,-1,2,1,-5,4]","inputCode":"[[-2,1,-3,4,-1,2,1,-5,4]]","expected":"6","expectedDisplay":"6","hidden":false},{"input":"nums = [1]","inputCode":"[[1]]","expected":"1","expectedDisplay":"1","hidden":false},{"input":"nums = [5,4,-1,7,8]","inputCode":"[[5,4,-1,7,8]]","expected":"23","expectedDisplay":"23","hidden":true},{"input":"nums = [-1,-2,-3]","inputCode":"[[-1,-2,-3]]","expected":"-1","expectedDisplay":"-1","hidden":true}]},
-    {"id":8,"section":3,"text":"...","type":"technical","category":"technical","options":null,"correctAnswer":null,"language":null,"explanation":null,"functionSignature":null,"starterCode":null,"testCases":null},
-    {"id":13,"section":3,"text":"...","type":"behavioral","category":"behavioral","options":null,"correctAnswer":null,"language":null,"explanation":null,"functionSignature":null,"starterCode":null,"testCases":null}
+    {"id":1,"section":1,"text":"...","type":"technical","category":"mcq","options":["A","B","C","D"],"correctAnswer":0,"language":null,"explanation":"...","functionSignature":null,"starterCode":null,"testCases":null,"title":null,"difficulty":null},
+    ...5 MCQ questions with IDs 1-5...,
+    {"id":6,"section":2,"text":"${codingQ1.description.replace(/"/g,"'")}","type":"technical","category":"coding","options":null,"correctAnswer":null,"language":"javascript","explanation":null,"functionSignature":"${codingQ1.functionSignature}","starterCode":${JSON.stringify(codingQ1.starterCode)},"testCases":${JSON.stringify(codingQ1.testCases)},"title":${JSON.stringify(codingQ1.title)},"difficulty":${JSON.stringify(codingQ1.difficulty)}},
+    {"id":7,"section":2,"text":"${codingQ2.description.replace(/"/g,"'")}","type":"technical","category":"coding","options":null,"correctAnswer":null,"language":"javascript","explanation":null,"functionSignature":"${codingQ2.functionSignature}","starterCode":${JSON.stringify(codingQ2.starterCode)},"testCases":${JSON.stringify(codingQ2.testCases)},"title":${JSON.stringify(codingQ2.title)},"difficulty":${JSON.stringify(codingQ2.difficulty)}},
+    ...7 open questions with IDs 8-14 for section 3...
   ]
 }
 
-Generate ALL 14 questions. For coding questions, testCases is MANDATORY — never null, never empty.`;
+For open questions (IDs 8-14): generate role-specific questions. IDs 8-12 are technical (category:"technical"), IDs 13-14 are behavioral (category:"behavioral", type:"behavioral").
+Generate ALL 14 questions now.`;
 
-    const raw = await callAI(prompt, 4500);
+    const raw = await callAI(prompt, 4000);
     let parsed;
     try {
         parsed = JSON.parse(raw.replace(/```json\n?|```\n?/g, '').trim());
@@ -199,8 +593,7 @@ Generate ALL 14 questions. For coding questions, testCases is MANDATORY — neve
     }
 
     if (parsed.questions && Array.isArray(parsed.questions)) {
-        // Process in parallel — fix coding questions that have bad/missing testCases
-        const fixJobs = parsed.questions.map(async (q, i) => {
+        parsed.questions = parsed.questions.map((q, i) => {
             let section = Number(q.section);
             if (!section || isNaN(section)) {
                 if (i < 5)      section = 1;
@@ -209,75 +602,58 @@ Generate ALL 14 questions. For coding questions, testCases is MANDATORY — neve
             }
             let category = q.category;
             if (!category) {
-                if (section === 1) category = 'mcq';
-                else if (section === 2) category = 'coding';
+                if (section === 1)                category = 'mcq';
+                else if (section === 2)           category = 'coding';
                 else if (q.type === 'behavioral') category = 'behavioral';
-                else category = 'technical';
+                else                              category = 'technical';
             }
-            let type = q.type || (category === 'behavioral' ? 'behavioral' : 'technical');
 
-            let testCases = q.testCases || null;
-            let fnSig = q.functionSignature || null;
-            let starterCode = q.starterCode || null;
-
-            if (category === 'coding') {
-                const needsFixing = !testCases || !Array.isArray(testCases) || testCases.length < 2
-                    || testCases.every(tc => !tc.input || tc.input.includes('sample'));
-
-                if (needsFixing) {
-                    // 1. Try matching known problem bank
-                    const known = matchProblemBank(q.text || '', fnSig);
-                    if (known) {
-                        testCases = known.testCases;
-                        if (!fnSig) fnSig = known.functionSignature;
-                        if (!starterCode) starterCode = known.starterCode;
-                    } else {
-                        // 2. Ask AI specifically for test cases
-                        const aiCases = await generateTestCasesForProblem(q.text || '', fnSig, q.language);
-                        if (aiCases) {
-                            testCases = aiCases;
-                        } else {
-                            // 3. Last resort: placeholder with "verify manually" 
-                            testCases = [
-                                { input: 'see problem description', inputCode: '[]', expected: 'null', expectedDisplay: 'check manually', hidden: false },
-                                { input: 'edge case', inputCode: '[]', expected: 'null', expectedDisplay: 'check manually', hidden: false },
-                            ];
-                        }
-                    }
-                } else {
-                    // Ensure first 2 are visible, rest hidden
-                    testCases = testCases.map((tc, idx) => ({
-                        input:           tc.input || `Test ${idx + 1}`,
-                        inputCode:       tc.inputCode || '[]',
-                        expected:        String(tc.expected ?? 'null'),
-                        expectedDisplay: tc.expectedDisplay || String(tc.expected ?? '?'),
-                        hidden:          idx >= 2,
-                    }));
-                }
-
-                if (!starterCode && fnSig) {
-                    starterCode = `function ${fnSig}() {\n  // your code here\n}`;
-                }
-                if (!fnSig) fnSig = 'solution';
+            // For coding questions: always override with our bank data (AI may have corrupted them)
+            if (section === 2) {
+                const bankQ = i === 5 || (section === 2 && parsed.questions.filter(x => Number(x.section) === 2).indexOf(q) === 0)
+                    ? codingQ1 : codingQ2;
+                // Detect which slot this is
+                const codingIdx = parsed.questions.filter((x, xi) => xi <= i && Number(x.section) === 2).length - 1;
+                const src = codingIdx === 0 ? codingQ1 : codingQ2;
+                return {
+                    id:                q.id ?? (i + 1),
+                    section,
+                    text:              src.description,
+                    type:              'technical',
+                    category:          'coding',
+                    options:           null,
+                    correctAnswer:     null,
+                    language:          'javascript',
+                    explanation:       null,
+                    functionSignature: src.functionSignature,
+                    starterCode:       src.starterCode,
+                    testCases:         src.testCases,
+                    title:             src.title,
+                    difficulty:        src.difficulty,
+                    constraints:       src.constraints || [],
+                    examples:          src.examples    || [],
+                };
             }
 
             return {
                 id:                q.id ?? (i + 1),
                 section,
                 text:              q.text || 'Question unavailable',
-                type,
+                type:              q.type || (category === 'behavioral' ? 'behavioral' : 'technical'),
                 category,
                 options:           Array.isArray(q.options) ? q.options : null,
                 correctAnswer:     typeof q.correctAnswer === 'number' ? q.correctAnswer : null,
-                language:          q.language || (category === 'coding' ? 'javascript' : null),
+                language:          q.language || null,
                 explanation:       q.explanation || null,
-                functionSignature: fnSig,
-                starterCode,
-                testCases,
+                functionSignature: null,
+                starterCode:       null,
+                testCases:         null,
+                title:             null,
+                difficulty:        null,
+                constraints:       [],
+                examples:          [],
             };
         });
-
-        parsed.questions = await Promise.all(fixJobs);
     }
 
     return parsed;
