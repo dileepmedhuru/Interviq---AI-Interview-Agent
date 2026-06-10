@@ -130,9 +130,10 @@ exports.evaluateInterview = async (req, res, next) => {
         }
 
         const evaluation = await claude.evaluateInterview({
-            answers: interview.answers,
-            role: interview.role,
-            expLevel: interview.expLevel
+            answers:   interview.answers,
+            questions: interview.questions,
+            role:      interview.role,
+            expLevel:  interview.expLevel
         });
 
         // Remove old report if re-evaluating
@@ -149,6 +150,9 @@ exports.evaluateInterview = async (req, res, next) => {
                 clarity:   evaluation.clarity,
                 depth:     evaluation.depth,
             },
+            sectionScores:   evaluation.sectionScores || { mcq: 0, coding: 0, video: 0 },
+            earnedMarks:     evaluation.earnedMarks   || 0,
+            grandTotal:      evaluation.grandTotal    || 60,
             feedback:        evaluation.feedback,
             recommendations: evaluation.recommendations,
             summary:         evaluation.summary,

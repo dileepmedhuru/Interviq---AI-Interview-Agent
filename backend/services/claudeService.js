@@ -551,15 +551,15 @@ Target role: ${role}
 Experience level: ${expLevel || 'mid'}
 
 REQUIREMENTS:
-- Section 1: EXACTLY 5 MCQ questions (section:1, category:"mcq") — test conceptual knowledge relevant to the role
+- Section 1: EXACTLY 8 MCQ questions (section:1, category:"mcq") — test conceptual knowledge relevant to the role
 - Section 2: EXACTLY 2 coding questions — ALREADY PROVIDED BELOW, copy them verbatim as JSON
-- Section 3: EXACTLY 7 open questions (section:3) — 5 technical + 2 behavioral
+- Section 3: EXACTLY 6 open questions (section:3) — 4 technical + 2 behavioral
 
-Total: 14 questions. IDs 1-14.
+Total: 16 questions. IDs 1-16.
 
 CODING QUESTIONS (section 2) — copy these EXACTLY into your JSON output, do NOT modify them:
-Q6: id=6, section=2, category="coding", text="${codingQ1.description}", functionSignature="${codingQ1.functionSignature}", title="${codingQ1.title}", difficulty="${codingQ1.difficulty}"
-Q7: id=7, section=2, category="coding", text="${codingQ2.description}", functionSignature="${codingQ2.functionSignature}", title="${codingQ2.title}", difficulty="${codingQ2.difficulty}"
+Q9: id=9, section=2, category="coding", text="${codingQ1.description}", functionSignature="${codingQ1.functionSignature}", title="${codingQ1.title}", difficulty="${codingQ1.difficulty}"
+Q10: id=10, section=2, category="coding", text="${codingQ2.description}", functionSignature="${codingQ2.functionSignature}", title="${codingQ2.title}", difficulty="${codingQ2.difficulty}"
 
 Respond ONLY with valid JSON, no markdown, no backticks:
 {
@@ -568,15 +568,15 @@ Respond ONLY with valid JSON, no markdown, no backticks:
   "summary": "one sentence",
   "questions": [
     {"id":1,"section":1,"text":"...","type":"technical","category":"mcq","options":["A","B","C","D"],"correctAnswer":0,"language":null,"explanation":"...","functionSignature":null,"starterCode":null,"testCases":null,"title":null,"difficulty":null},
-    ...5 MCQ questions with IDs 1-5...,
-    {"id":6,"section":2,"text":"${codingQ1.description.replace(/"/g,"'")}","type":"technical","category":"coding","options":null,"correctAnswer":null,"language":"javascript","explanation":null,"functionSignature":"${codingQ1.functionSignature}","starterCode":${JSON.stringify(codingQ1.starterCode)},"testCases":${JSON.stringify(codingQ1.testCases)},"title":${JSON.stringify(codingQ1.title)},"difficulty":${JSON.stringify(codingQ1.difficulty)}},
-    {"id":7,"section":2,"text":"${codingQ2.description.replace(/"/g,"'")}","type":"technical","category":"coding","options":null,"correctAnswer":null,"language":"javascript","explanation":null,"functionSignature":"${codingQ2.functionSignature}","starterCode":${JSON.stringify(codingQ2.starterCode)},"testCases":${JSON.stringify(codingQ2.testCases)},"title":${JSON.stringify(codingQ2.title)},"difficulty":${JSON.stringify(codingQ2.difficulty)}},
-    ...7 open questions with IDs 8-14 for section 3...
+    ...8 MCQ questions with IDs 1-8...,
+    {"id":9,"section":2, ... codingQ1 verbatim ...},
+    {"id":10,"section":2, ... codingQ2 verbatim ...},
+    ...6 open questions with IDs 11-16 for section 3...
   ]
 }
 
-For open questions (IDs 8-14): generate role-specific questions. IDs 8-12 are technical (category:"technical"), IDs 13-14 are behavioral (category:"behavioral", type:"behavioral").
-Generate ALL 14 questions now.`;
+For open questions (IDs 11-16): generate role-specific questions. IDs 11-14 are technical (category:"technical"), IDs 15-16 are behavioral (category:"behavioral", type:"behavioral").
+Generate ALL 16 questions now.`;
 
     const raw = await callAI(prompt, 4000);
     let parsed;
@@ -596,8 +596,8 @@ Generate ALL 14 questions now.`;
         parsed.questions = parsed.questions.map((q, i) => {
             let section = Number(q.section);
             if (!section || isNaN(section)) {
-                if (i < 5)      section = 1;
-                else if (i < 7) section = 2;
+                if (i < 8)      section = 1;
+                else if (i < 10) section = 2;
                 else            section = 3;
             }
             let category = q.category;
@@ -610,8 +610,7 @@ Generate ALL 14 questions now.`;
 
             // For coding questions: always override with our bank data (AI may have corrupted them)
             if (section === 2) {
-                const bankQ = i === 5 || (section === 2 && parsed.questions.filter(x => Number(x.section) === 2).indexOf(q) === 0)
-                    ? codingQ1 : codingQ2;
+                const bankQ = null; // unused, codingIdx handles it below
                 // Detect which slot this is
                 const codingIdx = parsed.questions.filter((x, xi) => xi <= i && Number(x.section) === 2).length - 1;
                 const src = codingIdx === 0 ? codingQ1 : codingQ2;
@@ -672,48 +671,123 @@ Write 2 warm encouraging sentences thanking them for completing the interview. N
     return callAI(prompt, 200);
 }
 
-async function evaluateInterview({ answers, role, expLevel }) {
-    const qa = answers
+
+async function evaluateInterview({ answers, questions = [], role, expLevel }) {
+    
+    const { SECTION_MARKS, GRAND_TOTAL_MARKS } = require('../config/constants');
+
+    const sectionMap = [
+        ...Array(8).fill(1),
+        ...Array(2).fill(2),
+        ...Array(6).fill(3),
+    ];
+
+    const sectionEarned = { 1: 0, 2: 0, 3: 0 };
+
+    answers.forEach((a, i) => {
+        const sec = sectionMap[i] || 3;
+        const mpq = SECTION_MARKS[sec]?.perQuestion || 2;
+
+        const isSkipped = !a.answer || a.answer === '[Skipped]';
+        if (isSkipped) return;
+
+        if (sec === 1) {
+            // MCQ: 2 marks if correct, 0 if wrong
+            const q = questions[i];
+            if (q && typeof q.correctAnswer === 'number' && Array.isArray(q.options)) {
+                const letter = (a.answer || '').charAt(0).toUpperCase();
+                const idx    = ['A','B','C','D'].indexOf(letter);
+                if (idx !== -1 && idx === q.correctAnswer) {
+                    sectionEarned[1] += mpq; // full 2 marks for correct
+                }
+                // wrong answer = 0 marks
+            } else {
+                // Can't verify — give 1 mark for attempting
+                sectionEarned[1] += 1;
+            }
+        } else if (sec === 2) {
+            // Strip [CODE:LANG] prefix — handle both \n and space after it
+            const code = a.answer
+                .replace(/^\[CODE:[A-Z]+\][\n\r\s]*/i, '')
+                .trim();
+            const isStub = !code ||
+                code.length < 20 ||
+                /^\s*function\s+\w+\s*\([^)]*\)\s*\{\s*(\/\/[^\n]*)?\s*\}\s*$/.test(code) ||
+                /^\s*def\s+\w+\s*\([^)]*\)\s*:\s*\n?\s*pass\s*$/.test(code);
+            if (!isStub) sectionEarned[2] += mpq;
+        } else {
+            const len = a.answer.trim().length;
+            if (len >= 200)     sectionEarned[3] += mpq;
+            else if (len >= 80) sectionEarned[3] += Math.round(mpq * 0.5);
+            else if (len >= 20) sectionEarned[3] += 1;
+        }
+    });
+
+    const earnedMarks = sectionEarned[1] + sectionEarned[2] + sectionEarned[3];
+    const grandTotal  = GRAND_TOTAL_MARKS;
+    const overall     = Math.round((earnedMarks / grandTotal) * 10 * 10) / 10;
+    const s1Score     = Math.round((sectionEarned[1] / SECTION_MARKS[1].total) * 10 * 10) / 10;
+    const s2Score     = Math.round((sectionEarned[2] / SECTION_MARKS[2].total) * 10 * 10) / 10;
+    const s3Score     = Math.round((sectionEarned[3] / SECTION_MARKS[3].total) * 10 * 10) / 10;
+    // ── Step 3: ask AI only for qualitative feedback, not scores ─────────────
+    const answeredQA = answers
         .filter(a => a.answer && a.answer !== '[Skipped]')
-        .map((a, i) => `Q${i+1}: ${a.question}\nAnswer: ${a.answer}`)
+        .slice(0, 6) // limit tokens
+        .map((a, i) => `Q: ${a.question}\nA: ${a.answer.slice(0, 300)}`)
         .join('\n\n');
 
-    if (!qa.trim()) {
-        return {
-            overall: 5, relevance: 5, clarity: 5, depth: 5,
-            feedback: [{ type: 'improve', text: 'Most questions were skipped.' }],
-            recommendations: ['Attempt all questions for a better evaluation.'],
-            summary: 'The interview was mostly skipped.',
-            strengths: ['Completed the interview process'],
-            areasToImprove: ['Answer more questions for meaningful feedback'],
-        };
-    }
+    let feedback = [], recommendations = [], summary = '', strengths = [], areasToImprove = [];
 
-    const prompt = `You are an encouraging interview evaluator for a ${role} position (${expLevel} level).
+    if (answeredQA.trim()) {
+        const prompt = `You are an interview evaluator for a ${role} position (${expLevel} level).
+The candidate scored ${earnedMarks}/${grandTotal} marks (${overall}/10).
+Section scores: MCQ ${s1Score}/10, Coding ${s2Score}/10, Video ${s3Score}/10.
 
-Questions and answers:
-${qa}
+Answered questions:
+${answeredQA}
 
-Respond ONLY in valid JSON (no markdown, no backticks):
+Give ONLY qualitative feedback. Do NOT suggest any scores.
+Respond ONLY in valid JSON (no markdown):
 {
-  "overall": 7, "relevance": 8, "clarity": 7, "depth": 6,
   "feedback": [{"type":"good","text":"..."},{"type":"improve","text":"..."}],
   "recommendations": ["tip 1","tip 2","tip 3"],
-  "summary": "2-sentence encouraging summary",
-  "strengths": ["strength 1","strength 2"],
-  "areasToImprove": ["area 1","area 2"]
+  "summary": "2-sentence honest summary mentioning the marks scored",
+  "strengths": ["..."],
+  "areasToImprove": ["..."]
 }`;
 
-    const raw = await callAI(prompt, 1500);
-    try {
-        return JSON.parse(raw.replace(/```json\n?|```\n?/g, '').trim());
-    } catch (e) {
-        const match = raw.match(/\{[\s\S]*\}/);
-        if (match) return JSON.parse(match[0]);
-        throw new Error('AI returned invalid JSON for evaluation');
+        try {
+            const raw = await callAI(prompt, 900);
+            const clean = raw.replace(/```json\n?|```\n?/g, '').trim();
+            const ai = JSON.parse(clean.match(/\{[\s\S]*\}/)?.[0] || clean);
+            feedback        = ai.feedback        || [];
+            recommendations = ai.recommendations || [];
+            summary         = ai.summary         || '';
+            strengths       = ai.strengths        || [];
+            areasToImprove  = ai.areasToImprove   || [];
+        } catch(_) {}
     }
-}
 
+    if (!summary) {
+        const skipped = answers.filter(a => !a.answer || a.answer === '[Skipped]').length;
+        summary = `Scored ${earnedMarks}/${grandTotal} marks (${overall}/10). ${skipped} of ${answers.length} questions were skipped.`;
+    }
+
+    return {
+        overall:         Math.min(overall, 10),
+        relevance:       Math.min(s1Score, 10),
+        clarity:         Math.min(s3Score, 10),
+        depth:           Math.min(s2Score, 10),
+        sectionScores:   { mcq: s1Score, coding: s2Score, video: s3Score },
+        earnedMarks,
+        grandTotal,
+        feedback,
+        recommendations,
+        summary,
+        strengths,
+        areasToImprove,
+    };
+}
 module.exports = {
     callClaude: callAI,
     parseResumeAndGenerateQuestions,
