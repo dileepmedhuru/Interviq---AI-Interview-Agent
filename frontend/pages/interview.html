@@ -3120,20 +3120,21 @@
         function saveAnswer(question, answer) { localAnswers.push({ question, answer, answeredAt: new Date().toISOString() }); }
 
         async function handleEvaluate() {
-            const btn = $('#get-report-btn'), spinner = $('#report-spinner');
-            showEl(spinner); setLoading(btn, true, 'Generating report…');
-            try {
-                try {
-                    await interviewApi.answer(interview._id, {
-                        answers: localAnswers
-                    });
-                } catch (_) { }
-                await interviewApi.evaluate(interview._id);
-            } catch (err) {
-                showToast(err.message || 'Could not generate report', 'error');
-                hideEl(spinner); setLoading(btn, false, 'Get My Report →');
-            }
-        }
+    const btn = $('#get-report-btn'), spinner = $('#report-spinner');
+    showEl(spinner); setLoading(btn, true, 'Generating report…');
+    try {
+        try {
+            await interviewApi.answer(interview._id, {
+                answers: localAnswers
+            });
+        } catch (_) { }
+        await interviewApi.evaluate(interview._id);
+        location.href = `/pages/report.html?id=${interview._id}`;
+    } catch (err) {
+        showToast(err.message || 'Could not generate report', 'error');
+        hideEl(spinner); setLoading(btn, false, 'Get My Report →');
+    }
+}
 
         // ═══════════════════════════════════════════════════════
         // HELPERS
