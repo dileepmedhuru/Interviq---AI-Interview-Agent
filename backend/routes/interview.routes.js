@@ -11,5 +11,6 @@ router.post('/:id/evaluate',  claudeLimiter, ctrl.evaluateInterview);
 router.get('/history',                       ctrl.getHistory);
 router.get('/:id',                           ctrl.getInterview);
 router.delete('/:id',                        ctrl.deleteInterview);
+router.post('/run-code', protect, ctrl.runCode);
 
 module.exports = router;

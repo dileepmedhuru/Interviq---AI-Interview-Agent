@@ -275,11 +275,25 @@ function renderReport(interview) {
                             statusColor = allPass ? 'var(--success)' : somePass ? 'var(--warning)' : 'var(--danger)';
                             statusText  = `${testResults.passed}/${testResults.total} tests passed`;
                         } else if (lang === 'JAVASCRIPT') {
-                            // Has code but no test cases available in report context
-                            statusIcon  = '✅';
-                            statusColor = 'var(--success)';
-                            statusText  = 'Submitted';
-                        } else {
+    statusIcon  = '✅';
+    statusColor = 'var(--success)';
+    statusText  = 'Submitted';
+} else if (lang === 'PYTHON') {
+    // Analyse Python structure for display
+    const fnName = x.q.functionSignature || 'solution';
+    const hasFn     = codeBody.includes(`def ${fnName}`);
+    const hasReturn = /\breturn\b/.test(codeBody);
+    const hasLoop   = /\b(for|while)\b/.test(codeBody);
+    const looksComplete = hasFn && hasReturn && codeBody.length > 30;
+    statusIcon  = looksComplete ? '✅' : '⚠️';
+    statusColor = looksComplete ? 'var(--success)' : 'var(--warning)';
+    const checks = [];
+    if (hasFn)     checks.push('✓ function defined');
+    if (hasReturn) checks.push('✓ return present');
+    if (hasLoop)   checks.push('✓ loop present');
+    if (!hasFn)    checks.push('✗ function not found');
+    statusText  = checks.slice(0, 2).join(' · ') || 'Submitted';
+} else {
                             // Python / other — can't run in browser
                             statusIcon  = '📋';
                             statusColor = 'var(--accent)';

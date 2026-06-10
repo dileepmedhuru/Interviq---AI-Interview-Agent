@@ -229,3 +229,88 @@ exports.deleteInterview = async (req, res, next) => {
         res.json({ success: true, message: 'Interview deleted' });
     } catch (err) { next(err); }
 };
+
+const { execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
+
+exports.runCode = async (req, res, next) => {
+    try {
+        const { code, language, testCases, functionSignature } = req.body;
+        if (!code || !language || !testCases || !functionSignature) {
+            return res.status(400).json({ success: false, message: 'Missing fields' });
+        }
+
+        if (language !== 'python') {
+            return res.status(400).json({ success: false, message: 'Only Python supported server-side' });
+        }
+
+        const results = [];
+
+        for (const tc of testCases) {
+            let args = [];
+            try {
+                const parsed = JSON.parse(tc.inputCode);
+                args = Array.isArray(parsed) ? parsed : [parsed];
+            } catch (_) { args = []; }
+
+            const argsStr = args.map(a => JSON.stringify(a)).join(', ');
+
+            const script = `
+import json, sys
+
+${code}
+
+try:
+    result = ${functionSignature}(${argsStr})
+    print(json.dumps(result))
+except Exception as e:
+    print(json.dumps({"__error__": str(e)}))
+`;
+            const tmpFile = path.join(os.tmpdir(), `run_${Date.now()}_${Math.random().toString(36).slice(2)}.py`);
+
+            try {
+                fs.writeFileSync(tmpFile, script);
+                const cmd = process.platform === 'win32' ? 'python' : 'python3';
+const output = execSync(`${cmd} ${tmpFile}`, {
+                    timeout: 5000,
+                    encoding: 'utf-8',
+                }).trim();
+
+                let got;
+                try { got = JSON.parse(output); } catch (_) { got = output; }
+
+                const isError = got && typeof got === 'object' && got.__error__;
+                let expected;
+                try { expected = JSON.parse(tc.expected); } catch (_) { expected = tc.expected; }
+
+                const pass = !isError && JSON.stringify(got) === JSON.stringify(expected);
+
+                results.push({
+                    input: tc.input,
+                    expected: tc.expectedDisplay,
+                    got: isError ? `Error: ${got.__error__}` : JSON.stringify(got),
+                    pass,
+                    hidden: tc.hidden,
+                    error: isError ? got.__error__ : null,
+                });
+            } catch (e) {
+                results.push({
+                    input: tc.input,
+                    expected: tc.expectedDisplay,
+                    got: `Timeout or crash`,
+                    pass: false,
+                    hidden: tc.hidden,
+                    error: e.message,
+                });
+            } finally {
+                try { fs.unlinkSync(tmpFile); } catch (_) {}
+            }
+        }
+
+        const passed = results.filter(r => r.pass).length;
+        res.json({ success: true, results, passed, total: results.length });
+
+    } catch (err) { next(err); }
+};

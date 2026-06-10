@@ -676,11 +676,28 @@ async function evaluateInterview({ answers, questions = [], role, expLevel }) {
     
     const { SECTION_MARKS, GRAND_TOTAL_MARKS } = require('../config/constants');
 
-    const sectionMap = [
-        ...Array(8).fill(1),
-        ...Array(2).fill(2),
-        ...Array(6).fill(3),
-    ];
+    const buildSectionMap = (answers) => {
+    const map = [];
+    let passedCoding = false;
+    for (let i = 0; i < answers.length; i++) {
+        const a = answers[i];
+        const isCoding = a.answer && a.answer.startsWith('[CODE:');
+        if (isCoding) {
+            passedCoding = true;
+            map.push(2);
+        } else if (!passedCoding) {
+            map.push(1);
+        } else {
+            map.push(3);
+        }
+    }
+    return map;
+};
+
+
+const sectionMap = buildSectionMap(answers);
+console.log('Section map:', sectionMap);
+console.log('Answers count:', answers.length);
 
     const sectionEarned = { 1: 0, 2: 0, 3: 0 };
 
@@ -706,15 +723,16 @@ async function evaluateInterview({ answers, questions = [], role, expLevel }) {
                 sectionEarned[1] += 1;
             }
         } else if (sec === 2) {
-            // Strip [CODE:LANG] prefix — handle both \n and space after it
-            const code = a.answer
-                .replace(/^\[CODE:[A-Z]+\][\n\r\s]*/i, '')
-                .trim();
-            const isStub = !code ||
-                code.length < 20 ||
-                /^\s*function\s+\w+\s*\([^)]*\)\s*\{\s*(\/\/[^\n]*)?\s*\}\s*$/.test(code) ||
-                /^\s*def\s+\w+\s*\([^)]*\)\s*:\s*\n?\s*pass\s*$/.test(code);
-            if (!isStub) sectionEarned[2] += mpq;
+    const raw = a.answer.replace(/^\[CODE:[A-Z]+\][\n\r\s]*/i, '').trim();
+    const langMatch = a.answer.match(/^\[CODE:([A-Z]+)\]/i);
+    const lang = langMatch ? langMatch[1].toLowerCase() : 'javascript';
+
+    const isJsStub = /^\s*function\s+\w+\s*\([^)]*\)\s*\{\s*(\/\/[^\n]*)?\s*\}\s*$/.test(raw);
+    const isPyStub = /^\s*def\s+\w+\s*\([^)]*\)\s*:\s*\n?\s*(pass|\.\.\.)\s*$/.test(raw);
+    const isGenericStub = !raw || raw.length < 20;
+
+    const isStub = isGenericStub || (lang === 'javascript' && isJsStub) || (lang === 'python' && isPyStub);
+    if (!isStub) sectionEarned[2] += mpq;
         } else {
             const len = a.answer.trim().length;
             if (len >= 200)     sectionEarned[3] += mpq;

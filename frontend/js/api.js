@@ -46,3 +46,7 @@ export const interviewApi = {
     history:  (page=1, limit=10) => api.get(`/interview/history?page=${page}&limit=${limit}`),
     delete:   (id)             => api.delete(`/interview/${id}`),
 };
+
+export const codeApi = {
+    run: (body) => api.post('/interview/run-code', body),
+};
