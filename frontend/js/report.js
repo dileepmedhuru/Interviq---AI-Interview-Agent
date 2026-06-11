@@ -18,10 +18,8 @@ import { requireAuth, showToast, $, buildScoreRing, scoreColor, scoreLabel, form
         const { interview } = data;
 
         if (!interview.report) {
-            // Report not generated yet — trigger it
             showToast('Generating report, please wait…', 'info');
             await interviewApi.evaluate(id);
-            // Re-fetch
             const fresh = await interviewApi.get(id);
             renderReport(fresh.interview);
         } else {
@@ -36,11 +34,9 @@ import { requireAuth, showToast, $, buildScoreRing, scoreColor, scoreLabel, form
 function renderReport(interview) {
     const report = interview.report;
 
-    // Hide loader, show body
-    $('#loading-state').style.display  = 'none';
-    $('#report-body').style.display    = 'block';
+    $('#loading-state').style.display = 'none';
+    $('#report-body').style.display = 'block';
 
-    // Header meta
     setText('#report-role-chip', `${interview.role} · ${interview.expLevel}`);
     setText('#report-meta', [
         formatDate(interview.createdAt),
@@ -48,27 +44,21 @@ function renderReport(interview) {
         `${interview.answers?.length ?? 0} answers`,
     ].filter(Boolean).join('  ·  '));
 
-
-    // Use marks-based score if available, otherwise fall back to stored score
     const overall = report.earnedMarks !== undefined && report.grandTotal
         ? Math.round((report.earnedMarks / report.grandTotal) * 10 * 10) / 10
         : report.scores?.overall ?? 0;
     $('#overall-ring').innerHTML = buildScoreRing(overall, 110, 9);
 
-    // Animate the ring after paint
     setTimeout(() => {
         const circle = $('#overall-ring').querySelectorAll('circle')[1];
-        if (circle) circle.style.strokeDashoffset = circle.style.strokeDashoffset; // trigger
+        if (circle) circle.style.strokeDashoffset = circle.style.strokeDashoffset;
     }, 100);
 
-    // Summary
     setText('#report-summary', report.summary || 'No summary available.');
 
-    // Show marks breakdown if available
-    // Show marks breakdown — recalculate from section scores if earnedMarks is stale
-    const mcqScore    = report.sectionScores?.mcq    ?? 0;
+    const mcqScore = report.sectionScores?.mcq ?? 0;
     const codingScore = report.sectionScores?.coding ?? 0;
-    const videoScore  = report.sectionScores?.video  ?? 0;
+    const videoScore = report.sectionScores?.video ?? 0;
     const recalcEarned = Math.round(((mcqScore * 16) + (codingScore * 20) + (videoScore * 24)) / 10);
     const displayMarks = (report.earnedMarks > 0 || recalcEarned === 0)
         ? report.earnedMarks
@@ -110,7 +100,7 @@ function renderReport(interview) {
         barsEl.innerHTML = barData.map(b => {
             const score = b.value ?? 0;
             const color = scoreColor(score);
-            const pct   = (score / 10) * 100;
+            const pct = (score / 10) * 100;
             return `
             <div class="score-bar-row">
                 <span class="score-bar-label">${b.label}</span>
@@ -172,34 +162,31 @@ function renderReport(interview) {
 
         secEl.innerHTML = `<h3 style="margin-bottom:1.25rem;color:var(--text-primary)">Section Results</h3>
         <div style="display:flex;flex-direction:column;gap:1rem">` +
-        sections.map(sec => {
-            const secQs = qs.filter(q => Number(q.section) === sec.num);
-            if (secQs.length === 0) return '';
+            sections.map(sec => {
+                const secQs = qs.filter(q => Number(q.section) === sec.num);
+                if (secQs.length === 0) return '';
 
-            // Match answers by question text
-            const secAs = secQs.map(q => {
-                const found = as.find(a => a.question === q.text);
-                return { q, a: found?.answer || '[Skipped]' };
-            });
+                const secAs = secQs.map(q => {
+                    const found = as.find(a => a.question === q.text);
+                    return { q, a: found?.answer || '[Skipped]' };
+                });
 
-            const total    = secAs.length;
-            const skipped  = secAs.filter(x => x.a === '[Skipped]').length;
-            const answered = total - skipped;
+                const total    = secAs.length;
+                const skipped  = secAs.filter(x => x.a === '[Skipped]').length;
+                const answered = total - skipped;
 
-            // Section-specific stats
-            let statsHtml = '';
-            if (sec.num === 1) {
-                // MCQ: count correct answers
-                const correct = secAs.filter(x => {
-                    if (x.a === '[Skipped]') return false;
-                    // Answer format: "A: option text"
-                    const letter = x.a.charAt(0);
-                    const idx    = ['A','B','C','D'].indexOf(letter);
-                    return idx !== -1 && idx === x.q.correctAnswer;
-                }).length;
-                const pct = Math.round((correct / total) * 100);
-                const color = pct >= 70 ? 'var(--success)' : pct >= 40 ? 'var(--warning)' : 'var(--danger)';
-                statsHtml = `
+                let statsHtml = '';
+
+                if (sec.num === 1) {
+                    const correct = secAs.filter(x => {
+                        if (x.a === '[Skipped]') return false;
+                        const letter = x.a.charAt(0);
+                        const idx = ['A', 'B', 'C', 'D'].indexOf(letter);
+                        return idx !== -1 && idx === x.q.correctAnswer;
+                    }).length;
+                    const pct = Math.round((correct / total) * 100);
+                    const color = pct >= 70 ? 'var(--success)' : pct >= 40 ? 'var(--warning)' : 'var(--danger)';
+                    statsHtml = `
                     <div style="display:flex;gap:20px;flex-wrap:wrap;margin-top:10px">
                         <div><span style="font-size:1.5rem;font-weight:800;color:${color}">${correct}/${total}</span>
                             <div style="font-size:0.75rem;color:var(--text-muted)">Correct</div></div>
@@ -213,17 +200,17 @@ function renderReport(interview) {
                         if (x.a === '[Skipped]') {
                             return `<div style="display:flex;gap:10px;align-items:center;font-size:0.82rem;padding:6px 10px;background:var(--surface-2);border-radius:8px">
                                 <span style="color:var(--warning)">—</span>
-                                <span style="color:var(--text-muted)">Q${i+1}: ${escHtml(x.q.text.slice(0,80))}${x.q.text.length>80?'…':''}</span>
+                                <span style="color:var(--text-muted)">Q${i + 1}: ${escHtml(x.q.text.slice(0, 80))}${x.q.text.length > 80 ? '…' : ''}</span>
                                 <span style="margin-left:auto;font-size:0.7rem;color:var(--text-muted)">Skipped</span>
                             </div>`;
                         }
                         const letter = x.a.charAt(0);
-                        const idx = ['A','B','C','D'].indexOf(letter);
+                        const idx = ['A', 'B', 'C', 'D'].indexOf(letter);
                         const isCorrect = idx !== -1 && idx === x.q.correctAnswer;
-                        const correctLetter = ['A','B','C','D'][x.q.correctAnswer] || '?';
-                        return `<div style="display:flex;gap:10px;align-items:center;font-size:0.82rem;padding:6px 10px;background:var(--surface-2);border-radius:8px;border-left:3px solid ${isCorrect?'var(--success)':'var(--danger)'}">
+                        const correctLetter = ['A', 'B', 'C', 'D'][x.q.correctAnswer] || '?';
+                        return `<div style="display:flex;gap:10px;align-items:center;font-size:0.82rem;padding:6px 10px;background:var(--surface-2);border-radius:8px;border-left:3px solid ${isCorrect ? 'var(--success)' : 'var(--danger)'}">
                             <span>${isCorrect ? '✅' : '❌'}</span>
-                            <span style="flex:1;color:var(--text-secondary)">${escHtml(x.q.text.slice(0,70))}${x.q.text.length>70?'…':''}</span>
+                            <span style="flex:1;color:var(--text-secondary)">${escHtml(x.q.text.slice(0, 70))}${x.q.text.length > 70 ? '…' : ''}</span>
                             <span style="font-size:0.72rem;color:var(--text-muted);white-space:nowrap">
                                 ${isCorrect ? `Correct (${letter})` : `You: ${letter || '?'} · Ans: ${correctLetter}`}
                             </span>
@@ -231,8 +218,8 @@ function renderReport(interview) {
                     }).join('')}
                     </div>`;
 
-            } else if (sec.num === 2) {
-                statsHtml = `
+                } else if (sec.num === 2) {
+                    statsHtml = `
                     <div style="display:flex;gap:20px;flex-wrap:wrap;margin-top:10px">
                         <div><span style="font-size:1.5rem;font-weight:800;color:var(--accent)">${answered}</span>
                             <div style="font-size:0.75rem;color:var(--text-muted)">Submitted</div></div>
@@ -246,7 +233,7 @@ function renderReport(interview) {
                         const lang = langMatch ? langMatch[1] : null;
                         const codeBody = lang ? x.a.replace(/^\[CODE:\w+\]\n?/, '').trim() : null;
 
-                        // Detect stub code (not actually implemented)
+                        // Detect stub code
                         const isStub = !codeBody ||
                             codeBody.length < 20 ||
                             /^\s*function\s+\w+\s*\([^)]*\)\s*\{\s*(\/\/[^\n]*)?\s*\}\s*$/.test(codeBody) ||
@@ -260,6 +247,7 @@ function renderReport(interview) {
 
                         // Determine status
                         let statusIcon, statusColor, statusText;
+
                         if (skippedQ) {
                             statusIcon  = '⏭';
                             statusColor = 'var(--warning)';
@@ -269,42 +257,70 @@ function renderReport(interview) {
                             statusColor = 'var(--danger)';
                             statusText  = 'Not implemented (starter code only)';
                         } else if (testResults) {
-                            const allPass = testResults.passed === testResults.total;
+                            const allPass  = testResults.passed === testResults.total;
                             const somePass = testResults.passed > 0;
                             statusIcon  = allPass ? '✅' : somePass ? '⚠️' : '❌';
                             statusColor = allPass ? 'var(--success)' : somePass ? 'var(--warning)' : 'var(--danger)';
                             statusText  = `${testResults.passed}/${testResults.total} tests passed`;
                         } else if (lang === 'JAVASCRIPT') {
-    statusIcon  = '✅';
-    statusColor = 'var(--success)';
-    statusText  = 'Submitted';
-} else if (lang === 'PYTHON') {
-    // Analyse Python structure for display
-    const fnName = x.q.functionSignature || 'solution';
-    const hasFn     = codeBody.includes(`def ${fnName}`);
-    const hasReturn = /\breturn\b/.test(codeBody);
-    const hasLoop   = /\b(for|while)\b/.test(codeBody);
-    const looksComplete = hasFn && hasReturn && codeBody.length > 30;
-    statusIcon  = looksComplete ? '✅' : '⚠️';
-    statusColor = looksComplete ? 'var(--success)' : 'var(--warning)';
-    const checks = [];
-    if (hasFn)     checks.push('✓ function defined');
-    if (hasReturn) checks.push('✓ return present');
-    if (hasLoop)   checks.push('✓ loop present');
-    if (!hasFn)    checks.push('✗ function not found');
-    statusText  = checks.slice(0, 2).join(' · ') || 'Submitted';
-} else {
-                            // Python / other — can't run in browser
+                            statusIcon  = '✅';
+                            statusColor = 'var(--success)';
+                            statusText  = 'Submitted';
+                        } else if (lang === 'JAVA' || lang === 'CPP' || lang === 'GO' || lang === 'RUST' || lang === 'TYPESCRIPT') {
+                            const isJavaStub = lang === 'JAVA' && (
+                                /\/\/\s*your code here/i.test(codeBody) &&
+                                !/\b(for|while|if|switch|return\s+[^;]{3,}|int\s+\w|String\s+\w|count\s*[+\-*]|sum\s*[+\-*])\b/.test(codeBody)
+                            );
+                            const isCppStub = lang === 'CPP' && (
+                                /\/\/\s*your code here/i.test(codeBody) &&
+                                !/\b(for|while|if|return\s+[^;]{3,}|vector|map|set)\b/.test(codeBody)
+                            );
+                            const isGoStub = lang === 'GO' &&
+                                /return\s+nil/.test(codeBody) &&
+                                !/\b(for|if|range|len)\b/.test(codeBody);
+                            const isShortStub = codeBody.split('\n')
+                                .filter(l => l.trim() && !l.trim().startsWith('//') && !l.trim().startsWith('*') && !l.trim().startsWith('#'))
+                                .length < 5;
+                            const isLangStub = isJavaStub || isCppStub || isGoStub || isShortStub;
+                            statusIcon  = isLangStub ? '❌' : '✅';
+                            statusColor = isLangStub ? 'var(--danger)' : 'var(--success)';
+                            statusText  = isLangStub ? 'Not implemented (stub)' : `${lang} — submitted`;
+                        } else if (lang === 'PYTHON') {
+                            const fnName = x.q.functionSignature || 'solution';
+                            const hasFn     = codeBody.includes(`def ${fnName}`);
+                            const hasReturn = /\breturn\b/.test(codeBody);
+                            const hasLoop   = /\b(for|while)\b/.test(codeBody);
+                            const meaningfulLines = codeBody.split('\n')
+                                .map(l => l.trim())
+                                .filter(l => l &&
+                                    !l.startsWith('#') &&
+                                    !l.startsWith('def ') &&
+                                    l !== 'pass' &&
+                                    l !== '...' &&
+                                    !/^return\s+(None|0|""|''|\[\]|\{\})$/.test(l));
+                            const looksComplete = hasFn && hasReturn && meaningfulLines.length >= 2;
+                            statusIcon  = looksComplete ? '✅' : '❌';
+                            statusColor = looksComplete ? 'var(--success)' : 'var(--danger)';
+                            const checks = [];
+                            if (hasFn)                    checks.push('✓ function defined');
+                            if (hasReturn)                checks.push('✓ return present');
+                            if (hasLoop)                  checks.push('✓ loop present');
+                            if (!hasFn)                   checks.push('✗ function not found');
+                            if (!looksComplete && hasFn)  checks.push('✗ no real logic');
+                            statusText = looksComplete
+                                ? (checks.slice(0, 2).join(' · ') || 'Submitted')
+                                : (checks.join(' · ') || 'Not implemented');
+                        } else {
                             statusIcon  = '📋';
                             statusColor = 'var(--accent)';
                             statusText  = `${lang} — submitted`;
                         }
 
                         return `<div style="padding:12px 14px;background:var(--surface-2);border-radius:10px;border-left:3px solid ${statusColor}">
-                            <div style="display:flex;align-items:center;gap:8px;margin-bottom:${codeBody?'10px':'0'}">
+                            <div style="display:flex;align-items:center;gap:8px;margin-bottom:${codeBody ? '10px' : '0'}">
                                 <span style="font-size:1.1rem">${statusIcon}</span>
                                 <span style="font-weight:600;font-size:0.9rem;color:var(--text-primary);flex:1">
-                                    ${escHtml((x.q.title || x.q.functionSignature || `Problem ${i+1}`))}
+                                    ${escHtml((x.q.title || x.q.functionSignature || `Problem ${i + 1}`))}
                                 </span>
                                 ${lang ? `<span class="chip" style="font-size:0.68rem">${lang}</span>` : ''}
                                 <span style="font-size:0.78rem;font-weight:600;color:${statusColor}">${statusText}</span>
@@ -319,49 +335,48 @@ function renderReport(interview) {
                                 ${testResults.details.map(d => `
                                 <div style="display:flex;gap:8px;align-items:center;font-size:0.74rem;
                                     font-family:monospace;padding:5px 8px;border-radius:6px;
-                                    background:${d.pass?'rgba(29,158,117,.08)':'rgba(226,75,74,.08)'};
-                                    border:1px solid ${d.pass?'rgba(29,158,117,.2)':'rgba(226,75,74,.2)'}">
-                                    <span>${d.pass?'✓':'✗'}</span>
+                                    background:${d.pass ? 'rgba(29,158,117,.08)' : 'rgba(226,75,74,.08)'};
+                                    border:1px solid ${d.pass ? 'rgba(29,158,117,.2)' : 'rgba(226,75,74,.2)'}">
+                                    <span>${d.pass ? '✓' : '✗'}</span>
                                     <span style="color:rgba(255,255,255,.5)">${escHtml(d.input)}</span>
                                     <span style="color:rgba(255,255,255,.3)">→</span>
-                                    <span style="color:${d.pass?'#1D9E75':'#E24B4A'}">${escHtml(d.got)}</span>
-                                    ${!d.pass?`<span style="color:rgba(255,255,255,.3);margin-left:auto">expected: ${escHtml(d.expected)}</span>`:''}
+                                    <span style="color:${d.pass ? '#1D9E75' : '#E24B4A'}">${escHtml(d.got)}</span>
+                                    ${!d.pass ? `<span style="color:rgba(255,255,255,.3);margin-left:auto">expected: ${escHtml(d.expected)}</span>` : ''}
                                 </div>`).join('')}
                             </div>` : ''}
                         </div>`;
                     }).join('')}
-                    </div>`;            }
+                    </div>`;
+                }
 
-            return `<div class="card">
-                <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
-                    <span style="font-size:1.25rem">${sec.icon}</span>
-                    <h3 style="font-size:1rem;font-weight:700;color:var(--text-primary)">${sec.label}</h3>
-                    <span style="margin-left:auto;font-size:0.78rem;color:var(--text-muted)">${answered}/${total} answered</span>
-                </div>
-                ${statsHtml}
-            </div>`;
-        }).join('') + '</div>';
+                return `<div class="card">
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+                        <span style="font-size:1.25rem">${sec.icon}</span>
+                        <h3 style="font-size:1rem;font-weight:700;color:var(--text-primary)">${sec.label}</h3>
+                        <span style="margin-left:auto;font-size:0.78rem;color:var(--text-muted)">${answered}/${total} answered</span>
+                    </div>
+                    ${statsHtml}
+                </div>`;
+            }).join('') + '</div>';
     }
-
 
     // Q&A list
     const qaEl = $('#qa-list');
     if (qaEl && interview.answers?.length) {
         qaEl.innerHTML = interview.answers.map((a, i) => `
-            <div class="card" style="padding:1.25rem">
-                <div class="text-xs text-muted font-semibold" style="letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px">
-                    Q${i + 1}
-                </div>
-                <div style="font-weight:600;color:var(--text-primary);margin-bottom:10px;font-size:0.95rem">
-                    ${escHtml(a.question)}
-                </div>
-                <div style="font-size:0.875rem;color:var(--text-secondary);line-height:1.7;background:var(--surface-2);border-radius:var(--radius-md);padding:12px 14px;border-left:3px solid var(--border-strong)">
-                    ${escHtml(a.answer)}
-                </div>
-            </div>`).join('');
+        <div class="card" style="padding:1.25rem">
+            <div class="text-xs text-muted font-semibold" style="letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px">
+                Q${i + 1}
+            </div>
+            <div style="font-weight:600;color:var(--text-primary);margin-bottom:10px;font-size:0.95rem">
+                ${escHtml(a.question)}
+            </div>
+            <div style="font-size:0.875rem;color:var(--text-secondary);line-height:1.7;background:var(--surface-2);border-radius:var(--radius-md);padding:12px 14px;border-left:3px solid var(--border-strong)">
+                ${escHtml(a.answer)}
+            </div>
+        </div>`).join('');
     }
 
-    // "Practice again" → dashboard with modal
     $('#new-interview-btn')?.addEventListener('click', () => {
         window.location.href = '/pages/dashboard.html';
     });
@@ -375,38 +390,45 @@ function setText(sel, val) {
 
 function escHtml(str = '') {
     return str.replace(/[&<>"']/g, c => (
-        { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]
+        { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
     ));
 }
 
-// FIND and REPLACE the entire evaluateCodeAnswer function:
 function evaluateCodeAnswer(code, question) {
-    const fnName    = question.functionSignature;
+    const fnName = question.functionSignature;
     const testCases = (question.testCases || []).filter(tc => !tc.hidden);
     if (!fnName || testCases.length === 0) return null;
 
     const details = [];
     let passed = 0;
+    let userFn = null;
 
-    // Use a sandboxed iframe to avoid CSP restrictions
-    let iframe = null;
-    let iframeWin = null;
     try {
-        iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.sandbox = 'allow-scripts';
-        document.body.appendChild(iframe);
-        iframeWin = iframe.contentWindow;
+        userFn = new Function(`${code}\nreturn typeof ${fnName} !== 'undefined' ? ${fnName} : null;`)();
+    } catch (e) {
+        return {
+            passed: 0,
+            total: testCases.length,
+            details: testCases.map(tc => ({
+                pass: false,
+                input: tc.input,
+                got: `Syntax error: ${e.message.slice(0, 50)}`,
+                expected: tc.expectedDisplay,
+            }))
+        };
+    }
 
-        // Write the user code into the iframe
-        const iframeDoc = iframe.contentDocument || iframeWin.document;
-        iframeDoc.open();
-        iframeDoc.write(`<script>${code}<\/script>`);
-        iframeDoc.close();
-
-    } catch(e) {
-        if (iframe) iframe.remove();
-        return null;
+    if (typeof userFn !== 'function') {
+        return {
+            passed: 0,
+            total: testCases.length,
+            details: testCases.map(tc => ({
+                pass: false,
+                input: tc.input,
+                got: `"${fnName}" not found`,
+                expected: tc.expectedDisplay,
+            }))
+        };
     }
 
     for (const tc of testCases) {
@@ -416,52 +438,32 @@ function evaluateCodeAnswer(code, question) {
                 try {
                     const parsed = JSON.parse(tc.inputCode);
                     args = Array.isArray(parsed) ? parsed : [parsed];
-                } catch(_) { args = []; }
+                } catch (_) { args = []; }
             }
 
-            const fn = iframeWin[fnName];
-            if (typeof fn !== 'function') {
-                details.push({
-                    pass: false,
-                    input: tc.input,
-                    got: `"${fnName}" not found`,
-                    expected: tc.expectedDisplay,
-                });
-                continue;
-            }
-
-            const result   = fn(...args);
+            const result   = userFn(...args);
             const expected = safeParseExp(tc.expected);
             const isPass   = deepEq(result, expected);
-
             const resultStr = result === undefined ? 'undefined'
-                            : result === null      ? 'null'
-                            : JSON.stringify(result);
+                : result === null ? 'null'
+                : JSON.stringify(result);
 
-            details.push({
-                pass:     isPass,
-                input:    tc.input,
-                got:      resultStr,
-                expected: tc.expectedDisplay,
-            });
+            details.push({ pass: isPass, input: tc.input, got: resultStr, expected: tc.expectedDisplay });
             if (isPass) passed++;
-
-        } catch(e) {
+        } catch (e) {
             details.push({
-                pass:     false,
-                input:    tc.input,
-                got:      `error: ${e.message.slice(0, 50)}`,
+                pass: false, input: tc.input,
+                got: `error: ${e.message.slice(0, 50)}`,
                 expected: tc.expectedDisplay,
             });
         }
     }
 
-    if (iframe) iframe.remove();
     return { passed, total: testCases.length, details };
 }
 function safeParseExp(s) {
     if (s === undefined || s === null) return null;
-    try { return JSON.parse(String(s).trim()); } catch(_) { return String(s).trim(); }
+    try { return JSON.parse(String(s).trim()); } catch (_) { return String(s).trim(); }
 }
 
 function deepEq(a, b) {
@@ -476,9 +478,9 @@ function deepEq(a, b) {
     }
     if (Array.isArray(a) && Array.isArray(b)) {
         if (a.length !== b.length) return false;
-        if (a.every((v,i) => deepEq(v, b[i]))) return true;
+        if (a.every((v, i) => deepEq(v, b[i]))) return true;
         const sa = [...a].sort(), sb = [...b].sort();
-        return sa.every((v,i) => deepEq(v, sb[i]));
+        return sa.every((v, i) => deepEq(v, sb[i]));
     }
     if (typeof a === 'object') {
         const ka = Object.keys(a).sort(), kb = Object.keys(b).sort();

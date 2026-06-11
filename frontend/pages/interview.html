@@ -2308,13 +2308,15 @@
             showCodeQuestion(0);
 
             $('#code-lang').addEventListener('change', () => {
-                const lang = $('#code-lang').value;
-                setText('#lang-badge', LANG_BADGE[lang] || lang.toUpperCase());
-                const q = getS2()[codeIndex], ta = $('#code-textarea');
-                if (ta.dataset.isStarter === 'true') {
-                    ta.value = (lang === 'javascript' && q.starterCode) ? q.starterCode : buildStarter(q.functionSignature || 'solution', lang, q);
-                }
-            });
+    const lang = $('#code-lang').value;
+    setText('#lang-badge', LANG_BADGE[lang] || lang.toUpperCase());
+    const q = getS2()[codeIndex], ta = $('#code-textarea');
+    // Always update starter when language changes, regardless of isStarter flag
+    ta.value = (lang === 'javascript' && q.starterCode)
+        ? q.starterCode
+        : buildStarter(q.functionSignature || 'solution', lang, q);
+    ta.dataset.isStarter = 'true';
+});
 
             $('#run-btn').addEventListener('click', runAndTest);
             $('#code-submit-btn').addEventListener('click', handleCodeSubmit);
@@ -2806,31 +2808,71 @@
                 const row = $(`#tc-row-${i}`), icon = $(`#tc-icon-${i}`), got = $(`#tc-got-${i}`);
                 if (row) { row.classList.remove('pass', 'fail'); row.classList.add('running'); }
                 if (icon) icon.textContent = '⟳';
-                if (got) { got.innerHTML = '<span style="font-size:.68rem;color:rgba(239,159,39,.7)">recording…</span>'; got.className = 'tc-got'; }
+                if (got) { got.innerHTML = '<span style="font-size:.68rem;color:rgba(239,159,39,.7)">pending…</span>'; got.className = 'tc-got'; }
             });
-            setSummaryPill('running', 'recording…');
+            setSummaryPill('running', 'analyzing…');
             setTimeout(() => {
-                const hasBody = code.trim().length > 30;
+                const fnName = getS2()[codeIndex]?.functionSignature || 'solution';
+                const isStub = isGenericStubCode(code, lang, fnName);
                 testCases.forEach((tc, i) => {
                     const row = $(`#tc-row-${i}`), icon = $(`#tc-icon-${i}`), got = $(`#tc-got-${i}`);
                     if (!row) return;
                     row.classList.remove('running');
-                    row.classList.add(hasBody ? 'pass' : 'fail');
-                    if (icon) icon.textContent = hasBody ? '✓' : '✗';
+                    // Stubs always fail; non-stubs show "recorded" (can't execute server-side yet)
+                    const display = isStub ? 'fail' : 'pass';
+                    row.classList.add(display);
+                    if (icon) icon.textContent = isStub ? '✗' : '✓';
                     if (got) {
                         if (tc.hidden) {
-                            got.innerHTML = hasBody
-                                ? `<span style="font-size:.85rem;font-weight:800">✓</span> <span style="font-size:.68rem;opacity:.8">recorded</span>`
-                                : `<span style="font-size:.85rem;font-weight:800">✗</span> <span style="font-size:.68rem;opacity:.8">empty</span>`;
+                            got.textContent = isStub ? '✗ stub' : '✓ recorded';
                         } else {
-                            got.textContent = hasBody ? 'recorded' : 'empty';
+                            got.textContent = isStub ? 'not implemented' : 'recorded (run server-side)';
                         }
-                        got.className = `tc-got ${hasBody ? 'correct' : 'wrong'}`;
+                        got.className = `tc-got ${isStub ? 'wrong' : 'correct'}`;
                     }
                 });
-                setSummaryPill(hasBody ? 'all-pass' : 'some-fail', hasBody ? 'submitted' : 'code empty');
-                updateConsole([`✅ ${lang.toUpperCase()} code recorded.`, '', hasBody ? 'Submit when ready.' : '⚠ Code appears empty.'], null, null);
-            }, 500);
+                setSummaryPill(isStub ? 'some-fail' : 'all-pass',
+                    isStub ? '0/' + testCases.length + ' (stub)' : 'recorded ✓');
+                updateConsole(isStub
+                    ? [`❌ ${lang.toUpperCase()} code looks like starter/stub — implement the logic first.`]
+                    : [`✅ ${lang.toUpperCase()} code recorded. Logic will be evaluated on submission.`],
+                    null, null);
+            }, 400);
+        }
+
+        function isGenericStubCode(code, lang, fnName) {
+            const trimmed = code.trim();
+            if (!trimmed || trimmed.length < 30) return true;
+
+            if (lang === 'java') {
+                // Must have the function name, must NOT be only the template body
+                const hasImpl = trimmed.includes(fnName);
+                const isTemplate =
+                    /\/\/\s*your code here/i.test(trimmed) &&
+                    // body between braces has no real logic
+                    !/\b(for|while|if|switch|return\s+[^;]{3,}|int\s+\w|String\s+\w|List|Map|Set|count\s*[+\-*]|sum\s*[+\-*])\b/.test(trimmed);
+                const tooShort = trimmed.split('\n').filter(l => l.trim() && !l.trim().startsWith('//') && !l.trim().startsWith('*')).length < 6;
+                return !hasImpl || isTemplate || tooShort;
+            }
+
+            if (lang === 'cpp') {
+                const isTemplate = /\/\/\s*your code here/i.test(trimmed) &&
+                    !/\b(for|while|if|return\s+[^;]{3,}|int\s+\w|auto\s+\w|vector|map|set)\b/.test(trimmed);
+                return isTemplate || trimmed.split('\n').filter(l => l.trim() && !l.trim().startsWith('//') && !l.trim().startsWith('#')).length < 5;
+            }
+
+            if (lang === 'go') {
+                return /return\s+nil/.test(trimmed) &&
+                    !/\b(for|if|range|len|map\[|append)\b/.test(trimmed);
+            }
+
+            if (lang === 'rust') {
+                return trimmed.split('\n').filter(l => l.trim() && !l.trim().startsWith('//')).length < 4;
+            }
+
+            // Default: if it still has the "// your code here" comment and no real logic, it's a stub
+            return /\/\/\s*your code here/i.test(trimmed) &&
+                trimmed.split('\n').filter(l => l.trim() && !l.trim().startsWith('//') && !l.trim().startsWith('*')).length < 5;
         }
 
         async function runCustomTest() {
@@ -3120,21 +3162,21 @@
         function saveAnswer(question, answer) { localAnswers.push({ question, answer, answeredAt: new Date().toISOString() }); }
 
         async function handleEvaluate() {
-    const btn = $('#get-report-btn'), spinner = $('#report-spinner');
-    showEl(spinner); setLoading(btn, true, 'Generating report…');
-    try {
-        try {
-            await interviewApi.answer(interview._id, {
-                answers: localAnswers
-            });
-        } catch (_) { }
-        await interviewApi.evaluate(interview._id);
-        location.href = `/pages/report.html?id=${interview._id}`;
-    } catch (err) {
-        showToast(err.message || 'Could not generate report', 'error');
-        hideEl(spinner); setLoading(btn, false, 'Get My Report →');
-    }
-}
+            const btn = $('#get-report-btn'), spinner = $('#report-spinner');
+            showEl(spinner); setLoading(btn, true, 'Generating report…');
+            try {
+                try {
+                    await interviewApi.answer(interview._id, {
+                        answers: localAnswers
+                    });
+                } catch (_) { }
+                await interviewApi.evaluate(interview._id);
+                location.href = `/pages/report.html?id=${interview._id}`;
+            } catch (err) {
+                showToast(err.message || 'Could not generate report', 'error');
+                hideEl(spinner); setLoading(btn, false, 'Get My Report →');
+            }
+        }
 
         // ═══════════════════════════════════════════════════════
         // HELPERS
