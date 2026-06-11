@@ -237,28 +237,13 @@ const LANG_IDS = {
     sql:        82,
 };
 
-// ── Starter code templates for each language ─────────────────
-function getStarterCode(fnSig, lang, params) {
-    const p = params.join(', ');
-    switch (lang) {
-        case 'javascript':
-            return `function ${fnSig}(${p}) {\n    // your code here\n}\n`;
-        case 'python':
-            return `def ${fnSig}(${p}):\n    # your code here\n    pass\n`;
-        case 'java':
-            return `public class Solution {\n    public static Object ${fnSig}(${params.map(x => `Object ${x}`).join(', ')}) {\n        // your code here\n        return null;\n    }\n}\n`;
-        case 'cpp':
-            return `#include <bits/stdc++.h>\nusing namespace std;\n\nauto ${fnSig}(${params.map(x => `auto ${x}`).join(', ')}) {\n    // your code here\n}\n`;
-        case 'c':
-            return `#include <stdio.h>\n#include <stdlib.h>\n\nvoid ${fnSig}(${p}) {\n    // your code here\n}\n`;
-        default:
-            return `// your code here\n`;
-    }
-}
-
 // ── Build executable source for each language ─────────────────
 function buildSource(lang, userCode, fnSig, args, expected) {
     const argsJson = JSON.stringify(args);
+
+    // Determine if this problem expects a boolean result
+    const expectedStr = String(expected).trim();
+    const isBoolExpected = expectedStr === 'true' || expectedStr === 'false';
 
     switch (lang) {
         case 'javascript':
@@ -298,7 +283,6 @@ except Exception as e:
             }).join('\n        ');
             const argNames = args.map((_, i) => `arg${i}`).join(', ');
 
-            // wrap user code in Solution class if not already
             const solutionCode = /class\s+Solution/.test(userCode)
                 ? userCode
                 : `class Solution {\n${userCode}\n}`;
@@ -393,21 +377,27 @@ int main() {
                     const inner = v.join(', ');
                     return `int arg${i}[] = {${inner}};\n    int arg${i}Size = ${v.length};`;
                 }
-                if (typeof v === 'string') return `char* arg${i} = ${JSON.stringify(v)};`;
+                if (typeof v === 'string') return `const char* arg${i} = ${JSON.stringify(v)};`;
                 if (typeof v === 'boolean') return `int arg${i} = ${v ? 1 : 0};`;
                 return `int arg${i} = ${v};`;
             }).join('\n    ');
 
-            // build the function call — arrays need size param
+            // Build the function call — arrays need size param
             const callStr = args.map((v, i) => {
                 if (Array.isArray(v)) return `arg${i}, arg${i}Size`;
                 return `arg${i}`;
             }).join(', ');
 
+            // ── KEY FIX: print "true"/"false" when expected is boolean ──
+            const printResult = isBoolExpected
+                ? `printf("%s\\n", result ? "true" : "false");`
+                : `printf("%d\\n", result);`;
+
             return `
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <stdbool.h>
 
 ${userCode}
@@ -415,7 +405,7 @@ ${userCode}
 int main() {
     ${argDecls}
     int result = (int)${fnSig}(${callStr});
-    printf("%d\\n", result);
+    ${printResult}
     return 0;
 }`;
         }
@@ -518,11 +508,10 @@ exports.runCode = async (req, res, next) => {
             try {
                 const j0 = await judge0Submit(source, languageId);
 
-                // Judge0 status ids: 3=Accepted, 4=Wrong, 5=TLE, 6=CE, 11=RE
-                const stdout    = (j0.stdout    || '').trim();
-                const stderr    = (j0.stderr    || '').trim();
+                const stdout     = (j0.stdout         || '').trim();
+                const stderr     = (j0.stderr         || '').trim();
                 const compileErr = (j0.compile_output || '').trim();
-                const statusId  = j0.status?.id;
+                const statusId   = j0.status?.id;
 
                 // Compile error
                 if (statusId === 6 || (compileErr && !stdout)) {
@@ -537,7 +526,7 @@ exports.runCode = async (req, res, next) => {
                     continue;
                 }
 
-                // Runtime error or TLE
+                // TLE
                 if (statusId === 5) {
                     results.push({
                         input:    tc.input,
@@ -550,6 +539,7 @@ exports.runCode = async (req, res, next) => {
                     continue;
                 }
 
+                // Runtime error
                 if (stderr && !stdout) {
                     results.push({
                         input:    tc.input,
@@ -562,14 +552,11 @@ exports.runCode = async (req, res, next) => {
                     continue;
                 }
 
-                // Parse output
-                // Last non-empty line is our JSON result
+                // Parse output — last non-empty line
                 const lastLine = stdout.split('\n').map(l => l.trim()).filter(Boolean).pop() || '';
 
                 let got;
-                let parseError = null;
 
-                // JS and Python wrap result in { result: ... }
                 if (lang === 'javascript' || lang === 'python') {
                     try {
                         const parsed = JSON.parse(lastLine);
@@ -590,8 +577,15 @@ exports.runCode = async (req, res, next) => {
                     }
                 } else {
                     // C, C++, Java — raw output
-                    try { got = JSON.parse(lastLine); }
-                    catch (_) { got = lastLine; }
+                    // For C with bool fix, output is already "true"/"false" string
+                    if ((lang === 'c' || lang === 'cpp') &&
+                        (lastLine === 'true' || lastLine === 'false')) {
+                        // Keep as string so deepEqual("true", true) works via String coercion
+                        got = lastLine;
+                    } else {
+                        try { got = JSON.parse(lastLine); }
+                        catch (_) { got = lastLine; }
+                    }
                 }
 
                 const pass = deepEqual(got, expected);
@@ -599,7 +593,7 @@ exports.runCode = async (req, res, next) => {
                 results.push({
                     input:    tc.input,
                     expected: tc.expectedDisplay,
-                    got:      got === null ? 'null'
+                    got:      got === null      ? 'null'
                             : got === undefined ? 'undefined'
                             : typeof got === 'object' ? JSON.stringify(got)
                             : String(got),
