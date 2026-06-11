@@ -1895,11 +1895,10 @@
                         <select class="lang-select" id="code-lang">
                             <option value="javascript">🌐 JavaScript</option>
                             <option value="python">🐍 Python</option>
-                            <option value="typescript">🔷 TypeScript</option>
                             <option value="java">☕ Java</option>
                             <option value="cpp">⚡ C++</option>
-                            <option value="go">🐹 Go</option>
-                            <option value="rust">🦀 Rust</option>
+                            <option value="c">🔵 C</option>
+                            <option value="sql">🗄️ SQL</option>
                         </select>
                         <button class="run-btn" id="run-btn">▶ Run &amp; Test</button>
                         <button class="submit-btn" id="code-submit-btn">Submit →</button>
@@ -2265,7 +2264,7 @@
         // ═══════════════════════════════════════════════════════
         // SECTION 2 — CODING
         // ═══════════════════════════════════════════════════════
-        const LANG_BADGE = { javascript: 'JS', python: 'PY', typescript: 'TS', java: 'JAVA', cpp: 'C++', go: 'GO', rust: 'RS' };
+        const LANG_BADGE = { javascript: 'JS', python: 'PY', java: 'JAVA', cpp: 'C++', c: 'C', sql: 'SQL' };
 
         function deriveParams(question) {
             const firstInput = (question?.testCases?.[0]?.input) || (question?.examples?.[0]?.input) || '';
@@ -2292,11 +2291,10 @@
             const paramStr = params.join(', ');
             const starters = {
                 python: `def ${fnName}(${paramStr}):\n    # your code here\n    pass\n`,
-                java: `public class Solution {\n    public static Object ${fnName}(${params.map(p => `Object ${p}`).join(', ')}) {\n        // your code here\n        return null;\n    }\n}\n`,
-                cpp: `#include <iostream>\nusing namespace std;\n\nauto ${fnName}(${params.map(p => `auto ${p}`).join(', ')}) {\n    // your code here\n}\n`,
-                go: `package main\n\nfunc ${fnName}(${params.map(p => `${p} interface{}`).join(', ')}) interface{} {\n    return nil\n}\n`,
-                rust: `fn ${fnName}(${params.map(p => `${p}: i32`).join(', ')}) -> i32 {\n    0\n}\n`,
-                typescript: `function ${fnName}(${params.map(p => `${p}: any`).join(', ')}): any {\n    // your code here\n}\n`,
+                java:   `class Solution {\n    public Object ${fnName}(${params.map(p => `Object ${p}`).join(', ')}) {\n        // your code here\n        return null;\n    }\n}\n`,
+                cpp:    `#include <bits/stdc++.h>\nusing namespace std;\n\nauto ${fnName}(${params.map(p => `auto ${p}`).join(', ')}) {\n    // your code here\n}\n`,
+                c:      `#include <stdio.h>\n#include <stdlib.h>\n\n// your code here\nvoid ${fnName}(${paramStr}) {\n    \n}\n`,
+                sql:    `-- Write your SQL query here\nSELECT * FROM table_name WHERE condition;\n`,
             };
             return starters[lang] || `function ${fnName}(${paramStr}) {\n    // your code here\n}\n`;
         }
@@ -2311,11 +2309,12 @@
     const lang = $('#code-lang').value;
     setText('#lang-badge', LANG_BADGE[lang] || lang.toUpperCase());
     const q = getS2()[codeIndex], ta = $('#code-textarea');
-    // Always update starter when language changes, regardless of isStarter flag
     ta.value = (lang === 'javascript' && q.starterCode)
         ? q.starterCode
         : buildStarter(q.functionSignature || 'solution', lang, q);
     ta.dataset.isStarter = 'true';
+
+    
 });
 
             $('#run-btn').addEventListener('click', runAndTest);
@@ -2574,24 +2573,8 @@
             testPanelOpen = true;
             $('#test-panel-wrap').classList.remove('collapsed');
 
-            if (lang === 'javascript' || lang === 'typescript') {
-                switchTestTab('cases');
-                // Mark all rows as "running"
-                testCases.forEach((_, i) => {
-                    const row = $(`#tc-row-${i}`), icon = $(`#tc-icon-${i}`), got = $(`#tc-got-${i}`);
-                    if (row) { row.classList.remove('pass', 'fail'); row.classList.add('running'); }
-                    if (icon) icon.textContent = '⟳';
-                    if (got) { got.innerHTML = '<span style="color:rgba(239,159,39,.7);font-size:.68rem">running…</span>'; got.className = 'tc-got'; }
-                });
-                await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-                await sleep(120);
-                runJsWithTests(code, testCases, q.functionSignature || 'solution');
-            } else if (lang === 'python') {
-                switchTestTab('cases');
-                runPythonAnalysis(code, testCases, q.functionSignature || 'solution');
-            } else {
-                runGenericAnalysis(code, lang, testCases);
-            }
+            switchTestTab('cases');
+            await runOnServer(code, lang, testCases, q.functionSignature || 'solution');
 
             isRunning = false;
             btn.innerHTML = '▶ Run &amp; Test';
@@ -2615,10 +2598,8 @@
             let userFn = null;
             try {
                 const scope = {};
-                new Function('console', '__scope',
-                    code + `\ntry { __scope.fn = typeof ${fnName} === 'function' ? ${fnName} : null; } catch(e){ __scope.fn = null; }`
-                )(fakeConsole, scope);
-                userFn = scope.fn;
+                // removed — CSP blocks new Function
+                    userFn = null;
             } catch (e) {
                 updateConsole(logs, `❌ Syntax Error:\n${e.message}`, 'error');
                 testCases.forEach((_, i) => {
@@ -2687,10 +2668,8 @@
 
                     let result;
                     const scope2 = {};
-                    new Function('console', '__scope',
-                        code + `\n__scope.result = ${fnName}(...${JSON.stringify(args)});`
-                    )(callConsole, scope2);
-                    result = scope2.result;
+                    // removed — CSP blocks new Function
+                    result = undefined;
 
                     if (callLogs.length) perTestLogs.push(`[TC${i + 1}] ${callLogs.join('; ')}`);
 
@@ -2733,7 +2712,7 @@
             if (allLogs.length) updateConsole(allLogs, null, null);
         }
 
-        async function runPythonAnalysis(code, testCases, fnName) {
+        async function runOnServer(code, lang, testCases, fnName) {
             testCases.forEach((_, i) => {
                 const row = $(`#tc-row-${i}`);
                 const icon = $(`#tc-icon-${i}`);
@@ -2743,7 +2722,6 @@
             setSummaryPill('running', 'running on server…');
 
             try {
-                const { api } = await import('../js/utils.js');
                 const res = await fetch('/api/interview/run-code', {
                     method: 'POST',
                     headers: {
@@ -2755,7 +2733,7 @@
                     credentials: 'include',
                     body: JSON.stringify({
                         code,
-                        language: 'python',
+                        language: lang,
                         testCases,
                         functionSignature: fnName,
                     }),
@@ -2906,33 +2884,8 @@
             }
 
             if (lang === 'javascript' || lang === 'typescript') {
-                try {
-                    const scope = {};
-                    new Function('console', '__scope',
-                        code + `\n__scope.fn = typeof ${fn} !== 'undefined' ? ${fn} : null;`
-                    )(fakeConsole, scope);
-
-                    if (!scope.fn) {
-                        showCustomOut(`❌ Function "${fn}" not found.\nMake sure your function is named: ${fn}`, 'error');
-                        return;
-                    }
-
-                    const result = scope.fn(...args);
-                    const output = result === undefined ? 'undefined'
-                        : result === null ? 'null'
-                            : JSON.stringify(result);
-
-                    const lines = [];
-                    if (logs.length) lines.push('Console:\n' + logs.map(l => '  ' + l).join('\n'));
-                    lines.push(`Output: ${output}`);
-                    showCustomOut(lines.join('\n\n'), 'success');
-
-                } catch (e) {
-                    const lines = [];
-                    if (logs.length) lines.push('Console:\n' + logs.map(l => '  ' + l).join('\n'));
-                    lines.push(`❌ Error: ${e.message}`);
-                    showCustomOut(lines.join('\n\n'), 'error');
-                }
+                showCustomOut(`ℹ️ JavaScript runs server-side.\nClick "Run & Test" to execute against all test cases.`, 'info');
+                return;
 
             } else if (lang === 'python') {
                 // Simulate Python execution by transpiling simple cases

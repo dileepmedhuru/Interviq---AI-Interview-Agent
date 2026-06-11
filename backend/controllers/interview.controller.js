@@ -222,71 +222,253 @@ exports.deleteInterview = async (req, res, next) => {
 };
 
 // ═══════════════════════════════════════════════════════════════
-// POST /api/interview/run-code
-// Multi-language server-side execution with test case validation
+// POST /api/interview/run-code  — Judge0 CE public API
 // ═══════════════════════════════════════════════════════════════
-const { execSync } = require('child_process');
-const fs   = require('fs');
-const path = require('path');
-const os   = require('os');
+const https = require('https');
 
-// ── Language runner registry ──────────────────────────────────
-const RUNNERS = {
-    python:     runPython,
-    javascript: runJavaScript,
-    typescript: runJavaScript,   // transpile-free: strip types then run as JS
-    java:       runJava,
-    cpp:        runCpp,
-    go:         runGo,
-    rust:       runRust,
+const JUDGE0_URL = 'https://ce.judge0.com/submissions?base64_encoded=false&wait=true';
+
+const LANG_IDS = {
+    javascript: 63,
+    python:     70,
+    java:       62,
+    cpp:        54,
+    c:          50,
+    sql:        82,
 };
 
-exports.runCode = async (req, res, next) => {
-    try {
-        const { code, language, testCases, functionSignature } = req.body;
-        if (!code || !language || !testCases || !functionSignature) {
-            return res.status(400).json({ success: false, message: 'Missing fields' });
+// ── Starter code templates for each language ─────────────────
+function getStarterCode(fnSig, lang, params) {
+    const p = params.join(', ');
+    switch (lang) {
+        case 'javascript':
+            return `function ${fnSig}(${p}) {\n    // your code here\n}\n`;
+        case 'python':
+            return `def ${fnSig}(${p}):\n    # your code here\n    pass\n`;
+        case 'java':
+            return `public class Solution {\n    public static Object ${fnSig}(${params.map(x => `Object ${x}`).join(', ')}) {\n        // your code here\n        return null;\n    }\n}\n`;
+        case 'cpp':
+            return `#include <bits/stdc++.h>\nusing namespace std;\n\nauto ${fnSig}(${params.map(x => `auto ${x}`).join(', ')}) {\n    // your code here\n}\n`;
+        case 'c':
+            return `#include <stdio.h>\n#include <stdlib.h>\n\nvoid ${fnSig}(${p}) {\n    // your code here\n}\n`;
+        default:
+            return `// your code here\n`;
+    }
+}
+
+// ── Build executable source for each language ─────────────────
+function buildSource(lang, userCode, fnSig, args, expected) {
+    const argsJson = JSON.stringify(args);
+
+    switch (lang) {
+        case 'javascript':
+            return `
+${userCode}
+
+const __args = ${argsJson};
+try {
+    const __result = ${fnSig}(...__args);
+    console.log(JSON.stringify({ result: __result }));
+} catch(e) {
+    console.log(JSON.stringify({ error: e.message }));
+}`;
+
+        case 'python':
+            return `
+${userCode}
+
+import json
+__args = ${JSON.stringify(args)}
+try:
+    __result = ${fnSig}(*__args)
+    print(json.dumps({"result": __result}))
+except Exception as e:
+    print(json.dumps({"error": str(e)}))
+`;
+
+        case 'java': {
+            const argDecls = args.map((v, i) => {
+                if (Array.isArray(v)) {
+                    const type = typeof v[0] === 'string' ? 'String' : 'int';
+                    return `${type}[] arg${i} = {${v.map(x => JSON.stringify(x)).join(', ')}};`;
+                }
+                if (typeof v === 'string')  return `String arg${i} = ${JSON.stringify(v)};`;
+                if (typeof v === 'boolean') return `boolean arg${i} = ${v};`;
+                return `int arg${i} = ${v};`;
+            }).join('\n        ');
+            const argNames = args.map((_, i) => `arg${i}`).join(', ');
+
+            // wrap user code in Solution class if not already
+            const solutionCode = /class\s+Solution/.test(userCode)
+                ? userCode
+                : `class Solution {\n${userCode}\n}`;
+
+            return `
+import java.util.*;
+import java.util.stream.*;
+
+${solutionCode}
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            Solution sol = new Solution();
+            ${argDecls}
+            Object result = sol.${fnSig}(${argNames});
+            System.out.println(toJson(result));
+        } catch (Exception e) {
+            System.out.println("{\\"error\\":\\"" + e.getMessage() + "\\"}");
+        }
+    }
+
+    static String toJson(Object o) {
+        if (o == null) return "null";
+        if (o instanceof int[])     return Arrays.toString((int[]) o).replace(", ", ",").replace("[ ", "[").replace(" ]", "]");
+        if (o instanceof String)    return "\\"" + o + "\\"";
+        if (o instanceof Boolean)   return o.toString();
+        if (o instanceof List) {
+            List<?> l = (List<?>) o;
+            return "[" + l.stream().map(x -> toJson(x)).collect(Collectors.joining(",")) + "]";
+        }
+        return String.valueOf(o);
+    }
+}`;
         }
 
-        const lang = language.toLowerCase();
-        const runner = RUNNERS[lang];
-        if (!runner) {
-            return res.status(400).json({ success: false, message: `Language "${lang}" not supported server-side` });
+        case 'cpp': {
+            const callArgs = args.map(v => {
+                if (Array.isArray(v)) {
+                    const inner = v.map(x => JSON.stringify(x)).join(', ');
+                    return typeof v[0] === 'string'
+                        ? `vector<string>{${inner}}`
+                        : `vector<int>{${inner}}`;
+                }
+                if (typeof v === 'string')  return `string(${JSON.stringify(v)})`;
+                if (typeof v === 'boolean') return v ? 'true' : 'false';
+                return String(v);
+            }).join(', ');
+
+            return `
+#include <bits/stdc++.h>
+using namespace std;
+
+${userCode}
+
+template<typename T>
+string toJson(T v) { return to_string(v); }
+string toJson(string v) { return "\\"" + v + "\\""; }
+string toJson(bool v) { return v ? "true" : "false"; }
+string toJson(vector<int> v) {
+    string s = "[";
+    for (int i = 0; i < (int)v.size(); i++) { if(i) s += ","; s += to_string(v[i]); }
+    return s + "]";
+}
+string toJson(vector<string> v) {
+    string s = "[";
+    for (int i = 0; i < (int)v.size(); i++) { if(i) s += ","; s += "\\"" + v[i] + "\\""; }
+    return s + "]";
+}
+
+int main() {
+    try {
+        auto result = ${fnSig}(${callArgs});
+        cout << toJson(result) << endl;
+    } catch (exception& e) {
+        cout << "{\\"error\\":\\"" << e.what() << "\\"}" << endl;
+    }
+    return 0;
+}`;
         }
 
-        const results = await runner(code, testCases, functionSignature);
-        const passed  = results.filter(r => r.pass).length;
-        res.json({ success: true, results, passed, total: results.length });
+        case 'c': {
+            const callArgs = args.map((v, i) => {
+                if (Array.isArray(v)) return `arg${i}`;
+                if (typeof v === 'string') return JSON.stringify(v);
+                if (typeof v === 'boolean') return v ? '1' : '0';
+                return String(v);
+            }).join(', ');
 
-    } catch (err) { next(err); }
-};
+            const argDecls = args.map((v, i) => {
+                if (Array.isArray(v)) {
+                    const inner = v.join(', ');
+                    return `int arg${i}[] = {${inner}};\n    int arg${i}Size = ${v.length};`;
+                }
+                if (typeof v === 'string') return `char* arg${i} = ${JSON.stringify(v)};`;
+                if (typeof v === 'boolean') return `int arg${i} = ${v ? 1 : 0};`;
+                return `int arg${i} = ${v};`;
+            }).join('\n    ');
 
-// ── Helpers ───────────────────────────────────────────────────
-function tmpFile(ext) {
-    return path.join(os.tmpdir(), `run_${Date.now()}_${Math.random().toString(36).slice(2)}${ext}`);
+            // build the function call — arrays need size param
+            const callStr = args.map((v, i) => {
+                if (Array.isArray(v)) return `arg${i}, arg${i}Size`;
+                return `arg${i}`;
+            }).join(', ');
+
+            return `
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+
+${userCode}
+
+int main() {
+    ${argDecls}
+    int result = (int)${fnSig}(${callStr});
+    printf("%d\\n", result);
+    return 0;
+}`;
+        }
+
+        case 'sql':
+            return userCode;
+
+        default:
+            return userCode;
+    }
 }
 
-function execSafe(cmd, opts = {}) {
-    return execSync(cmd, { timeout: 8000, encoding: 'utf-8', ...opts }).trim();
+// ── Call Judge0 ───────────────────────────────────────────────
+function judge0Submit(sourceCode, languageId) {
+    return new Promise((resolve, reject) => {
+        const body = JSON.stringify({
+            source_code: sourceCode,
+            language_id: languageId,
+            stdin: '',
+        });
+
+        const urlObj = new URL(JUDGE0_URL);
+        const options = {
+            hostname: urlObj.hostname,
+            path:     urlObj.pathname + urlObj.search,
+            method:   'POST',
+            headers: {
+                'Content-Type':   'application/json',
+                'Content-Length': Buffer.byteLength(body),
+            },
+        };
+
+        const req = https.request(options, res => {
+            let data = '';
+            res.on('data', chunk => data += chunk);
+            res.on('end', () => {
+                try { resolve(JSON.parse(data)); }
+                catch (e) { reject(new Error('Invalid Judge0 response: ' + data.slice(0, 200))); }
+            });
+        });
+
+        req.on('error', reject);
+        req.setTimeout(15000, () => { req.destroy(); reject(new Error('Judge0 timeout')); });
+        req.write(body);
+        req.end();
+    });
 }
 
-function parseArgs(tc) {
-    try {
-        const parsed = JSON.parse(tc.inputCode);
-        return Array.isArray(parsed) ? parsed : [parsed];
-    } catch (_) { return []; }
-}
-
-function parseExpected(tc) {
-    try { return JSON.parse(tc.expected); } catch (_) { return tc.expected; }
-}
-
+// ── Deep equality ─────────────────────────────────────────────
 function deepEqual(a, b) {
     if (a === b) return true;
     if (a === null || b === null) return a === b;
-    if (typeof a !== typeof b) {
-        return String(a) === String(b);
-    }
+    if (typeof a !== typeof b) return String(a) === String(b);
     if (Array.isArray(a) && Array.isArray(b)) {
         if (a.length !== b.length) return false;
         if (a.every((v, i) => deepEqual(v, b[i]))) return true;
@@ -301,339 +483,145 @@ function deepEqual(a, b) {
     return false;
 }
 
-// ── Python runner ─────────────────────────────────────────────
-async function runPython(code, testCases, fnSig) {
-    const results = [];
-    for (const tc of testCases) {
-        const args    = parseArgs(tc);
-        const argsStr = args.map(a => JSON.stringify(a)).join(', ');
-        const script  = `import json, sys\n\n${code}\n\ntry:\n    result = ${fnSig}(${argsStr})\n    print(json.dumps(result))\nexcept Exception as e:\n    print(json.dumps({"__error__": str(e)}))\n`;
-        const f = tmpFile('.py');
-        try {
-            fs.writeFileSync(f, script);
-            const cmd = process.platform === 'win32' ? 'python' : 'python3';
-            const out = execSafe(`${cmd} "${f}"`);
-            let got;
-            try { got = JSON.parse(out); } catch (_) { got = out; }
-            const isError = got && typeof got === 'object' && got.__error__;
-            const expected = parseExpected(tc);
-            const pass = !isError && deepEqual(got, expected);
-            results.push({ input: tc.input, expected: tc.expectedDisplay, got: isError ? `Error: ${got.__error__}` : JSON.stringify(got), pass, hidden: !!tc.hidden, error: isError ? got.__error__ : null });
-        } catch (e) {
-            results.push({ input: tc.input, expected: tc.expectedDisplay, got: 'Timeout or crash', pass: false, hidden: !!tc.hidden, error: e.message });
-        } finally { try { fs.unlinkSync(f); } catch (_) {} }
-    }
-    return results;
-}
-
-// ── JavaScript / TypeScript runner ────────────────────────────
-// Strips TS type annotations with a simple regex then runs via Node.
-async function runJavaScript(code, testCases, fnSig) {
-    // Basic TS → JS stripping (type annotations, interface blocks, `: type`)
-    const jsCode = code
-        .replace(/:\s*\w+(\[\])?(\s*\|[\s\w\[\]|]+)?(?=[,)=\n;{])/g, '')   // param types
-        .replace(/\binterface\s+\w+\s*\{[^}]*\}/g, '')                       // interface blocks
-        .replace(/\btype\s+\w+\s*=\s*[^;\n]+;?/g, '');                       // type aliases
-
-    const results = [];
-    for (const tc of testCases) {
-        const args     = parseArgs(tc);
-        const argsJson = JSON.stringify(args);
-        // Build a runner script that calls the function and prints JSON result
-        const script = `
-const __args = ${argsJson};
-${jsCode}
-try {
-    const __result = ${fnSig}(...__args);
-    process.stdout.write(JSON.stringify(__result === undefined ? null : __result));
-} catch(e) {
-    process.stdout.write(JSON.stringify({__error__: e.message}));
-}
-`;
-        const f = tmpFile('.js');
-        try {
-            fs.writeFileSync(f, script);
-            const out = execSafe(`node "${f}"`);
-            let got;
-            try { got = JSON.parse(out); } catch (_) { got = out; }
-            const isError = got && typeof got === 'object' && got.__error__;
-            const expected = parseExpected(tc);
-            const pass = !isError && deepEqual(got, expected);
-            results.push({ input: tc.input, expected: tc.expectedDisplay, got: isError ? `Error: ${got.__error__}` : JSON.stringify(got), pass, hidden: !!tc.hidden, error: isError ? got.__error__ : null });
-        } catch (e) {
-            results.push({ input: tc.input, expected: tc.expectedDisplay, got: 'Timeout or crash', pass: false, hidden: !!tc.hidden, error: e.message });
-        } finally { try { fs.unlinkSync(f); } catch (_) {} }
-    }
-    return results;
-}
-
-// ── Java runner ───────────────────────────────────────────────
-// Wraps user code in a Solution class and calls it via a main method.
-async function runJava(code, testCases, fnSig) {
-    const results = [];
-
-    // Determine method return type heuristically from test cases
-    const firstExpected = testCases[0]?.expected ?? 'null';
-    let returnType = 'Object';
+function parseArgs(tc) {
     try {
-        const v = JSON.parse(firstExpected);
-        if (Array.isArray(v)) returnType = 'int[]';
-        else if (typeof v === 'number' && Number.isInteger(v)) returnType = 'int';
-        else if (typeof v === 'boolean') returnType = 'boolean';
-        else if (typeof v === 'string') returnType = 'String';
-    } catch (_) {}
-
-    for (const tc of testCases) {
-        const args = parseArgs(tc);
-
-        // Build argument declarations & call string
-        const argDecls = args.map((a, i) => javaArgDecl(a, i)).join('\n        ');
-        const argNames = args.map((_, i) => `arg${i}`).join(', ');
-
-        const userClass = extractOrWrapJava(code, fnSig);
-
-        const mainClass = `
-import java.util.*;
-import java.util.stream.*;
-${userClass}
-public class Runner {
-    public static void main(String[] args) {
-        try {
-            Solution sol = new Solution();
-            ${argDecls}
-            Object result = sol.${fnSig}(${argNames});
-            System.out.println(toJson(result));
-        } catch(Exception e) {
-            System.out.println("{\\"__error__\\":\\"" + e.getMessage().replace("\\"","\\\\\\"") + "\\"}");
-        }
-    }
-    static String toJson(Object o) {
-        if (o == null) return "null";
-        if (o instanceof int[]) return Arrays.toString((int[])o).replace(" ","").replace("[","[").replace("]","]");
-        if (o instanceof boolean[]) return Arrays.toString((boolean[])o);
-        if (o instanceof String) return "\\"" + o + "\\"";
-        if (o instanceof List) {
-            List<?> l = (List<?>)o;
-            return "[" + l.stream().map(x -> toJson(x)).collect(Collectors.joining(",")) + "]";
-        }
-        return String.valueOf(o);
-    }
-}`;
-
-        const dir  = fs.mkdtempSync(path.join(os.tmpdir(), 'java_'));
-        const src  = path.join(dir, 'Runner.java');
-        try {
-            fs.writeFileSync(src, mainClass);
-            execSafe(`javac "${src}"`, { cwd: dir });
-            const out = execSafe(`java -cp "${dir}" Runner`);
-            let got;
-            try { got = JSON.parse(out); } catch (_) { got = out; }
-            const isError = got && typeof got === 'object' && got.__error__;
-            const expected = parseExpected(tc);
-            const pass = !isError && deepEqual(got, expected);
-            results.push({ input: tc.input, expected: tc.expectedDisplay, got: isError ? `Error: ${got.__error__}` : JSON.stringify(got), pass, hidden: !!tc.hidden, error: isError ? got.__error__ : null });
-        } catch (e) {
-            const errMsg = e.stderr || e.message || 'Compile/runtime error';
-            results.push({ input: tc.input, expected: tc.expectedDisplay, got: 'Error', pass: false, hidden: !!tc.hidden, error: errMsg.slice(0, 300) });
-        } finally {
-            try { fs.rmSync(dir, { recursive: true, force: true }); } catch (_) {}
-        }
-    }
-    return results;
+        const parsed = JSON.parse(tc.inputCode);
+        return Array.isArray(parsed) ? parsed : [parsed];
+    } catch (_) { return []; }
 }
 
-function javaArgDecl(val, idx) {
-    if (Array.isArray(val)) {
-        const inner = val.map(v => JSON.stringify(v)).join(', ');
-        const type  = typeof val[0] === 'string' ? 'String' : 'int';
-        return `${type}[] arg${idx} = {${inner}};`;
-    }
-    if (typeof val === 'string')  return `String arg${idx} = ${JSON.stringify(val)};`;
-    if (typeof val === 'boolean') return `boolean arg${idx} = ${val};`;
-    if (typeof val === 'number' && !Number.isInteger(val)) return `double arg${idx} = ${val};`;
-    return `int arg${idx} = ${val};`;
+function parseExpected(tc) {
+    try { return JSON.parse(tc.expected); } catch (_) { return tc.expected; }
 }
 
-function extractOrWrapJava(code, fnSig) {
-    // If user already wrote a class Solution { ... }, use it directly
-    if (/class\s+Solution\s*\{/.test(code)) return code;
-    // Otherwise wrap it
-    return `class Solution {\n    public Object ${fnSig}(Object... args) {\n${code}\n    }\n}`;
-}
-
-// ── C++ runner ────────────────────────────────────────────────
-async function runCpp(code, testCases, fnSig) {
-    const results = [];
-    for (const tc of testCases) {
-        const args = parseArgs(tc);
-
-        // Build a main() that calls the function and prints JSON-like output
-        const callArgs = args.map(a => cppLiteral(a)).join(', ');
-        const cppSrc = `
-#include <bits/stdc++.h>
-using namespace std;
-
-${code}
-
-// JSON printer helpers
-string toJson(int v)    { return to_string(v); }
-string toJson(bool v)   { return v ? "true" : "false"; }
-string toJson(double v) { return to_string(v); }
-string toJson(string v) { return "\\"" + v + "\\""; }
-string toJson(vector<int> v) {
-    string s = "[";
-    for(int i=0;i<(int)v.size();i++){if(i)s+=",";s+=to_string(v[i]);}
-    return s + "]";
-}
-string toJson(vector<string> v) {
-    string s = "[";
-    for(int i=0;i<(int)v.size();i++){if(i)s+=",";s+="\\""+v[i]+"\\""; }
-    return s + "]";
-}
-
-int main(){
+// ── Main handler ──────────────────────────────────────────────
+exports.runCode = async (req, res, next) => {
     try {
-        auto result = ${fnSig}(${callArgs});
-        cout << toJson(result) << endl;
-    } catch(exception& e){
-        cout << "{\\"__error__\\":\\"" << e.what() << "\\"}" << endl;
-    }
-    return 0;
-}`;
-
-        const src = tmpFile('.cpp');
-        const bin = tmpFile('');
-        try {
-            fs.writeFileSync(src, cppSrc);
-            execSafe(`g++ -std=c++17 -O2 -o "${bin}" "${src}"`);
-            const out = execSafe(`"${bin}"`).trim();
-            let got;
-            try { got = JSON.parse(out); } catch (_) { got = out; }
-            const isError = got && typeof got === 'object' && got.__error__;
-            const expected = parseExpected(tc);
-            const pass = !isError && deepEqual(got, expected);
-            results.push({ input: tc.input, expected: tc.expectedDisplay, got: isError ? `Error: ${got.__error__}` : JSON.stringify(got), pass, hidden: !!tc.hidden, error: isError ? got.__error__ : null });
-        } catch (e) {
-            results.push({ input: tc.input, expected: tc.expectedDisplay, got: 'Compile/runtime error', pass: false, hidden: !!tc.hidden, error: (e.stderr || e.message || '').slice(0, 300) });
-        } finally {
-            try { fs.unlinkSync(src); } catch (_) {}
-            try { fs.unlinkSync(bin); } catch (_) {}
+        const { code, language, testCases, functionSignature } = req.body;
+        if (!code || !language || !testCases || !functionSignature) {
+            return res.status(400).json({ success: false, message: 'Missing fields' });
         }
-    }
-    return results;
-}
 
-function cppLiteral(val) {
-    if (Array.isArray(val)) {
-        const inner = val.map(v => cppLiteral(v)).join(', ');
-        return typeof val[0] === 'string' ? `vector<string>{${inner}}` : `vector<int>{${inner}}`;
-    }
-    if (typeof val === 'string')  return `string(${JSON.stringify(val)})`;
-    if (typeof val === 'boolean') return val ? 'true' : 'false';
-    return String(val);
-}
-
-// ── Go runner ─────────────────────────────────────────────────
-async function runGo(code, testCases, fnSig) {
-    // Check if Go is available
-    try { execSafe('go version'); } catch (_) {
-        return testCases.map(tc => ({ input: tc.input, expected: tc.expectedDisplay, got: 'Go not installed on server', pass: false, hidden: !!tc.hidden, error: 'Go runtime unavailable' }));
-    }
-
-    const results = [];
-    for (const tc of testCases) {
-        const args = parseArgs(tc);
-        const argStr = args.map(a => goLiteral(a)).join(', ');
-
-        const goSrc = `package main
-import (
-    "encoding/json"
-    "fmt"
-)
-
-${code}
-
-func main() {
-    result := ${fnSig}(${argStr})
-    b, _ := json.Marshal(result)
-    fmt.Println(string(b))
-}`;
-        const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'go_'));
-        const src = path.join(dir, 'main.go');
-        try {
-            fs.writeFileSync(src, goSrc);
-            const out = execSafe(`go run "${src}"`);
-            let got;
-            try { got = JSON.parse(out); } catch (_) { got = out; }
-            const isError = got && typeof got === 'object' && got.__error__;
-            const expected = parseExpected(tc);
-            const pass = !isError && deepEqual(got, expected);
-            results.push({ input: tc.input, expected: tc.expectedDisplay, got: isError ? `Error: ${got.__error__}` : JSON.stringify(got), pass, hidden: !!tc.hidden, error: isError ? got.__error__ : null });
-        } catch (e) {
-            results.push({ input: tc.input, expected: tc.expectedDisplay, got: 'Error', pass: false, hidden: !!tc.hidden, error: (e.stderr || e.message || '').slice(0, 300) });
-        } finally {
-            try { fs.rmSync(dir, { recursive: true, force: true }); } catch (_) {}
+        const lang = language.toLowerCase();
+        const languageId = LANG_IDS[lang];
+        if (!languageId) {
+            return res.status(400).json({ success: false, message: `Language "${lang}" not supported` });
         }
-    }
-    return results;
-}
 
-function goLiteral(val) {
-    if (Array.isArray(val)) {
-        const inner = val.map(v => goLiteral(v)).join(', ');
-        return typeof val[0] === 'string' ? `[]string{${inner}}` : `[]int{${inner}}`;
-    }
-    if (typeof val === 'string')  return JSON.stringify(val);
-    if (typeof val === 'boolean') return val ? 'true' : 'false';
-    return String(val);
-}
+        const results = [];
 
-// ── Rust runner ───────────────────────────────────────────────
-async function runRust(code, testCases, fnSig) {
-    try { execSafe('rustc --version'); } catch (_) {
-        return testCases.map(tc => ({ input: tc.input, expected: tc.expectedDisplay, got: 'Rust not installed on server', pass: false, hidden: !!tc.hidden, error: 'Rust runtime unavailable' }));
-    }
-
-    const results = [];
-    for (const tc of testCases) {
-        const args = parseArgs(tc);
-        const argStr = args.map(a => rustLiteral(a)).join(', ');
-
-        const rustSrc = `
-${code}
-
-fn main() {
-    let result = ${fnSig}(${argStr});
-    println!("{}", serde_json::to_string(&result).unwrap_or_else(|_| format!("{:?}", result)));
-}`;
-        const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'rust_'));
-        const src = path.join(dir, 'main.rs');
-        const bin = path.join(dir, 'main');
-        try {
-            fs.writeFileSync(src, rustSrc);
-            execSafe(`rustc "${src}" -o "${bin}" 2>&1`);
-            const out = execSafe(`"${bin}"`);
-            let got;
-            try { got = JSON.parse(out); } catch (_) { got = out; }
-            const isError = got && typeof got === 'object' && got.__error__;
+        for (const tc of testCases) {
+            const args     = parseArgs(tc);
             const expected = parseExpected(tc);
-            const pass = !isError && deepEqual(got, expected);
-            results.push({ input: tc.input, expected: tc.expectedDisplay, got: isError ? `Error: ${got.__error__}` : JSON.stringify(got), pass, hidden: !!tc.hidden, error: isError ? got.__error__ : null });
-        } catch (e) {
-            results.push({ input: tc.input, expected: tc.expectedDisplay, got: 'Compile/runtime error', pass: false, hidden: !!tc.hidden, error: (e.stderr || e.message || '').slice(0, 300) });
-        } finally {
-            try { fs.rmSync(dir, { recursive: true, force: true }); } catch (_) {}
-        }
-    }
-    return results;
-}
+            const source   = buildSource(lang, code, functionSignature, args, expected);
 
-function rustLiteral(val) {
-    if (Array.isArray(val)) {
-        const inner = val.map(v => rustLiteral(v)).join(', ');
-        return typeof val[0] === 'string' ? `vec![${inner}]` : `vec![${inner}]`;
-    }
-    if (typeof val === 'string')  return JSON.stringify(val);
-    if (typeof val === 'boolean') return val ? 'true' : 'false';
-    return String(val);
-}
+            try {
+                const j0 = await judge0Submit(source, languageId);
+
+                // Judge0 status ids: 3=Accepted, 4=Wrong, 5=TLE, 6=CE, 11=RE
+                const stdout    = (j0.stdout    || '').trim();
+                const stderr    = (j0.stderr    || '').trim();
+                const compileErr = (j0.compile_output || '').trim();
+                const statusId  = j0.status?.id;
+
+                // Compile error
+                if (statusId === 6 || (compileErr && !stdout)) {
+                    results.push({
+                        input:    tc.input,
+                        expected: tc.expectedDisplay,
+                        got:      'Compile error',
+                        pass:     false,
+                        hidden:   !!tc.hidden,
+                        error:    compileErr.slice(0, 400),
+                    });
+                    continue;
+                }
+
+                // Runtime error or TLE
+                if (statusId === 5) {
+                    results.push({
+                        input:    tc.input,
+                        expected: tc.expectedDisplay,
+                        got:      'Time Limit Exceeded',
+                        pass:     false,
+                        hidden:   !!tc.hidden,
+                        error:    'Your code took too long to execute.',
+                    });
+                    continue;
+                }
+
+                if (stderr && !stdout) {
+                    results.push({
+                        input:    tc.input,
+                        expected: tc.expectedDisplay,
+                        got:      'Runtime error',
+                        pass:     false,
+                        hidden:   !!tc.hidden,
+                        error:    stderr.slice(0, 400),
+                    });
+                    continue;
+                }
+
+                // Parse output
+                // Last non-empty line is our JSON result
+                const lastLine = stdout.split('\n').map(l => l.trim()).filter(Boolean).pop() || '';
+
+                let got;
+                let parseError = null;
+
+                // JS and Python wrap result in { result: ... }
+                if (lang === 'javascript' || lang === 'python') {
+                    try {
+                        const parsed = JSON.parse(lastLine);
+                        if (parsed?.error) {
+                            results.push({
+                                input:    tc.input,
+                                expected: tc.expectedDisplay,
+                                got:      `Error: ${parsed.error}`,
+                                pass:     false,
+                                hidden:   !!tc.hidden,
+                                error:    parsed.error,
+                            });
+                            continue;
+                        }
+                        got = parsed?.result ?? parsed;
+                    } catch (_) {
+                        got = lastLine;
+                    }
+                } else {
+                    // C, C++, Java — raw output
+                    try { got = JSON.parse(lastLine); }
+                    catch (_) { got = lastLine; }
+                }
+
+                const pass = deepEqual(got, expected);
+
+                results.push({
+                    input:    tc.input,
+                    expected: tc.expectedDisplay,
+                    got:      got === null ? 'null'
+                            : got === undefined ? 'undefined'
+                            : typeof got === 'object' ? JSON.stringify(got)
+                            : String(got),
+                    pass,
+                    hidden:   !!tc.hidden,
+                    error:    null,
+                });
+
+            } catch (e) {
+                results.push({
+                    input:    tc.input,
+                    expected: tc.expectedDisplay,
+                    got:      'Execution error',
+                    pass:     false,
+                    hidden:   !!tc.hidden,
+                    error:    e.message,
+                });
+            }
+        }
+
+        const passed = results.filter(r => r.pass).length;
+        res.json({ success: true, results, passed, total: results.length });
+
+    } catch (err) { next(err); }
+};

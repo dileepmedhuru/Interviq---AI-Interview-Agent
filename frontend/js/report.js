@@ -395,77 +395,10 @@ function escHtml(str = '') {
 }
 
 function evaluateCodeAnswer(code, question) {
-    const fnName = question.functionSignature;
-    const testCases = (question.testCases || []).filter(tc => !tc.hidden);
-    if (!fnName || testCases.length === 0) return null;
-
-    const details = [];
-    let passed = 0;
-    let userFn = null;
-
-    try {
-        userFn = new Function(`${code}\nreturn typeof ${fnName} !== 'undefined' ? ${fnName} : null;`)();
-    } catch (e) {
-        return {
-            passed: 0,
-            total: testCases.length,
-            details: testCases.map(tc => ({
-                pass: false,
-                input: tc.input,
-                got: `Syntax error: ${e.message.slice(0, 50)}`,
-                expected: tc.expectedDisplay,
-            }))
-        };
-    }
-
-    if (typeof userFn !== 'function') {
-        return {
-            passed: 0,
-            total: testCases.length,
-            details: testCases.map(tc => ({
-                pass: false,
-                input: tc.input,
-                got: `"${fnName}" not found`,
-                expected: tc.expectedDisplay,
-            }))
-        };
-    }
-
-    for (const tc of testCases) {
-        try {
-            let args = [];
-            if (tc.inputCode && tc.inputCode !== '[]') {
-                try {
-                    const parsed = JSON.parse(tc.inputCode);
-                    args = Array.isArray(parsed) ? parsed : [parsed];
-                } catch (_) { args = []; }
-            }
-
-            const result   = userFn(...args);
-            const expected = safeParseExp(tc.expected);
-            const isPass   = deepEq(result, expected);
-            const resultStr = result === undefined ? 'undefined'
-                : result === null ? 'null'
-                : JSON.stringify(result);
-
-            details.push({ pass: isPass, input: tc.input, got: resultStr, expected: tc.expectedDisplay });
-            if (isPass) passed++;
-        } catch (e) {
-            details.push({
-                pass: false, input: tc.input,
-                got: `error: ${e.message.slice(0, 50)}`,
-                expected: tc.expectedDisplay,
-            });
-        }
-    }
-
-    return { passed, total: testCases.length, details };
+    // Browser-side eval is blocked by CSP — return null so the report
+    // falls back to the server-side pass/fail stored in the report data.
+    return null;
 }
-function safeParseExp(s) {
-    if (s === undefined || s === null) return null;
-    try { return JSON.parse(String(s).trim()); } catch (_) { return String(s).trim(); }
-}
-
 function deepEq(a, b) {
     if (a === b) return true;
     if (a === null || b === null) return a === b;

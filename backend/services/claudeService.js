@@ -27,7 +27,7 @@ const PROBLEM_BANK = {
             { input: 'nums = [2,7,11,15], target = 9', inputCode: '[[2,7,11,15], 9]', expected: '[0,1]', expectedDisplay: '[0, 1]', hidden: false },
             { input: 'nums = [3,2,4], target = 6', inputCode: '[[3,2,4], 6]', expected: '[1,2]', expectedDisplay: '[1, 2]', hidden: false },
             { input: 'nums = [3,3], target = 6', inputCode: '[[3,3], 6]', expected: '[0,1]', expectedDisplay: '[0, 1]', hidden: true },
-            { input: 'nums = [1,5,3,7], target = 8', inputCode: '[[1,5,3,7], 8]', expected: '[1,3]', expectedDisplay: '[1, 3]', hidden: true },
+            { input: 'nums = [2,5,5,11], target = 10', inputCode: '[[2,5,5,11], 10]', expected: '[1,2]', expectedDisplay: '[1, 2]', hidden: true },
         ],
     },
 
@@ -102,7 +102,7 @@ const PROBLEM_BANK = {
         testCases: [
             { input: 's = "racecar"', inputCode: '["racecar"]', expected: 'true', expectedDisplay: 'true', hidden: false },
             { input: 's = "hello"', inputCode: '["hello"]', expected: 'false', expectedDisplay: 'false', hidden: false },
-            { input: 's = "A man a plan a canal Panama"', inputCode: '["amanaplanacanalpanama"]', expected: 'true', expectedDisplay: 'true', hidden: true },
+            { input: 's = "A man a plan a canal Panama"', inputCode: '["A man a plan a canal Panama"]', expected: 'true', expectedDisplay: 'true', hidden: true },
             { input: 's = "race a car"', inputCode: '["race a car"]', expected: 'false', expectedDisplay: 'false', hidden: true },
         ],
     },
@@ -185,9 +185,9 @@ const PROBLEM_BANK = {
     },
 
     mergeSortedArrays: {
-        title: 'Merge Sorted Array',
+        title: 'Merge Sorted Arrays',
         difficulty: 'easy',
-        description: 'You are given two integer arrays `nums1` and `nums2`, sorted in non-decreasing order. Merge `nums2` into `nums1` as one sorted array and return it. The number of elements initialized in `nums1` and `nums2` are `m` and `n` respectively.',
+        description: 'Given two integer arrays `nums1` and `nums2`, both sorted in non-decreasing order, merge them into one sorted array and return it.',
         constraints: ['nums1.length == m + n', 'nums2.length == n', '0 ≤ m, n ≤ 200'],
         examples: [
             { input: 'nums1 = [1,2,3], nums2 = [2,5,6]', output: '[1,2,2,3,5,6]' },
@@ -279,10 +279,10 @@ const PROBLEM_BANK = {
         ],
     },
 
-    reverseInteger: {
-        title: 'Reverse Integer',
-        difficulty: 'medium',
-        description: 'Given a signed 32-bit integer `x`, return `x` with its digits reversed. If reversing `x` causes the value to go outside the signed 32-bit integer range [-2³¹, 2³¹ - 1], return 0.',
+    reverseString: {
+        title: 'Reverse String',
+        difficulty: 'easy',
+        description: 'Write a function that reverses a string. Given a string `s`, return the string reversed.',
         constraints: ['-2³¹ ≤ x ≤ 2³¹ - 1'],
         examples: [
             { input: 'x = 123', output: '321' },
@@ -435,25 +435,26 @@ const PROBLEM_BANK = {
     groupAnagrams: {
         title: 'Group Anagrams',
         difficulty: 'medium',
-        description: 'Given an array of strings `strs`, group the anagrams together. You can return the answer in any order. An anagram is a word formed by rearranging all letters of a different word.',
+        description: 'Given an array of strings `strs`, group the anagrams together and return the number of groups. An anagram is a word formed by rearranging all letters of another word.',
         constraints: ['1 ≤ strs.length ≤ 10⁴', '0 ≤ strs[i].length ≤ 100', 'strs[i] consists of lowercase English letters'],
         examples: [
-            { input: 'strs = ["eat","tea","tan","ate","nat","bat"]', output: '[["bat"],["nat","tan"],["ate","eat","tea"]]', explanation: 'Group words that are anagrams of each other' },
+            { input: 'strs = ["eat","tea","tan","ate","nat","bat"]', output: '3', explanation: '3 groups: ["bat"], ["nat","tan"], ["ate","eat","tea"]' },
         ],
         functionSignature: 'groupAnagrams',
-        starterCode: 'function groupAnagrams(strs) {\n    // return grouped anagrams (order within groups does not matter)\n}',
+        starterCode: 'function groupAnagrams(strs) {\n    // return number of anagram groups\n}',
         testCases: [
-            { input: 'strs = ["eat","tea","tan","ate","nat","bat"]', inputCode: '[["eat","tea","tan","ate","nat","bat"]]', expected: '[["bat"],["nat","tan"],["ate","eat","tea"]]', expectedDisplay: '3 groups', hidden: false },
-            { input: 'strs = [""]', inputCode: '[[""]]', expected: '[[""]]', expectedDisplay: '[[""]]', hidden: false },
-            { input: 'strs = ["a"]', inputCode: '[["a"]]', expected: '[["a"]]', expectedDisplay: '[["a"]]', hidden: true },
-            { input: 'strs = ["abc","bca","cab","xyz"]', inputCode: '[["abc","bca","cab","xyz"]]', expected: '[["abc","bca","cab"],["xyz"]]', expectedDisplay: '2 groups', hidden: true },
+            { input: 'strs = ["eat","tea","tan","ate","nat","bat"]', inputCode: '[["eat","tea","tan","ate","nat","bat"]]', expected: '3', expectedDisplay: '3 groups', hidden: false },
+            { input: 'strs = [""]', inputCode: '[[""]]', expected: '1', expectedDisplay: '1 group', hidden: false },
+            { input: 'strs = ["a"]', inputCode: '[["a"]]', expected: '1', expectedDisplay: '1 group', hidden: true },
+            { input: 'strs = ["abc","bca","cab","xyz"]', inputCode: '[["abc","bca","cab","xyz"]]', expected: '2', expectedDisplay: '2 groups', hidden: true },
         ],
     },
 
     maxDepthBinaryTree: {
         title: 'Maximum Depth of Binary Tree',
         difficulty: 'easy',
-        description: 'Given a binary tree represented as an array (level-order), return its maximum depth. The maximum depth is the number of nodes along the longest path from the root node to the farthest leaf node. null represents a missing node.',
+        description: 'Given a binary tree represented as a level-order array, return its maximum depth. The maximum depth is the number of nodes along the longest path from root to farthest leaf. `null` in the array means a missing node.',
+        starterCode: 'function maxDepth(root) {\n    // root is a level-order array, null = missing node\n    if (!root || root.length === 0) return 0;\n    // your code here\n}\n',
         constraints: ['The number of nodes is in range [0, 10⁴]', '-100 ≤ Node.val ≤ 100'],
         examples: [
             { input: 'root = [3,9,20,null,null,15,7]', output: '3' },
@@ -765,7 +766,7 @@ async function evaluateInterview({ answers, questions = [], role, expLevel }) {
             // For non-executable languages (C++, Java, Go, Rust),
             // award marks only if code is substantial (>100 chars of real logic)
             // and not a stub. For JS/Python we can verify; others get partial credit only.
-            const nonExecutable = !['javascript', 'typescript', 'python'].includes(lang);
+            const nonExecutable = !['javascript', 'typescript', 'python', 'c', 'cpp', 'java'].includes(lang);
             const isSubstantial = raw.length > 100 &&
                 raw.split('\n').filter(l => l.trim() && !l.trim().startsWith('//') && !l.trim().startsWith('*') && !l.trim().startsWith('#')).length >= 8;
 
