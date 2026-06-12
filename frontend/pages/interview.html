@@ -7,9 +7,7 @@
     <title>Interview — Interview Agent</title>
     <link rel="icon" href="../public/favicon.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
-        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="../css/base.css" />
     <link rel="stylesheet" href="../css/3d-effects.css" />
     <link rel="stylesheet" href="../css/animations.css" />
@@ -293,125 +291,96 @@
         #code-textarea::-webkit-scrollbar { width:4px; }
         #code-textarea::-webkit-scrollbar-thumb { background:rgba(127,119,221,.25); border-radius:4px; }
 
-        /* BOTTOM: Test panel */
-        .test-panel-wrap {
-            background:#0a0a15; border-top:1px solid rgba(127,119,221,.12);
-            display:flex; flex-direction:column;
-            flex-shrink:0; height:260px; overflow:hidden; transition:height .25s ease;
+        /* ── IO PANEL (replaces old test-panel) ── */
+        .io-panel {
+            background:#0a0a15;
+            border-top:1px solid rgba(127,119,221,.12);
+            flex-shrink:0;
+            height:220px;
+            display:flex;
+            flex-direction:column;
+            overflow:hidden;
         }
-        .test-panel-wrap.collapsed { height:42px; }
-
-        .test-panel-header {
-            display:flex; align-items:center; gap:10px;
-            padding:10px 16px; border-bottom:1px solid rgba(255,255,255,.05);
-            cursor:pointer; flex-shrink:0; user-select:none;
+        .io-panel-cols {
+            flex:1;
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            min-height:0;
+            overflow:hidden;
         }
-        .test-panel-header:hover { background:rgba(255,255,255,.02); }
-
-        .test-panel-title { font-size:.72rem; font-weight:700; color:rgba(255,255,255,.5); letter-spacing:.07em; text-transform:uppercase; }
-
-        .test-summary-pill { font-size:.65rem; font-weight:700; padding:2px 9px; border-radius:12px; }
-        .test-summary-pill.all-pass  { background:rgba(29,158,117,.18); color:#1D9E75; border:1px solid rgba(29,158,117,.3); }
-        .test-summary-pill.some-fail { background:rgba(226,75,74,.12);  color:#E24B4A; border:1px solid rgba(226,75,74,.25); }
-        .test-summary-pill.pending   { background:rgba(255,255,255,.06); color:rgba(255,255,255,.3); border:1px solid rgba(255,255,255,.1); }
-        .test-summary-pill.running   { background:rgba(239,159,39,.15); color:#EF9F27; border:1px solid rgba(239,159,39,.3); }
-
-        .test-panel-chevron { margin-left:auto; color:rgba(255,255,255,.3); font-size:.8rem; transition:transform .2s; }
-        .test-panel-wrap.collapsed .test-panel-chevron { transform:rotate(180deg); }
-
-        .test-panel-tabs {
-            display:flex; gap:0; padding:0 14px;
-            border-bottom:1px solid rgba(255,255,255,.05); flex-shrink:0;
+        .io-col {
+            display:flex;
+            flex-direction:column;
+            border-right:1px solid rgba(255,255,255,.05);
+            overflow:hidden;
         }
-        .test-tab {
-            padding:7px 14px; font-size:.72rem; font-weight:600;
-            color:rgba(255,255,255,.35); cursor:pointer;
-            border-bottom:2px solid transparent; transition:all .2s;
-            background:none; border-top:none; border-left:none; border-right:none; font-family:var(--font);
+        .io-col:last-child { border-right:none; }
+        .io-col-header {
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            padding:7px 14px;
+            border-bottom:1px solid rgba(255,255,255,.05);
+            flex-shrink:0;
         }
-        .test-tab.active { color:#fff; border-bottom-color:var(--accent); }
-        .test-tab:hover:not(.active) { color:rgba(255,255,255,.6); }
-
-        .test-panel-body { flex:1; overflow-y:auto; padding:10px 14px; }
-        .test-panel-body::-webkit-scrollbar { width:4px; }
-        .test-panel-body::-webkit-scrollbar-thumb { background:rgba(127,119,221,.2); border-radius:4px; }
-
-        /* Test case rows */
-        .tc-list { display:flex; flex-direction:column; gap:4px; }
-
-        .tc-row {
-            display:grid; grid-template-columns:24px 1fr 18px 120px 140px;
-            align-items:center; gap:8px; padding:9px 12px; border-radius:8px;
-            background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06);
-            font-family:'JetBrains Mono',monospace; font-size:.73rem;
-            transition:background .15s,border-color .15s; cursor:pointer;
+        .io-col-title {
+            font-size:.68rem;
+            font-weight:700;
+            color:rgba(255,255,255,.45);
+            letter-spacing:.07em;
+            text-transform:uppercase;
         }
-        .tc-row:hover { background:rgba(255,255,255,.06); }
-        .tc-row.pass { border-color:rgba(29,158,117,.5); background:rgba(29,158,117,.09); }
-        .tc-row.fail { border-color:rgba(226,75,74,.45); background:rgba(226,75,74,.09); }
-        .tc-row.running { border-color:rgba(239,159,39,.4); background:rgba(239,159,39,.06); animation:tc-pulse .9s ease infinite; }
-        @keyframes tc-pulse { 0%,100%{opacity:.75} 50%{opacity:1} }
-
-        .tc-row.hidden-case { opacity:.65; }
-        .tc-row.hidden-case.pass, .tc-row.hidden-case.fail { opacity:1; }
-
-        .tc-icon { text-align:center; font-size:1rem; line-height:1; }
-        .tc-input { color:rgba(200,198,240,.75); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
-        .tc-arrow { color:rgba(255,255,255,.2); text-align:center; }
-        .tc-expected { color:rgba(255,255,255,.32); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:.7rem; }
-        .tc-got { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:600; font-size:.72rem; }
-        .tc-got.correct { color:#1D9E75; }
-        .tc-got.wrong   { color:#E24B4A; }
-        .tc-got.pending { color:rgba(239,159,39,.7); font-weight:400; font-style:italic; }
-
-        .tc-detail {
-            margin-top:3px; padding:10px 14px; background:rgba(255,255,255,.02);
-            border-radius:8px; font-family:'JetBrains Mono',monospace; font-size:.74rem;
-            border:1px solid rgba(255,255,255,.05); display:none;
+        .io-clear-btn {
+            background:none; border:none;
+            color:rgba(255,255,255,.25); cursor:pointer;
+            font-size:.7rem; padding:2px 6px;
+            border-radius:4px; transition:color .15s;
+            font-family:var(--font);
         }
-        .tc-detail.open { display:block; }
-        .tc-detail-row { display:flex; gap:8px; margin-bottom:5px; flex-wrap:wrap; }
-        .tc-detail-key { color:rgba(255,255,255,.3); flex-shrink:0; width:70px; }
-        .tc-detail-val { color:rgba(255,255,255,.8); word-break:break-all; }
+        .io-clear-btn:hover { color:rgba(255,255,255,.6); }
+        .io-run-meta {
+            font-size:.68rem;
+            color:rgba(255,255,255,.3);
+            font-family:'JetBrains Mono',monospace;
+        }
+        .io-textarea {
+            flex:1; width:100%;
+            background:transparent; border:none; outline:none;
+            color:#cdd0e3;
+            font-family:'JetBrains Mono',monospace;
+            font-size:.8rem; line-height:1.7;
+            padding:10px 14px; resize:none; overflow-y:auto;
+        }
+        .io-textarea::placeholder { color:rgba(255,255,255,.18); }
+        .io-textarea::-webkit-scrollbar { width:4px; }
+        .io-textarea::-webkit-scrollbar-thumb { background:rgba(127,119,221,.2); border-radius:4px; }
+        .io-output-box {
+            flex:1; overflow-y:auto;
+            padding:10px 14px;
+            font-family:'JetBrains Mono',monospace;
+            font-size:.8rem; line-height:1.7;
+            white-space:pre-wrap; word-break:break-word;
+            color:#a8e6cf;
+        }
+        .io-output-box::-webkit-scrollbar { width:4px; }
+        .io-output-box::-webkit-scrollbar-thumb { background:rgba(127,119,221,.2); border-radius:4px; }
+        .io-output-box.error { color:#f87171; }
+        .io-placeholder { color:rgba(255,255,255,.2); font-style:italic; }
 
-        /* Custom test */
-        .custom-test-wrap { display:flex; flex-direction:column; gap:10px; }
-        .custom-test-label { font-size:.68rem; font-weight:700; color:rgba(255,255,255,.3); letter-spacing:.07em; text-transform:uppercase; margin-bottom:4px; }
-        .custom-test-input {
-            width:100%; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);
-            color:#cdd0e3; border-radius:8px; padding:8px 12px;
-            font-family:'JetBrains Mono',monospace; font-size:.78rem;
-            resize:vertical; outline:none; min-height:56px; transition:border .2s;
+        /* status badges shown inside output box header */
+        .io-status-badge {
+            font-size:.65rem; font-weight:700; padding:2px 9px;
+            border-radius:12px; font-family:var(--font);
         }
-        .custom-test-input:focus { border-color:rgba(127,119,221,.5); }
-        .custom-test-run-btn {
-            align-self:flex-start; display:flex; align-items:center; gap:6px;
-            background:rgba(29,158,117,.15); border:1px solid rgba(29,158,117,.3);
-            color:#1D9E75; border-radius:8px; padding:6px 16px;
-            font-size:.78rem; font-weight:700; cursor:pointer; font-family:var(--font); transition:all .2s;
+        .io-status-badge.success {
+            background:rgba(29,158,117,.18); color:#1D9E75; border:1px solid rgba(29,158,117,.3);
         }
-        .custom-test-run-btn:hover { background:rgba(29,158,117,.25); }
-
-        .custom-output {
-            background:#070714; border-radius:8px; padding:10px 14px;
-            font-family:'JetBrains Mono',monospace; font-size:.78rem;
-            color:#a8e6cf; white-space:pre-wrap; min-height:40px;
-            display:none; border:1px solid rgba(255,255,255,.06); max-height:100px; overflow-y:auto;
+        .io-status-badge.error {
+            background:rgba(226,75,74,.15); color:#E24B4A; border:1px solid rgba(226,75,74,.3);
         }
-        .custom-output.visible { display:block; }
-        .custom-output.error   { color:#f87171; }
-        .custom-output.info    { color:#93c5fd; }
-
-        /* Console */
-        .console-output {
-            background:#070714; border-radius:8px; padding:12px 14px;
-            font-family:'JetBrains Mono',monospace; font-size:.78rem;
-            color:#a8e6cf; white-space:pre-wrap; min-height:60px;
-            border:1px solid rgba(255,255,255,.05); max-height:190px; overflow-y:auto;
+        .io-status-badge.running {
+            background:rgba(239,159,39,.12); color:#EF9F27; border:1px solid rgba(239,159,39,.25);
         }
-        .console-output.error { color:#f87171; }
-        .console-output.info  { color:#93c5fd; }
-        .console-placeholder  { color:rgba(255,255,255,.2); font-style:italic; }
 
         @keyframes spin { to { transform:rotate(360deg); } }
         .run-spinner {
@@ -685,6 +654,7 @@
 
             <!-- ═══ SECTION 2: CODING ═══ -->
             <div id="section2-wrap" class="hidden">
+                <!-- Toolbar -->
                 <div class="code-toolbar">
                     <div class="code-toolbar-left">
                         <div class="q-progress-dots-inline" id="code-progress-dots"></div>
@@ -698,15 +668,19 @@
                             <option value="java">☕ Java</option>
                             <option value="cpp">⚡ C++</option>
                             <option value="c">🔵 C</option>
-                            <option value="sql">🗄️ SQL</option>
+                            <option value="typescript">💙 TypeScript</option>
+                            <option value="go">🐹 Go</option>
+                            <option value="rust">🦀 Rust</option>
                         </select>
-                        <button class="run-btn" id="run-btn">▶ Run &amp; Test</button>
+                        <button class="run-btn" id="run-btn">▶ Run</button>
                         <button class="submit-btn" id="code-submit-btn">Submit →</button>
                         <button class="skip-btn-dark" id="code-skip-btn">⏭ Skip</button>
                     </div>
                 </div>
 
+                <!-- Split: problem + editor -->
                 <div class="code-split">
+                    <!-- LEFT: Problem description -->
                     <div class="problem-panel">
                         <div class="problem-tabs">
                             <button class="problem-tab active" data-tab="description">Description</button>
@@ -726,56 +700,52 @@
                         <div class="problem-content hidden" id="prob-hint-tab">
                             <div class="hint-box" id="prob-hint-content">
                                 <strong>💡 Hint</strong><br />Think about what data structure gives O(1) lookup.
-                                Consider edge cases: empty input, negatives, duplicates.
                             </div>
                         </div>
                     </div>
 
+                    <!-- RIGHT: Code editor -->
                     <div class="editor-pane">
                         <div class="editor-topbar">
                             <div class="editor-dots"><span></span><span></span><span></span></div>
-                            <div class="editor-topbar-right"><span class="lang-badge-pill" id="lang-badge">JS</span></div>
+                            <div class="editor-topbar-right">
+                                <span class="lang-badge-pill" id="lang-badge">JS</span>
+                            </div>
                         </div>
                         <div class="editor-hint-bar">
-                            <span>fn: <span class="fn-name-display" id="fn-sig-display">solution</span></span>
                             <span><kbd>Tab</kbd> indent</span>
                             <span><kbd>Ctrl+Enter</kbd> run</span>
                             <button class="reset-btn-inline" id="reset-starter-btn">↺ Reset</button>
                         </div>
                         <textarea id="code-textarea" spellcheck="false"
-                            placeholder="// Write your solution here…"></textarea>
+                            placeholder="// Write your solution here…&#10;// Use input() / Scanner / cin to read from stdin&#10;// Print your output to stdout"></textarea>
                     </div>
                 </div>
 
-                <div class="test-panel-wrap" id="test-panel-wrap">
-                    <div class="test-panel-header" id="test-panel-toggle">
-                        <span class="test-panel-title">Test Cases</span>
-                        <span class="test-summary-pill pending" id="test-summary-pill">not run yet</span>
-                        <span class="test-panel-chevron">▼</span>
-                    </div>
-                    <div class="test-panel-tabs">
-                        <button class="test-tab active" data-testtab="cases">Test Cases</button>
-                        <button class="test-tab" data-testtab="custom">Custom Input</button>
-                        <button class="test-tab" data-testtab="console">Console</button>
-                    </div>
-                    <div class="test-panel-body" id="test-panel-body">
-                        <div id="tt-cases">
-                            <div class="tc-list" id="tc-list"></div>
-                        </div>
-                        <div id="tt-custom" class="hidden">
-                            <div class="custom-test-wrap">
-                                <div>
-                                    <div class="custom-test-label">Arguments (comma-separated JS values)</div>
-                                    <textarea class="custom-test-input" id="custom-input"
-                                        placeholder="e.g.  [2,7,11,15], 9" rows="3"></textarea>
-                                </div>
-                                <button class="custom-test-run-btn" id="custom-run-btn">▶ Run custom test</button>
-                                <div class="custom-output" id="custom-output"></div>
+                <!-- BOTTOM: IO Panel — Input on left, Output on right -->
+                <div class="io-panel" id="io-panel">
+                    <div class="io-panel-cols">
+                        <!-- stdin -->
+                        <div class="io-col">
+                            <div class="io-col-header">
+                                <span class="io-col-title">📥 Input (stdin)</span>
+                                <button class="io-clear-btn" id="stdin-clear-btn" title="Clear">✕ clear</button>
                             </div>
+                            <textarea
+                                class="io-textarea"
+                                id="stdin-textarea"
+                                placeholder="Type your input here…&#10;&#10;Example:&#10;5&#10;1 2 3 4 5"
+                                spellcheck="false"
+                            ></textarea>
                         </div>
-                        <div id="tt-console" class="hidden">
-                            <div class="console-output" id="console-output">
-                                <span class="console-placeholder">Run your code to see console output…</span>
+                        <!-- stdout -->
+                        <div class="io-col">
+                            <div class="io-col-header">
+                                <span class="io-col-title">📤 Output</span>
+                                <span id="run-status-badge"></span>
+                            </div>
+                            <div class="io-output-box" id="output-box">
+                                <span class="io-placeholder">Run your code to see output here…</span>
                             </div>
                         </div>
                     </div>
@@ -869,13 +839,9 @@
         let mcqIndex = 0, mcqSelected = null, mcqAnswered = false, mcqResults = [];
 
         // Coding
-        let codeIndex = 0;
-        let isRunning = false;
-        let testPanelOpen = true;
-        let activeTestTab = 'cases';
-        let activeProblemTab = 'description';
-        let expandedTcIndex = -1;
-        let lastRunResults = [];
+        let codeIndex  = 0;
+        let isRunning  = false;
+        let lastRanOk  = false;   // tracks whether the last run succeeded
 
         // Video
         let viIndex = 0, mediaStream = null, recognition = null, isMicOn = false, isCamOn = true;
@@ -898,17 +864,6 @@
                     else if (section === 2)           category = 'coding';
                     else if (q.type === 'behavioral') category = 'behavioral';
                     else                              category = 'technical';
-                }
-                // Normalise testCases — ensure hidden is always a real boolean
-                if (Array.isArray(q.testCases)) {
-                    q.testCases = q.testCases.map(tc => ({
-                        ...tc,
-                        hidden: tc.hidden === true || tc.hidden === 1 || tc.hidden === 'true',
-                        input:           tc.input           || '',
-                        inputCode:       tc.inputCode       || '[]',
-                        expected:        String(tc.expected ?? 'null'),
-                        expectedDisplay: tc.expectedDisplay || String(tc.expected ?? '?'),
-                    }));
                 }
                 return { ...q, section, category };
             });
@@ -951,9 +906,9 @@
         // OVERLAY + PILLS
         // ═══════════════════════════════════════════════════════
         const sectionMeta = {
-            1: { badge:'📝', title:'Section 1 — Multiple Choice', desc:'5 MCQ questions. Select the best answer or skip.' },
-            2: { badge:'💻', title:'Section 2 — Coding Challenge', desc:'2 coding problems. Write your solution and run it against live test cases.' },
-            3: { badge:'🎥', title:'Section 3 — Video Interview', desc:'7 questions with AI interviewer Alex. Speak or type your answers.' },
+            1: { badge:'📝', title:'Section 1 — Multiple Choice',  desc:'Questions with 4 options. Select the best answer or skip if unsure.' },
+            2: { badge:'💻', title:'Section 2 — Coding Challenge',  desc:'Write your solution. Provide input in the stdin box and click Run to test it.' },
+            3: { badge:'🎥', title:'Section 3 — Video Interview',   desc:'7 questions with AI interviewer Alex. Speak or type your answers.' },
         };
 
         function showSectionOverlay(section, onStart) {
@@ -967,7 +922,7 @@
         function updatePills(active) {
             for (let i = 1; i <= 3; i++) {
                 const p = $(`#pill-${i}`); p.classList.remove('active','done');
-                if (i < active)      p.classList.add('done');
+                if (i < active)        p.classList.add('done');
                 else if (i === active) p.classList.add('active');
             }
         }
@@ -1006,8 +961,8 @@
             const qs = getS1(); if (idx >= qs.length) { endSection1(); return; }
             mcqIndex = idx; mcqSelected = null; mcqAnswered = false;
             const q = qs[idx];
-            setText('#mcq-q-num',   `Question ${idx+1} of ${qs.length}`);
-            setText('#mcq-q-text',  q.text);
+            setText('#mcq-q-num',  `Question ${idx+1} of ${qs.length}`);
+            setText('#mcq-q-text', q.text);
             setText('#progress-label', `Q ${idx+1} / ${qs.length}`);
             qs.forEach((_,i) => { const d=$(`#sd-${i}`); if(!d)return; d.classList.remove('active'); if(i===idx)d.classList.add('active'); });
             const opts = $('#mcq-opts');
@@ -1064,45 +1019,88 @@
         // ═══════════════════════════════════════════════════════
         // SECTION 2 — CODING
         // ═══════════════════════════════════════════════════════
-        const LANG_BADGE = { javascript:'JS', python:'PY', java:'JAVA', cpp:'C++', c:'C', sql:'SQL' };
+        const LANG_BADGE = { javascript:'JS', python:'PY', java:'JAVA', cpp:'C++', c:'C', typescript:'TS', go:'GO', rust:'RS' };
 
-        function deriveParams(question) {
-            // Try to extract param names from the first test case input string
-            // e.g. "nums = [2,7,11,15], target = 9" → ["nums", "target"]
-            const firstInput = (question?.testCases?.[0]?.input)
-                            || (question?.examples?.[0]?.input)
-                            || '';
-            if (firstInput) {
-                const matches = [...firstInput.matchAll(/(\b[a-zA-Z_]\w*)\s*=/g)];
-                if (matches.length) return [...new Set(matches.map(m => m[1]))];
-            }
-            // Fall back to counting args from inputCode
-            const inputCode = question?.testCases?.[0]?.inputCode;
-            if (inputCode) {
-                try {
-                    const arr = JSON.parse(inputCode);
-                    if (Array.isArray(arr)) {
-                        if (arr.length === 1) return ['nums'];
-                        if (arr.length === 2) return ['nums','target'];
-                        return arr.map((_,i) => ['nums','target','k','n','m'][i] || `arg${i}`);
-                    }
-                } catch(_) {}
-            }
-            return ['nums'];
-        }
+        // Language-aware starter templates that use stdin
+        const STARTERS = {
+            javascript: `// Read from stdin using process.stdin or readline
+const readline = require('readline');
+const rl = readline.createInterface({ input: process.stdin });
+const lines = [];
+rl.on('line', line => lines.push(line.trim()));
+rl.on('close', () => {
+    // Example: read first line as a number
+    const n = parseInt(lines[0]);
+    console.log(n);
+});
+`,
+            python: `# Read from stdin using input()
+n = int(input())
+print(n)
+`,
+            java: `import java.util.Scanner;
 
-        function buildStarter(fnName, lang, question) {
-            const params = deriveParams(question);
-            const paramStr = params.join(', ');
-            const starters = {
-                python: `def ${fnName}(${paramStr}):\n    # your code here\n    pass\n`,
-                java:   `class Solution {\n    public Object ${fnName}(${params.map(p=>`Object ${p}`).join(', ')}) {\n        // your code here\n        return null;\n    }\n}\n`,
-                cpp:    `#include <bits/stdc++.h>\nusing namespace std;\n\nauto ${fnName}(${params.map(p=>`auto ${p}`).join(', ')}) {\n    // your code here\n}\n`,
-                c:      `#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <ctype.h>\n#include <stdbool.h>\n\n// your code here\nvoid ${fnName}(${paramStr}) {\n    \n}\n`,
-                sql:    `-- Write your SQL query here\nSELECT * FROM table_name WHERE condition;\n`,
-            };
-            return starters[lang] || `function ${fnName}(${paramStr}) {\n    // your code here\n}\n`;
-        }
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        System.out.println(n);
+    }
+}
+`,
+            cpp: `#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    int n;
+    cin >> n;
+    cout << n << endl;
+    return 0;
+}
+`,
+            c: `#include <stdio.h>
+
+int main() {
+    int n;
+    scanf("%d", &n);
+    printf("%d\\n", n);
+    return 0;
+}
+`,
+            typescript: `import * as readline from 'readline';
+const rl = readline.createInterface({ input: process.stdin });
+const lines: string[] = [];
+rl.on('line', (line: string) => lines.push(line.trim()));
+rl.on('close', () => {
+    const n = parseInt(lines[0]);
+    console.log(n);
+});
+`,
+            go: `package main
+
+import (
+    "bufio"
+    "fmt"
+    "os"
+)
+
+func main() {
+    reader := bufio.NewReader(os.Stdin)
+    var n int
+    fmt.Fscan(reader, &n)
+    fmt.Println(n)
+}
+`,
+            rust: `use std::io::{self, BufRead};
+
+fn main() {
+    let stdin = io::stdin();
+    let line = stdin.lock().lines().next().unwrap().unwrap();
+    let n: i64 = line.trim().parse().unwrap();
+    println!("{}", n);
+}
+`,
+        };
 
         function startSection2() {
             currentSection = 2; codeIndex = 0;
@@ -1110,57 +1108,40 @@
             buildCodeDots();
             showCodeQuestion(0);
 
+            // Language switcher
             $('#code-lang').addEventListener('change', () => {
                 const lang = $('#code-lang').value;
                 setText('#lang-badge', LANG_BADGE[lang] || lang.toUpperCase());
-                const q = getS2()[codeIndex], ta = $('#code-textarea');
-                ta.value = (lang === 'javascript' && q.starterCode)
-                    ? q.starterCode
-                    : buildStarter(q.functionSignature || 'solution', lang, q);
-                ta.dataset.isStarter = 'true';
+                const ta = $('#code-textarea');
+                // Only replace if still showing starter
+                if (ta.dataset.isStarter === 'true') {
+                    ta.value = STARTERS[lang] || `// Write your ${lang} solution here\n`;
+                }
             });
 
-            $('#run-btn').addEventListener('click', runAndTest);
+            $('#code-textarea').addEventListener('input', () => {
+                $('#code-textarea').dataset.isStarter = 'false';
+            });
+
+            $('#run-btn').addEventListener('click', runCode);
             $('#code-submit-btn').addEventListener('click', handleCodeSubmit);
             $('#code-skip-btn').addEventListener('click', handleCodeSkip);
             $('#reset-starter-btn').addEventListener('click', resetStarter);
+            $('#stdin-clear-btn').addEventListener('click', () => { $('#stdin-textarea').value = ''; });
 
-            document.querySelectorAll('.problem-tab').forEach(tab => {
-                tab.addEventListener('click', () => {
-                    activeProblemTab = tab.dataset.tab;
-                    document.querySelectorAll('.problem-tab').forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                    activeProblemTab === 'description'
-                        ? (showEl($('#prob-description-tab')), hideEl($('#prob-hint-tab')))
-                        : (hideEl($('#prob-description-tab')), showEl($('#prob-hint-tab')));
-                });
-            });
-
-            $('#test-panel-toggle').addEventListener('click', () => {
-                testPanelOpen = !testPanelOpen;
-                $('#test-panel-wrap').classList.toggle('collapsed', !testPanelOpen);
-            });
-
-            document.querySelectorAll('.test-tab').forEach(tab => {
-                tab.addEventListener('click', () => switchTestTab(tab.dataset.testtab));
-            });
-
-            $('#custom-run-btn').addEventListener('click', runCustomTest);
-
-            const ta = $('#code-textarea');
-            ta.addEventListener('keydown', e => {
-                if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); runAndTest(); return; }
+            $('#code-textarea').addEventListener('keydown', e => {
+                if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); runCode(); return; }
                 if (e.key === 'Tab') {
                     e.preventDefault();
-                    const start = ta.selectionStart, end = ta.selectionEnd, value = ta.value;
+                    const ta = e.target, start = ta.selectionStart, end = ta.selectionEnd;
                     if (start === end) {
                         document.execCommand('insertText', false, '    ');
                     } else {
-                        const lineStart = value.lastIndexOf('\n', start-1)+1;
-                        const lineEnd   = value.indexOf('\n', end-1);
-                        const block     = value.substring(lineStart, lineEnd===-1 ? value.length : lineEnd);
-                        const indented  = block.split('\n').map(line=>'    '+line).join('\n');
-                        ta.setSelectionRange(lineStart, lineEnd===-1 ? value.length : lineEnd);
+                        const lineStart = ta.value.lastIndexOf('\n', start-1)+1;
+                        const lineEnd   = ta.value.indexOf('\n', end-1);
+                        const block     = ta.value.substring(lineStart, lineEnd===-1 ? ta.value.length : lineEnd);
+                        const indented  = block.split('\n').map(l=>'    '+l).join('\n');
+                        ta.setSelectionRange(lineStart, lineEnd===-1 ? ta.value.length : lineEnd);
                         document.execCommand('insertText', false, indented);
                         ta.setSelectionRange(lineStart, lineStart+indented.length);
                     }
@@ -1169,7 +1150,7 @@
                 if (e.key === 'Enter') {
                     e.preventDefault();
                     const lang = $('#code-lang').value;
-                    const pos = ta.selectionStart, text = ta.value;
+                    const ta = e.target, pos = ta.selectionStart, text = ta.value;
                     const lineStart = text.lastIndexOf('\n', pos-1)+1;
                     const currentLine = text.substring(lineStart, pos);
                     const indent = currentLine.match(/^(\s*)/)[1];
@@ -1178,7 +1159,17 @@
                     document.execCommand('insertText', false, '\n'+indent+extra);
                 }
             });
-            ta.addEventListener('input', () => { ta.dataset.isStarter = 'false'; });
+
+            // Problem tab switching
+            document.querySelectorAll('.problem-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.problem-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    tab.dataset.tab === 'description'
+                        ? (showEl($('#prob-description-tab')), hideEl($('#prob-hint-tab')))
+                        : (hideEl($('#prob-description-tab')), showEl($('#prob-hint-tab')));
+                });
+            });
         }
 
         function buildCodeDots() {
@@ -1187,13 +1178,12 @@
             $(`#cd-0`)?.classList.add('active');
         }
 
-        // ── KEY FIX: showCodeQuestion now robustly renders examples and test cases ──
         function showCodeQuestion(idx) {
             const qs = getS2(); if (idx >= qs.length) { endSection2(); return; }
             codeIndex = idx; const q = qs[idx];
-            lastRunResults = [];
+            lastRanOk = false;
 
-            setText('#code-q-num',   `Coding ${idx+1} of ${qs.length}`);
+            setText('#code-q-num', `Coding ${idx+1} of ${qs.length}`);
             setText('#progress-label', `Coding ${idx+1} / ${qs.length}`);
 
             // Difficulty chip
@@ -1202,58 +1192,40 @@
             diffEl.textContent = diff.charAt(0).toUpperCase() + diff.slice(1);
             diffEl.className = `difficulty-chip ${diff}`;
 
-            // Problem title
-            setText('#prob-title', q.title || q.functionSignature || `Problem ${idx+1}`);
-
-            // Description — render backtick code inline
-            const rawDesc = q.text || '';
-            $('#prob-desc').innerHTML = rawDesc
+            // Problem panel
+            setText('#prob-title', q.title || `Problem ${idx+1}`);
+            $('#prob-desc').innerHTML = (q.text||'')
                 .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
                 .replace(/`([^`]+)`/g, '<code>$1</code>');
 
-            // ── Examples: prefer rich q.examples, fall back to visible test cases ──
+            // Examples
             const examplesEl = $('#prob-examples');
-            const richExamples = Array.isArray(q.examples) && q.examples.length > 0 ? q.examples : null;
-            const visibleTc    = Array.isArray(q.testCases)
-                ? q.testCases.filter(tc => tc.hidden !== true)
-                : [];
-
-            if (richExamples) {
-                examplesEl.innerHTML = richExamples.map(ex => `
+            const richEx = Array.isArray(q.examples) && q.examples.length ? q.examples : null;
+            if (richEx) {
+                examplesEl.innerHTML = richEx.map(ex => `
                     <div class="example-card">
-                        <div class="example-row"><span class="ex-key">Input:</span><span class="ex-val">${escHtml(ex.input || '')}</span></div>
-                        <div class="example-row"><span class="ex-key">Output:</span><span class="ex-val">${escHtml(ex.output || ex.expected || '')}</span></div>
-                        ${ex.explanation ? `<div class="ex-explanation">// ${escHtml(ex.explanation)}</div>` : ''}
-                    </div>`).join('');
-            } else if (visibleTc.length > 0) {
-                examplesEl.innerHTML = visibleTc.map(tc => `
-                    <div class="example-card">
-                        <div class="example-row"><span class="ex-key">Input:</span><span class="ex-val">${escHtml(tc.input || '')}</span></div>
-                        <div class="example-row"><span class="ex-key">Output:</span><span class="ex-val">${escHtml(tc.expectedDisplay || tc.expected || '')}</span></div>
+                        <div class="example-row"><span class="ex-key">Input:</span><span class="ex-val">${escHtml(ex.input||'')}</span></div>
+                        <div class="example-row"><span class="ex-key">Output:</span><span class="ex-val">${escHtml(ex.output||ex.expected||'')}</span></div>
+                        ${ex.explanation?`<div class="ex-explanation">// ${escHtml(ex.explanation)}</div>`:''}
                     </div>`).join('');
             } else {
-                // ── Fallback: generate examples from the problem description ──
-                examplesEl.innerHTML = `
-                    <div style="font-size:.8rem;color:rgba(255,255,255,.35);font-style:italic;padding:8px 0">
-                        Run the code to see test results below.
-                    </div>`;
+                examplesEl.innerHTML = `<div style="font-size:.8rem;color:rgba(255,255,255,.3);font-style:italic">Provide your own input in the stdin box below.</div>`;
             }
 
             // Constraints
-            const cEl = $('#prob-constraints'), cWrap = $('#prob-constraints-wrap');
+            const cWrap = $('#prob-constraints-wrap');
             const constraints = Array.isArray(q.constraints) && q.constraints.length ? q.constraints : null;
             if (constraints) {
                 cWrap.classList.remove('hidden');
-                cEl.innerHTML = constraints.map(c => `<div class="constraint-row">${escHtml(c)}</div>`).join('');
+                $('#prob-constraints').innerHTML = constraints.map(c => `<div class="constraint-row">${escHtml(c)}</div>`).join('');
             } else {
                 cWrap.classList.add('hidden');
             }
 
-            // Hint tab
-            const hintEl = $('#prob-hint-content');
-            hintEl.innerHTML = q.explanation
+            // Hint
+            $('#prob-hint-content').innerHTML = q.explanation
                 ? `<strong>💡 Hint</strong><br/>${escHtml(q.explanation)}`
-                : `<strong>💡 Approach Tips</strong><br/>Think about time and space complexity. What data structures give O(1) lookup? Can you solve it in one pass?`;
+                : `<strong>💡 Tips</strong><br/>Read from stdin and print your answer to stdout. Think about edge cases.`;
 
             // Language + starter code
             const lang = q.language || 'javascript';
@@ -1261,121 +1233,54 @@
             if (langOpt) $('#code-lang').value = lang;
             setText('#lang-badge', LANG_BADGE[lang] || lang.toUpperCase());
 
-            const fnSig = q.functionSignature || 'solution';
-            setText('#fn-sig-display', fnSig);
-
             const ta = $('#code-textarea');
-            ta.value = q.starterCode || buildStarter(fnSig, lang, q);
+            ta.value = STARTERS[lang] || `// Write your ${lang} solution here\n`;
             ta.dataset.isStarter = 'true';
 
             // Dot progress
-            qs.forEach((_,i) => {
+            getS2().forEach((_,i) => {
                 const d = $(`#cd-${i}`); if (!d) return;
                 d.classList.remove('active','done','skipped');
                 if (i < idx)       d.classList.add('done');
                 else if (i === idx) d.classList.add('active');
             });
 
-            // ── Render test case stubs — always show all test cases ──
-            renderTcStubs(Array.isArray(q.testCases) ? q.testCases : []);
-            clearConsole();
-            setSummaryPill('pending', 'not run yet');
-            testPanelOpen = true; $('#test-panel-wrap').classList.remove('collapsed');
-            switchTestTab('cases');
-            hideEl($('#custom-output'));
-            expandedTcIndex = -1;
+            // Reset IO panel
+            resetOutputBox();
+            $('#stdin-textarea').value = '';
 
-            // Switch back to description tab
-            activeProblemTab = 'description';
+            // Reset to description tab
             document.querySelectorAll('.problem-tab').forEach(t => t.classList.remove('active'));
             document.querySelector('.problem-tab[data-tab="description"]')?.classList.add('active');
             showEl($('#prob-description-tab')); hideEl($('#prob-hint-tab'));
         }
 
         function resetStarter() {
-            const q = getS2()[codeIndex], lang = $('#code-lang').value;
-            $('#code-textarea').value = q.starterCode || buildStarter(q.functionSignature||'solution', lang, q);
+            const lang = $('#code-lang').value;
+            const q = getS2()[codeIndex];
+            $('#code-textarea').value = STARTERS[lang] || `// Write your ${lang} solution here\n`;
             $('#code-textarea').dataset.isStarter = 'true';
-            lastRunResults = [];
-            renderTcStubs(Array.isArray(q.testCases) ? q.testCases : []);
-            clearConsole(); setSummaryPill('pending','not run yet');
-            hideEl($('#custom-output'));
+            resetOutputBox();
             showToast('Editor reset','info',2000);
         }
 
-        function switchTestTab(tab) {
-            activeTestTab = tab;
-            document.querySelectorAll('.test-tab').forEach(t => t.classList.toggle('active', t.dataset.testtab===tab));
-            $('#tt-cases').classList.toggle('hidden',  tab!=='cases');
-            $('#tt-custom').classList.toggle('hidden', tab!=='custom');
-            $('#tt-console').classList.toggle('hidden',tab!=='console');
+        function resetOutputBox() {
+            const box = $('#output-box');
+            box.innerHTML = '<span class="io-placeholder">Run your code to see output here…</span>';
+            box.className = 'io-output-box';
+            $('#run-status-badge').innerHTML = '';
         }
 
-        function renderTcStubs(testCases) {
-            const list = $('#tc-list');
-            if (!testCases || testCases.length === 0) {
-                list.innerHTML = '<div style="font-size:.74rem;color:rgba(255,255,255,.25);font-family:monospace;padding:6px 0">No test cases — run your code to see output</div>';
-                return;
-            }
-            list.innerHTML = testCases.map((tc,i) => {
-                const isHidden = tc.hidden === true;
-                const inputHtml    = isHidden ? `🔒 Hidden test ${i+1}` : escHtml(tc.input);
-                const expectedHtml = isHidden ? '???' : escHtml(tc.expectedDisplay);
-                const gotHtml      = isHidden
-                    ? `<span style="color:rgba(239,159,39,.5);font-size:.68rem;font-style:italic">(hidden)</span>`
-                    : '';
-                return `<div class="tc-row${isHidden?' hidden-case':''}" id="tc-row-${i}" data-idx="${i}">
-                    <span class="tc-icon" id="tc-icon-${i}">○</span>
-                    <span class="tc-input" id="tc-input-${i}">${inputHtml}</span>
-                    <span class="tc-arrow">→</span>
-                    <span class="tc-expected" id="tc-exp-${i}">${expectedHtml}</span>
-                    <span class="tc-got" id="tc-got-${i}">${gotHtml}</span>
-                </div>
-                <div class="tc-detail" id="tc-detail-${i}"></div>`;
-            }).join('');
-            testCases.forEach((tc,i) => { $(`#tc-row-${i}`)?.addEventListener('click', ()=>toggleTcDetail(i,tc)); });
-        }
-
-        function toggleTcDetail(i, tc) {
-            const detEl = $(`#tc-detail-${i}`); if (!detEl) return;
-            if (expandedTcIndex === i) { detEl.classList.remove('open'); expandedTcIndex=-1; return; }
-            if (expandedTcIndex >= 0) $(`#tc-detail-${expandedTcIndex}`)?.classList.remove('open');
-            expandedTcIndex = i;
-            const isHidden = tc.hidden === true;
-            let rows = `<div class="tc-detail-row"><span class="tc-detail-key">Input:</span><span class="tc-detail-val">${escHtml(tc.input||'')}</span></div>`;
-            if (!isHidden) rows += `<div class="tc-detail-row"><span class="tc-detail-key">Expected:</span><span class="tc-detail-val">${escHtml(tc.expectedDisplay||tc.expected||'')}</span></div>`;
-            else           rows += `<div class="tc-detail-row"><span class="tc-detail-key">Expected:</span><span class="tc-detail-val" style="color:rgba(239,159,39,.6)">??? (hidden)</span></div>`;
-            if (lastRunResults[i] !== undefined) rows += `<div class="tc-detail-row"><span class="tc-detail-key">Your output:</span><span class="tc-detail-val">${escHtml(String(lastRunResults[i]))}</span></div>`;
-            if (tc.explanation && !isHidden) rows += `<div class="tc-detail-row"><span class="tc-detail-key">Note:</span><span class="tc-detail-val" style="font-style:italic">${escHtml(tc.explanation)}</span></div>`;
-            detEl.innerHTML = rows;
-            detEl.classList.add('open');
-        }
-
-        function setSummaryPill(type, text) {
-            const el = $('#test-summary-pill');
-            el.className = `test-summary-pill ${type}`;
-            el.textContent = text;
-        }
-
-        function clearConsole() {
-            $('#console-output').innerHTML = '<span class="console-placeholder">Run your code to see console output…</span>';
-            $('#console-output').className = 'console-output';
-        }
-
-        // ═══════════════════════════════════════════════════════
-        // RUN & TEST — always use server (Judge0)
-        // ═══════════════════════════════════════════════════════
-        async function runAndTest() {
+        // ── RUN CODE ────────────────────────────────────────────
+        // Sends code + stdin to backend → Judge0 → raw stdout back
+        async function runCode() {
             if (isRunning) return;
             const code = $('#code-textarea').value.trim();
             const lang = $('#code-lang').value;
-            if (!code || code.length < 5) { showOutput('⚠️ Write some code first!','info'); switchTestTab('console'); return; }
-            const q = getS2()[codeIndex];
-            const testCases = Array.isArray(q?.testCases) ? q.testCases : [];
+            const stdin = $('#stdin-textarea').value;
 
-            if (testCases.length === 0) {
-                showOutput('ℹ️ No test cases available for this problem.\nSubmit your code when ready.','info');
-                switchTestTab('console');
+            if (!code || code.length < 5) {
+                showOutputResult(false, '', 'Write some code first!', null);
                 return;
             }
 
@@ -1383,17 +1288,12 @@
             const btn = $('#run-btn');
             btn.innerHTML = '<span class="run-spinner"></span>Running…';
             btn.disabled = true;
-            setSummaryPill('running','running…');
-            testPanelOpen = true;
-            $('#test-panel-wrap').classList.remove('collapsed');
-            switchTestTab('cases');
 
-            // Mark all rows as running
-            testCases.forEach((_,i) => {
-                const row=$(`#tc-row-${i}`), icon=$(`#tc-icon-${i}`);
-                if(row){row.classList.remove('pass','fail');row.classList.add('running');}
-                if(icon)icon.textContent='⟳';
-            });
+            // Show running state
+            const box = $('#output-box');
+            box.innerHTML = '<span style="color:rgba(239,159,39,.7);font-style:italic">⚡ Executing…</span>';
+            box.className = 'io-output-box';
+            setStatusBadge('running', '⟳ running');
 
             try {
                 const res = await fetch('/api/interview/run-code', {
@@ -1405,162 +1305,96 @@
                             : {})
                     },
                     credentials: 'include',
-                    body: JSON.stringify({
-                        code,
-                        language: lang,
-                        testCases,
-                        functionSignature: q.functionSignature || 'solution',
-                    }),
+                    body: JSON.stringify({ code, language: lang, stdin }),
                 });
                 const data = await res.json();
 
                 if (!data.success) {
-                    setSummaryPill('some-fail','server error');
-                    updateConsole([`❌ Server error: ${data.message}`], null, null);
-                    testCases.forEach((_,i) => {
-                        const row=$(`#tc-row-${i}`), icon=$(`#tc-icon-${i}`);
-                        if(row){row.classList.remove('running');row.classList.add('fail');}
-                        if(icon)icon.textContent='✗';
-                    });
-                    isRunning=false; btn.innerHTML='▶ Run &amp; Test'; btn.disabled=false;
-                    return;
-                }
-
-                data.results.forEach((r,i) => {
-                    const row=$(`#tc-row-${i}`), icon=$(`#tc-icon-${i}`), gotEl=$(`#tc-got-${i}`);
-                    if(!row)return;
-                    row.classList.remove('running');
-                    row.classList.add(r.pass?'pass':'fail');
-                    if(icon)icon.textContent=r.pass?'✓':'✗';
-                    if(gotEl){
-                        if(r.hidden){
-                            gotEl.textContent = r.pass?'✓ pass':`✗ got: ${r.got}`;
-                        } else {
-                            gotEl.textContent = `got: ${r.got}`;
-                        }
-                        gotEl.className=`tc-got ${r.pass?'correct':'wrong'}`;
-                    }
-                    lastRunResults[i] = r.got;
-                });
-
-                const {passed,total} = data;
-                setSummaryPill(
-                    passed===total?'all-pass':'some-fail',
-                    `${passed}/${total} passed`
-                );
-                const errLines = data.results.filter(r=>r.error).map(r=>`[${r.input||'test'}] ❌ ${r.error}`);
-                if (errLines.length) updateConsole(errLines, null, null);
-
-            } catch(e) {
-                setSummaryPill('some-fail','network error');
-                updateConsole([`❌ Could not reach server: ${e.message}`], null, null);
-                testCases.forEach((_,i) => {
-                    const row=$(`#tc-row-${i}`), icon=$(`#tc-icon-${i}`);
-                    if(row){row.classList.remove('running');row.classList.add('fail');}
-                    if(icon)icon.textContent='✗';
-                });
-            }
-
-            isRunning=false; btn.innerHTML='▶ Run &amp; Test'; btn.disabled=false;
-        }
-
-        async function runCustomTest() {
-            const code    = $('#code-textarea').value.trim();
-            const lang    = $('#code-lang').value;
-            const rawArgs = $('#custom-input').value.trim();
-            if (!code || code.length < 5) { showCustomOut('⚠️ Write some code first!','info'); return; }
-
-            const q  = getS2()[codeIndex];
-            const fn = q?.functionSignature || 'solution';
-            let args = [];
-            if (rawArgs) {
-                try { args = JSON.parse(`[${rawArgs}]`); }
-                catch(_) {
-                    showCustomOut('⚠️ Could not parse arguments.\nExamples:\n  [2,7,11,15], 9\n  "hello"\n  [1,2,3]','error');
-                    return;
-                }
-            }
-
-            const argsDisplay = args.map(a=>JSON.stringify(a)).join(', ');
-            const fakeTC = [{
-                input:           rawArgs || '(custom)',
-                inputCode:       JSON.stringify(args),
-                expected:        'null',
-                expectedDisplay: '(custom)',
-                hidden:          false,
-            }];
-
-            showCustomOut(`⚡ Running ${fn}(${argsDisplay})…`,'info');
-
-            try {
-                const res = await fetch('/api/interview/run-code', {
-                    method:'POST',
-                    headers:{
-                        'Content-Type':'application/json',
-                        ...(sessionStorage.getItem('accessToken')
-                            ? {Authorization:`Bearer ${sessionStorage.getItem('accessToken')}`}
-                            : {})
-                    },
-                    credentials:'include',
-                    body: JSON.stringify({ code, language:lang, testCases:fakeTC, functionSignature:fn }),
-                });
-                const data = await res.json();
-                if (data.success && data.results?.[0]) {
-                    const r = data.results[0];
-                    showCustomOut(
-                        r.error
-                            ? `❌ Error:\n${r.error}`
-                            : `✅ Output: ${r.got}`,
-                        r.error ? 'error' : 'success'
-                    );
+                    showOutputResult(false, '', data.message || 'Server error', null);
                 } else {
-                    showCustomOut(`❌ ${data.message||'Execution failed'}`,'error');
+                    showOutputResult(data.ran, data.output, data.error, data.time);
+                    lastRanOk = data.ran;
                 }
-            } catch(e) {
-                showCustomOut(`❌ Network error: ${e.message}`,'error');
+            } catch (e) {
+                showOutputResult(false, '', 'Network error: ' + e.message, null);
+            }
+
+            isRunning = false;
+            btn.innerHTML = '▶ Run';
+            btn.disabled = false;
+        }
+
+        function showOutputResult(ran, output, error, time) {
+            const box = $('#output-box');
+
+            if (!ran) {
+                // Error / crash
+                box.className = 'io-output-box error';
+                box.textContent = error || 'Unknown error';
+                setStatusBadge('error', '✕ error');
+                return;
+            }
+
+            // Success — ran cleanly
+            box.className = 'io-output-box';
+            if (output) {
+                box.textContent = output;
+            } else {
+                box.innerHTML = '<span style="color:rgba(255,255,255,.3);font-style:italic">(no output)</span>';
+            }
+
+            // Time badge
+            const timePart = time ? ` · ${parseFloat(time)*1000|0} ms` : '';
+            setStatusBadge('success', `✓ success${timePart}`);
+
+            // Warn if there was stderr alongside successful run
+            if (error) {
+                box.textContent += '\n\n⚠ stderr:\n' + error;
             }
         }
 
-        function showCustomOut(text, type='info') {
-            const el=$('#custom-output');
-            el.textContent=text;
-            el.className=`custom-output visible${type==='error'?' error':type==='info'?' info':''}`;
+        function setStatusBadge(type, text) {
+            const el = $('#run-status-badge');
+            el.innerHTML = `<span class="io-status-badge ${type}">${text}</span>`;
         }
 
-        function updateConsole(logs, extra, extraType) {
-            const el=$('#console-output');
-            const lines=[...(logs||[])];
-            if(extra)lines.push(extra);
-            if(!lines.length){el.innerHTML='<span class="console-placeholder">No console output.</span>';el.className='console-output';}
-            else{el.textContent=lines.join('\n');el.className=`console-output${extraType==='error'?' error':''}`;}
-        }
-
-        function showOutput(text,type='info'){updateConsole([],text,type);switchTestTab('console');}
-
+        // ── SUBMIT CODE ─────────────────────────────────────────
         function handleCodeSubmit() {
-            const code=$('#code-textarea').value.trim(), lang=$('#code-lang').value;
-            if(!code||code.length<5){showToast('Write some code before submitting','warning');return;}
-            const qs=getS2();
-            saveAnswer(qs[codeIndex]?.text||'', `[CODE:${lang.toUpperCase()}]\n${code}`);
-            const d=$(`#cd-${codeIndex}`); if(d){d.classList.remove('active');d.classList.add('done');}
+            const code = $('#code-textarea').value.trim();
+            const lang = $('#code-lang').value;
+            if (!code || code.length < 5) { showToast('Write some code before submitting','warning'); return; }
+
+            const qs = getS2();
+            // Save answer — tag with lang and whether it ran successfully
+            const statusTag = lastRanOk ? `[CODE:${lang.toUpperCase()}:OK]` : `[CODE:${lang.toUpperCase()}]`;
+            saveAnswer(qs[codeIndex]?.text || '', `${statusTag}\n${code}`);
+
+            const d = $(`#cd-${codeIndex}`);
+            if (d) { d.classList.remove('active'); d.classList.add('done'); }
             showToast('Code submitted! ✅','success');
-            if(codeIndex<qs.length-1)showCodeQuestion(codeIndex+1); else endSection2();
+
+            if (codeIndex < qs.length - 1) showCodeQuestion(codeIndex + 1);
+            else endSection2();
         }
 
         function handleCodeSkip() {
-            const qs=getS2(), d=$(`#cd-${codeIndex}`);
-            if(d){d.classList.remove('active');d.classList.add('skipped');}
-            saveAnswer(qs[codeIndex]?.text||'','[Skipped]');
-            if(codeIndex<qs.length-1)showCodeQuestion(codeIndex+1); else endSection2();
+            const qs = getS2(), d = $(`#cd-${codeIndex}`);
+            if (d) { d.classList.remove('active'); d.classList.add('skipped'); }
+            saveAnswer(qs[codeIndex]?.text || '', '[Skipped]');
+            if (codeIndex < qs.length - 1) showCodeQuestion(codeIndex + 1);
+            else endSection2();
         }
 
-        function endSection2() { hideEl($('#section2-wrap')); updatePills(3); showSectionOverlay(3,()=>startSection3()); }
+        function endSection2() {
+            hideEl($('#section2-wrap')); updatePills(3);
+            showSectionOverlay(3, () => startSection3());
+        }
 
         // ═══════════════════════════════════════════════════════
         // SECTION 3 — VIDEO
         // ═══════════════════════════════════════════════════════
         async function startSection3() {
-            currentSection=3; viIndex=0;
+            currentSection = 3; viIndex = 0;
             document.body.classList.add('video-mode');
             showEl($('#section3-wrap'));
             buildViDots(); await initCamera(); initSpeech(); await showViQuestion(0);
@@ -1568,48 +1402,51 @@
             $('#vi-skip-btn').addEventListener('click', handleViSkip);
             $('#vi-mic-btn').addEventListener('click', toggleMic);
             $('#vi-cam-btn').addEventListener('click', toggleCam);
-            $('#vi-answer').addEventListener('keydown', e=>{if(e.key==='Enter'&&e.ctrlKey){e.preventDefault();handleViSubmit();}});
+            $('#vi-answer').addEventListener('keydown', e => { if(e.key==='Enter'&&e.ctrlKey){e.preventDefault();handleViSubmit();} });
         }
 
         function buildViDots() {
-            const qs=getS3(), el=$('#vi-progress-dots');
-            el.innerHTML=qs.map((q,i)=>`<div class="qd" id="vd-${i}" title="${q.category==='behavioral'?'🧠 Behavioral':'⚙️ Technical'}"></div>`).join('')+
-                `<span style="font-size:.72rem;color:rgba(255,255,255,.4);margin-left:6px">Video Interview</span>`;
+            const qs = getS3(), el = $('#vi-progress-dots');
+            el.innerHTML = qs.map((q,i) =>
+                `<div class="qd" id="vd-${i}" title="${q.category==='behavioral'?'🧠 Behavioral':'⚙️ Technical'}"></div>`
+            ).join('') + `<span style="font-size:.72rem;color:rgba(255,255,255,.4);margin-left:6px">Video Interview</span>`;
             $(`#vd-0`)?.classList.add('active');
         }
 
         async function showViQuestion(idx) {
-            const qs=getS3(); if(idx>=qs.length){endSection3();return;}
-            viIndex=idx; const q=qs[idx];
-            $('#vi-q-text').innerHTML='<div class="vi-typing-dots"><span></span><span></span><span></span></div>';
-            $('#vi-answer').value='';
-            qs.forEach((_,i)=>{const d=$(`#vd-${i}`);if(!d)return;d.classList.remove('active','done','skipped');if(i<idx)d.classList.add('done');else if(i===idx)d.classList.add('active');});
-            setText('#progress-label',`Video ${idx+1} / ${qs.length}`);
+            const qs = getS3(); if (idx >= qs.length) { endSection3(); return; }
+            viIndex = idx; const q = qs[idx];
+            $('#vi-q-text').innerHTML = '<div class="vi-typing-dots"><span></span><span></span><span></span></div>';
+            $('#vi-answer').value = '';
+            qs.forEach((_,i) => { const d=$(`#vd-${i}`); if(!d)return; d.classList.remove('active','done','skipped'); if(i<idx)d.classList.add('done'); else if(i===idx)d.classList.add('active'); });
+            setText('#progress-label', `Video ${idx+1} / ${qs.length}`);
             await sleep(1000);
-            const intro=idx===0?`Hi! I'm Alex, your interviewer. We have ${qs.length} questions. Let's begin! ${q.text}`:q.text;
-            const badge=q.category==='behavioral'
-                ?`<div class="vi-q-type-badge vi-q-type-behavioral">🧠 Behavioral</div>`
-                :`<div class="vi-q-type-badge vi-q-type-technical">⚙️ Technical</div>`;
-            $('#vi-q-text').innerHTML=badge+'<div>'+escHtml(q.text)+'</div>';
+            const intro = idx===0
+                ? `Hi! I'm Alex, your interviewer. We have ${qs.length} questions. Let's begin! ${q.text}`
+                : q.text;
+            const badge = q.category==='behavioral'
+                ? `<div class="vi-q-type-badge vi-q-type-behavioral">🧠 Behavioral</div>`
+                : `<div class="vi-q-type-badge vi-q-type-technical">⚙️ Technical</div>`;
+            $('#vi-q-text').innerHTML = badge + '<div>' + escHtml(q.text) + '</div>';
             await speakText(intro);
         }
 
         async function handleViSubmit() {
-            if(isSubmitting)return;
-            const answer=$('#vi-answer').value.trim();
-            if(!answer||answer.length<5){showToast('Please give a more complete answer','warning');return;}
-            isSubmitting=true;
-            if(isMicOn){recognition?.stop();isMicOn=false;updateMicBtn();$('#rec-dot').classList.add('hidden');}
-            const btn=$('#vi-submit-btn');btn.disabled=true;btn.textContent='⏳';
-            const qs=getS3();
-            saveAnswer(qs[viIndex]?.text||'',answer);
-            const d=$(`#vd-${viIndex}`);if(d){d.classList.remove('active');d.classList.add('done');}
-            isSubmitting=false;btn.disabled=false;btn.textContent='➤';
-            if(viIndex<qs.length-1){viIndex++;await showViQuestion(viIndex);}else endSection3();
+            if (isSubmitting) return;
+            const answer = $('#vi-answer').value.trim();
+            if (!answer || answer.length < 5) { showToast('Please give a more complete answer','warning'); return; }
+            isSubmitting = true;
+            if (isMicOn) { recognition?.stop(); isMicOn=false; updateMicBtn(); $('#rec-dot').classList.add('hidden'); }
+            const btn = $('#vi-submit-btn'); btn.disabled=true; btn.textContent='⏳';
+            const qs = getS3();
+            saveAnswer(qs[viIndex]?.text||'', answer);
+            const d = $(`#vd-${viIndex}`); if(d){d.classList.remove('active');d.classList.add('done');}
+            isSubmitting=false; btn.disabled=false; btn.textContent='➤';
+            if (viIndex<qs.length-1) { viIndex++; await showViQuestion(viIndex); } else endSection3();
         }
 
         function handleViSkip() {
-            const qs=getS3(),d=$(`#vd-${viIndex}`);
+            const qs=getS3(), d=$(`#vd-${viIndex}`);
             if(d){d.classList.remove('active');d.classList.add('skipped');}
             saveAnswer(qs[viIndex]?.text||'','[Skipped]');
             if(viIndex<qs.length-1){viIndex++;showViQuestion(viIndex);}else endSection3();
@@ -1620,14 +1457,14 @@
             window.speechSynthesis?.cancel();
             mediaStream?.getTracks().forEach(t=>t.stop());
             document.body.classList.remove('video-mode');
-            hideEl($('#section3-wrap'));clearInterval(timerInterval);
+            hideEl($('#section3-wrap')); clearInterval(timerInterval);
             showEl($('#complete-wrap'));
-            $('#get-report-btn').addEventListener('click',handleEvaluate);
+            $('#get-report-btn').addEventListener('click', handleEvaluate);
         }
 
         async function initCamera() {
-            try{mediaStream=await navigator.mediaDevices.getUserMedia({video:true,audio:false});const v=$('#user-video');if(v)v.srcObject=mediaStream;isCamOn=true;}
-            catch(_){isCamOn=false;showEl($('#cam-off'));hideEl($('#user-video'));}
+            try { mediaStream=await navigator.mediaDevices.getUserMedia({video:true,audio:false}); const v=$('#user-video'); if(v)v.srcObject=mediaStream; isCamOn=true; }
+            catch(_) { isCamOn=false; showEl($('#cam-off')); hideEl($('#user-video')); }
         }
 
         function toggleCam() {
@@ -1638,9 +1475,9 @@
         }
 
         function initSpeech() {
-            const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return;
-            recognition=new SR();recognition.continuous=true;recognition.interimResults=true;recognition.lang='en-US';
-            recognition.onresult=e=>{const t=Array.from(e.results).map(r=>r[0].transcript).join('');$('#vi-answer').value=t;const w=$('#transcript-content');if(w)w.innerHTML=`<div class="transcript-line">${escHtml(t)}</div>`;};
+            const SR=window.SpeechRecognition||window.webkitSpeechRecognition; if(!SR)return;
+            recognition=new SR(); recognition.continuous=true; recognition.interimResults=true; recognition.lang='en-US';
+            recognition.onresult=e=>{const t=Array.from(e.results).map(r=>r[0].transcript).join(''); $('#vi-answer').value=t; const w=$('#transcript-content'); if(w)w.innerHTML=`<div class="transcript-line">${escHtml(t)}</div>`;};
             recognition.onerror=()=>{isMicOn=false;updateMicBtn();$('#rec-dot').classList.add('hidden');};
         }
 
@@ -1652,13 +1489,13 @@
             updateMicBtn();
         }
 
-        function updateMicBtn() {const btn=$('#vi-mic-btn');if(!btn)return;if(isMicOn)btn.classList.add('recording');else btn.classList.remove('recording');}
+        function updateMicBtn() { const btn=$('#vi-mic-btn'); if(!btn)return; if(isMicOn)btn.classList.add('recording'); else btn.classList.remove('recording'); }
 
         function speakText(text) {
-            return new Promise(resolve=>{
+            return new Promise(resolve => {
                 if(!window.speechSynthesis){resolve();return;}
                 window.speechSynthesis.cancel();
-                const u=new SpeechSynthesisUtterance(text);u.rate=0.9;u.pitch=1.0;u.volume=1.0;
+                const u=new SpeechSynthesisUtterance(text); u.rate=0.9; u.pitch=1.0; u.volume=1.0;
                 const vs=window.speechSynthesis.getVoices();
                 const v=vs.find(v=>v.name.includes('Google')&&v.lang.startsWith('en'))||vs.find(v=>v.lang.startsWith('en'))||vs[0];
                 if(v)u.voice=v;
@@ -1672,29 +1509,29 @@
         // ═══════════════════════════════════════════════════════
         // EVALUATE
         // ═══════════════════════════════════════════════════════
-        function saveAnswer(question, answer) { localAnswers.push({question,answer,answeredAt:new Date().toISOString()}); }
+        function saveAnswer(question, answer) { localAnswers.push({ question, answer, answeredAt: new Date().toISOString() }); }
 
         async function handleEvaluate() {
             const btn=$('#get-report-btn'), spinner=$('#report-spinner');
-            showEl(spinner); setLoading(btn,true,'Generating report…');
+            showEl(spinner); setLoading(btn, true, 'Generating report…');
             try {
-                try {
-                    await interviewApi.answer(interview._id, { answers: localAnswers });
-                } catch(_) {}
+                try { await interviewApi.answer(interview._id, { answers: localAnswers }); } catch(_) {}
                 await interviewApi.evaluate(interview._id);
-                location.href=`/pages/report.html?id=${interview._id}`;
+                location.href = `/pages/report.html?id=${interview._id}`;
             } catch(err) {
-                showToast(err.message||'Could not generate report','error');
-                hideEl(spinner); setLoading(btn,false,'Get My Report →');
+                showToast(err.message || 'Could not generate report', 'error');
+                hideEl(spinner); setLoading(btn, false, 'Get My Report →');
             }
         }
 
         // ═══════════════════════════════════════════════════════
         // HELPERS
         // ═══════════════════════════════════════════════════════
-        function setText(sel,val){const el=$(sel);if(el)el.textContent=val;}
-        function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
-        function escHtml(str=''){return String(str).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+        function setText(sel, val) { const el=$(sel); if(el) el.textContent=val; }
+        function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+        function escHtml(str='') {
+            return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
     </script>
 </body>
 </html>

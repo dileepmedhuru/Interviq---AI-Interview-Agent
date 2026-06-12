@@ -222,7 +222,12 @@ exports.deleteInterview = async (req, res, next) => {
 };
 
 // ═══════════════════════════════════════════════════════════════
-// POST /api/interview/run-code  — Judge0 CE public API
+// POST /api/interview/run-code
+//
+// Executes user code as-is via Judge0 CE (public free tier).
+// No test-case harness, no return-value wrapping.
+// User writes code that reads from stdin and prints to stdout.
+// We return the raw output and whether execution succeeded.
 // ═══════════════════════════════════════════════════════════════
 const https = require('https');
 
@@ -234,197 +239,19 @@ const LANG_IDS = {
     java:       62,
     cpp:        54,
     c:          50,
+    typescript: 74,
+    go:         60,
+    rust:       73,
+    ruby:       72,
     sql:        82,
 };
 
-// ── Build executable source for each language ─────────────────
-function buildSource(lang, userCode, fnSig, args, expected) {
-    const argsJson = JSON.stringify(args);
-
-    // Determine if this problem expects a boolean result
-    const expectedStr = String(expected).trim();
-    const isBoolExpected = expectedStr === 'true' || expectedStr === 'false';
-
-    switch (lang) {
-        case 'javascript':
-            return `
-${userCode}
-
-const __args = ${argsJson};
-try {
-    const __result = ${fnSig}(...__args);
-    console.log(JSON.stringify({ result: __result }));
-} catch(e) {
-    console.log(JSON.stringify({ error: e.message }));
-}`;
-
-        case 'python':
-            return `
-${userCode}
-
-import json
-__args = ${JSON.stringify(args)}
-try:
-    __result = ${fnSig}(*__args)
-    print(json.dumps({"result": __result}))
-except Exception as e:
-    print(json.dumps({"error": str(e)}))
-`;
-
-        case 'java': {
-            const argDecls = args.map((v, i) => {
-                if (Array.isArray(v)) {
-                    const type = typeof v[0] === 'string' ? 'String' : 'int';
-                    return `${type}[] arg${i} = {${v.map(x => JSON.stringify(x)).join(', ')}};`;
-                }
-                if (typeof v === 'string')  return `String arg${i} = ${JSON.stringify(v)};`;
-                if (typeof v === 'boolean') return `boolean arg${i} = ${v};`;
-                return `int arg${i} = ${v};`;
-            }).join('\n        ');
-            const argNames = args.map((_, i) => `arg${i}`).join(', ');
-
-            const solutionCode = /class\s+Solution/.test(userCode)
-                ? userCode
-                : `class Solution {\n${userCode}\n}`;
-
-            return `
-import java.util.*;
-import java.util.stream.*;
-
-${solutionCode}
-
-public class Main {
-    public static void main(String[] args) {
-        try {
-            Solution sol = new Solution();
-            ${argDecls}
-            Object result = sol.${fnSig}(${argNames});
-            System.out.println(toJson(result));
-        } catch (Exception e) {
-            System.out.println("{\\"error\\":\\"" + e.getMessage() + "\\"}");
-        }
-    }
-
-    static String toJson(Object o) {
-        if (o == null) return "null";
-        if (o instanceof int[])     return Arrays.toString((int[]) o).replace(", ", ",").replace("[ ", "[").replace(" ]", "]");
-        if (o instanceof String)    return "\\"" + o + "\\"";
-        if (o instanceof Boolean)   return o.toString();
-        if (o instanceof List) {
-            List<?> l = (List<?>) o;
-            return "[" + l.stream().map(x -> toJson(x)).collect(Collectors.joining(",")) + "]";
-        }
-        return String.valueOf(o);
-    }
-}`;
-        }
-
-        case 'cpp': {
-            const callArgs = args.map(v => {
-                if (Array.isArray(v)) {
-                    const inner = v.map(x => JSON.stringify(x)).join(', ');
-                    return typeof v[0] === 'string'
-                        ? `vector<string>{${inner}}`
-                        : `vector<int>{${inner}}`;
-                }
-                if (typeof v === 'string')  return `string(${JSON.stringify(v)})`;
-                if (typeof v === 'boolean') return v ? 'true' : 'false';
-                return String(v);
-            }).join(', ');
-
-            return `
-#include <bits/stdc++.h>
-using namespace std;
-
-${userCode}
-
-template<typename T>
-string toJson(T v) { return to_string(v); }
-string toJson(string v) { return "\\"" + v + "\\""; }
-string toJson(bool v) { return v ? "true" : "false"; }
-string toJson(vector<int> v) {
-    string s = "[";
-    for (int i = 0; i < (int)v.size(); i++) { if(i) s += ","; s += to_string(v[i]); }
-    return s + "]";
-}
-string toJson(vector<string> v) {
-    string s = "[";
-    for (int i = 0; i < (int)v.size(); i++) { if(i) s += ","; s += "\\"" + v[i] + "\\""; }
-    return s + "]";
-}
-
-int main() {
-    try {
-        auto result = ${fnSig}(${callArgs});
-        cout << toJson(result) << endl;
-    } catch (exception& e) {
-        cout << "{\\"error\\":\\"" << e.what() << "\\"}" << endl;
-    }
-    return 0;
-}`;
-        }
-
-        case 'c': {
-            const callArgs = args.map((v, i) => {
-                if (Array.isArray(v)) return `arg${i}`;
-                if (typeof v === 'string') return JSON.stringify(v);
-                if (typeof v === 'boolean') return v ? '1' : '0';
-                return String(v);
-            }).join(', ');
-
-            const argDecls = args.map((v, i) => {
-                if (Array.isArray(v)) {
-                    const inner = v.join(', ');
-                    return `int arg${i}[] = {${inner}};\n    int arg${i}Size = ${v.length};`;
-                }
-                if (typeof v === 'string') return `const char* arg${i} = ${JSON.stringify(v)};`;
-                if (typeof v === 'boolean') return `int arg${i} = ${v ? 1 : 0};`;
-                return `int arg${i} = ${v};`;
-            }).join('\n    ');
-
-            // Build the function call — arrays need size param
-            const callStr = args.map((v, i) => {
-                if (Array.isArray(v)) return `arg${i}, arg${i}Size`;
-                return `arg${i}`;
-            }).join(', ');
-
-            // ── KEY FIX: print "true"/"false" when expected is boolean ──
-            const printResult = isBoolExpected
-                ? `printf("%s\\n", result ? "true" : "false");`
-                : `printf("%d\\n", result);`;
-
-            return `
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <stdbool.h>
-
-${userCode}
-
-int main() {
-    ${argDecls}
-    int result = (int)${fnSig}(${callStr});
-    ${printResult}
-    return 0;
-}`;
-        }
-
-        case 'sql':
-            return userCode;
-
-        default:
-            return userCode;
-    }
-}
-
-// ── Call Judge0 ───────────────────────────────────────────────
-function judge0Submit(sourceCode, languageId) {
+function judge0Submit(sourceCode, languageId, stdin) {
     return new Promise((resolve, reject) => {
         const body = JSON.stringify({
             source_code: sourceCode,
             language_id: languageId,
-            stdin: '',
+            stdin: stdin || '',
         });
 
         const urlObj = new URL(JUDGE0_URL);
@@ -448,48 +275,18 @@ function judge0Submit(sourceCode, languageId) {
         });
 
         req.on('error', reject);
-        req.setTimeout(15000, () => { req.destroy(); reject(new Error('Judge0 timeout')); });
+        req.setTimeout(20000, () => { req.destroy(); reject(new Error('Judge0 timeout')); });
         req.write(body);
         req.end();
     });
 }
 
-// ── Deep equality ─────────────────────────────────────────────
-function deepEqual(a, b) {
-    if (a === b) return true;
-    if (a === null || b === null) return a === b;
-    if (typeof a !== typeof b) return String(a) === String(b);
-    if (Array.isArray(a) && Array.isArray(b)) {
-        if (a.length !== b.length) return false;
-        if (a.every((v, i) => deepEqual(v, b[i]))) return true;
-        const sa = [...a].sort(), sb = [...b].sort();
-        return sa.every((v, i) => deepEqual(v, sb[i]));
-    }
-    if (typeof a === 'object') {
-        const ka = Object.keys(a).sort(), kb = Object.keys(b).sort();
-        if (ka.join() !== kb.join()) return false;
-        return ka.every(k => deepEqual(a[k], b[k]));
-    }
-    return false;
-}
-
-function parseArgs(tc) {
-    try {
-        const parsed = JSON.parse(tc.inputCode);
-        return Array.isArray(parsed) ? parsed : [parsed];
-    } catch (_) { return []; }
-}
-
-function parseExpected(tc) {
-    try { return JSON.parse(tc.expected); } catch (_) { return tc.expected; }
-}
-
-// ── Main handler ──────────────────────────────────────────────
 exports.runCode = async (req, res, next) => {
     try {
-        const { code, language, testCases, functionSignature } = req.body;
-        if (!code || !language || !testCases || !functionSignature) {
-            return res.status(400).json({ success: false, message: 'Missing fields' });
+        const { code, language, stdin } = req.body;
+
+        if (!code || !language) {
+            return res.status(400).json({ success: false, message: 'Missing code or language' });
         }
 
         const lang = language.toLowerCase();
@@ -498,124 +295,67 @@ exports.runCode = async (req, res, next) => {
             return res.status(400).json({ success: false, message: `Language "${lang}" not supported` });
         }
 
-        const results = [];
-
-        for (const tc of testCases) {
-            const args     = parseArgs(tc);
-            const expected = parseExpected(tc);
-            const source   = buildSource(lang, code, functionSignature, args, expected);
-
-            try {
-                const j0 = await judge0Submit(source, languageId);
-
-                const stdout     = (j0.stdout         || '').trim();
-                const stderr     = (j0.stderr         || '').trim();
-                const compileErr = (j0.compile_output || '').trim();
-                const statusId   = j0.status?.id;
-
-                // Compile error
-                if (statusId === 6 || (compileErr && !stdout)) {
-                    results.push({
-                        input:    tc.input,
-                        expected: tc.expectedDisplay,
-                        got:      'Compile error',
-                        pass:     false,
-                        hidden:   !!tc.hidden,
-                        error:    compileErr.slice(0, 400),
-                    });
-                    continue;
-                }
-
-                // TLE
-                if (statusId === 5) {
-                    results.push({
-                        input:    tc.input,
-                        expected: tc.expectedDisplay,
-                        got:      'Time Limit Exceeded',
-                        pass:     false,
-                        hidden:   !!tc.hidden,
-                        error:    'Your code took too long to execute.',
-                    });
-                    continue;
-                }
-
-                // Runtime error
-                if (stderr && !stdout) {
-                    results.push({
-                        input:    tc.input,
-                        expected: tc.expectedDisplay,
-                        got:      'Runtime error',
-                        pass:     false,
-                        hidden:   !!tc.hidden,
-                        error:    stderr.slice(0, 400),
-                    });
-                    continue;
-                }
-
-                // Parse output — last non-empty line
-                const lastLine = stdout.split('\n').map(l => l.trim()).filter(Boolean).pop() || '';
-
-                let got;
-
-                if (lang === 'javascript' || lang === 'python') {
-                    try {
-                        const parsed = JSON.parse(lastLine);
-                        if (parsed?.error) {
-                            results.push({
-                                input:    tc.input,
-                                expected: tc.expectedDisplay,
-                                got:      `Error: ${parsed.error}`,
-                                pass:     false,
-                                hidden:   !!tc.hidden,
-                                error:    parsed.error,
-                            });
-                            continue;
-                        }
-                        got = parsed?.result ?? parsed;
-                    } catch (_) {
-                        got = lastLine;
-                    }
-                } else {
-                    // C, C++, Java — raw output
-                    // For C with bool fix, output is already "true"/"false" string
-                    if ((lang === 'c' || lang === 'cpp') &&
-                        (lastLine === 'true' || lastLine === 'false')) {
-                        // Keep as string so deepEqual("true", true) works via String coercion
-                        got = lastLine;
-                    } else {
-                        try { got = JSON.parse(lastLine); }
-                        catch (_) { got = lastLine; }
-                    }
-                }
-
-                const pass = deepEqual(got, expected);
-
-                results.push({
-                    input:    tc.input,
-                    expected: tc.expectedDisplay,
-                    got:      got === null      ? 'null'
-                            : got === undefined ? 'undefined'
-                            : typeof got === 'object' ? JSON.stringify(got)
-                            : String(got),
-                    pass,
-                    hidden:   !!tc.hidden,
-                    error:    null,
-                });
-
-            } catch (e) {
-                results.push({
-                    input:    tc.input,
-                    expected: tc.expectedDisplay,
-                    got:      'Execution error',
-                    pass:     false,
-                    hidden:   !!tc.hidden,
-                    error:    e.message,
-                });
-            }
+        let j0;
+        try {
+            j0 = await judge0Submit(code, languageId, stdin || '');
+        } catch (e) {
+            return res.status(502).json({
+                success: false,
+                message: 'Code runner unavailable: ' + e.message
+            });
         }
 
-        const passed = results.filter(r => r.pass).length;
-        res.json({ success: true, results, passed, total: results.length });
+        const stdout     = (j0.stdout         || '').trimEnd();
+        const stderr     = (j0.stderr         || '').trimEnd();
+        const compileErr = (j0.compile_output || '').trimEnd();
+        const statusId   = j0.status?.id;
+        const statusDesc = j0.status?.description || '';
+        const time       = j0.time   || null;
+        const memory     = j0.memory || null;
+
+        // ── Classify the result ──────────────────────────────────
+        // Judge0 status IDs:
+        //   1  = In Queue
+        //   2  = Processing
+        //   3  = Accepted  (ran cleanly, output produced)
+        //   4  = Wrong Answer (output exists but didn't match — irrelevant here)
+        //   5  = Time Limit Exceeded
+        //   6  = Compilation Error
+        //   7  = Runtime Error (SIGSEGV)
+        //   8  = Runtime Error (SIGXFSZ)
+        //   9  = Runtime Error (SIGFPE)
+        //   10 = Runtime Error (SIGABRT)
+        //   11 = Runtime Error (NZEC — non-zero exit)
+        //   12 = Runtime Error (Internal)
+        //   13 = Exec Format Error
+        //   14 = Exec Format Error
+
+        let ran   = false;   // true = code executed without crashing
+        let error = null;    // human-readable error string if something went wrong
+
+        if (statusId === 6 || compileErr) {
+            error = compileErr || 'Compilation error';
+        } else if (statusId === 5) {
+            error = 'Time Limit Exceeded — your code took too long.';
+        } else if (statusId >= 7 && statusId <= 14) {
+            error = stderr || statusDesc || 'Runtime error';
+        } else {
+            // statusId 3 or 4 — code ran, produced output (or no output)
+            ran = true;
+            // Surface stderr as a warning even when code ran
+            if (stderr) error = stderr;
+        }
+
+        return res.json({
+            success: true,
+            ran,          // did the code execute without crashing?
+            output: stdout,
+            error,
+            time,         // execution time in seconds (e.g. "0.012")
+            memory,       // memory in KB
+            statusId,
+            statusDesc,
+        });
 
     } catch (err) { next(err); }
 };
