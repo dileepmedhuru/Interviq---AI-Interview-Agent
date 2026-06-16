@@ -1,421 +1,1699 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Interview — Interview Agent</title>
     <link rel="icon" href="../public/favicon.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet" />
     <link rel="stylesheet" href="../css/base.css" />
     <link rel="stylesheet" href="../css/3d-effects.css" />
     <link rel="stylesheet" href="../css/animations.css" />
     <link rel="stylesheet" href="../css/components.css" />
     <link rel="stylesheet" href="../css/interview.css" />
     <style>
-        html, body { height: 100%; overflow: hidden; }
+        html,
+        body {
+            height: 100%;
+            overflow: hidden;
+        }
 
         .interview-layout {
-            display: flex; flex-direction: column;
-            height: 100vh; overflow: hidden;
-        }
-        .interview-body {
-            flex: 1; overflow: hidden; display: flex;
-            flex-direction: column; min-height: 0;
-            padding: 0; max-width: 100%; margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
         }
 
-        #section1-wrap, #section3-wrap, #complete-wrap {
-            overflow-y: auto; padding: 2rem 1.5rem;
-            max-width: 820px; width: 100%;
-            margin: 0 auto; flex: 1; min-height: 0;
+        .interview-body {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            padding: 0;
+            max-width: 100%;
+            margin: 0;
+        }
+
+        #section1-wrap,
+        #section3-wrap,
+        #complete-wrap {
+            overflow-y: auto;
+            padding: 2rem 1.5rem;
+            max-width: 820px;
+            width: 100%;
+            margin: 0 auto;
+            flex: 1;
+            min-height: 0;
         }
 
         /* ── Section Overlay ── */
         #section-overlay {
-            position: fixed; inset: 0; z-index: 500;
+            position: fixed;
+            inset: 0;
+            z-index: 500;
             background: linear-gradient(135deg, var(--purple-900), var(--accent));
-            display: flex; align-items: center; justify-content: center;
-            flex-direction: column; gap: 1.5rem;
-            opacity: 0; pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 1.5rem;
+            opacity: 0;
+            pointer-events: none;
             transition: opacity 0.4s ease;
         }
-        #section-overlay.visible { opacity: 1; pointer-events: all; }
-        .section-badge     { font-size: 4rem; animation: bounce-in .5s cubic-bezier(.34,1.56,.64,1); }
-        .section-title-big { font-size: 2rem; font-weight: 800; color: #fff; text-align: center; letter-spacing: -.03em; }
-        .section-desc-big  { color: rgba(255,255,255,.75); font-size: 1rem; text-align: center; max-width: 420px; line-height: 1.65; }
-        .section-start-btn {
-            padding: 12px 32px; background: #fff; color: var(--accent);
-            font-weight: 700; font-size: 1rem; border: none; border-radius: 50px;
-            cursor: pointer; box-shadow: 0 6px 24px rgba(0,0,0,.2);
-            transition: transform .2s, box-shadow .2s; font-family: var(--font);
+
+        #section-overlay.visible {
+            opacity: 1;
+            pointer-events: all;
         }
-        .section-start-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(0,0,0,.3); }
-        @keyframes bounce-in { from { transform: scale(.4); opacity: 0 } to { transform: scale(1); opacity: 1 } }
+
+        .section-badge {
+            font-size: 4rem;
+            animation: bounce-in .5s cubic-bezier(.34, 1.56, .64, 1);
+        }
+
+        .section-title-big {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #fff;
+            text-align: center;
+            letter-spacing: -.03em;
+        }
+
+        .section-desc-big {
+            color: rgba(255, 255, 255, .75);
+            font-size: 1rem;
+            text-align: center;
+            max-width: 420px;
+            line-height: 1.65;
+        }
+
+        .section-start-btn {
+            padding: 12px 32px;
+            background: #fff;
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 1rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, .2);
+            transition: transform .2s, box-shadow .2s;
+            font-family: var(--font);
+        }
+
+        .section-start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 32px rgba(0, 0, 0, .3);
+        }
+
+        @keyframes bounce-in {
+            from {
+                transform: scale(.4);
+                opacity: 0
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1
+            }
+        }
 
         /* ── Section Pills ── */
         .section-nav {
-            display: flex; align-items: center;
-            background: var(--surface-2); border-radius: 50px;
-            padding: 4px; border: 1px solid var(--border-strong);
+            display: flex;
+            align-items: center;
+            background: var(--surface-2);
+            border-radius: 50px;
+            padding: 4px;
+            border: 1px solid var(--border-strong);
         }
+
         .sec-pill {
-            display: flex; align-items: center; gap: 6px;
-            padding: 6px 16px; border-radius: 50px;
-            font-size: .78rem; font-weight: 600;
-            color: var(--text-muted); transition: all .2s; white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: .78rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: all .2s;
+            white-space: nowrap;
         }
-        .sec-pill.active { background: linear-gradient(135deg, var(--accent), var(--purple-400)); color: #fff; box-shadow: 0 3px 10px rgba(83,74,183,.4); }
-        .sec-pill.done   { color: var(--success); }
+
+        .sec-pill.active {
+            background: linear-gradient(135deg, var(--accent), var(--purple-400));
+            color: #fff;
+            box-shadow: 0 3px 10px rgba(83, 74, 183, .4);
+        }
+
+        .sec-pill.done {
+            color: var(--success);
+        }
 
         /* ══════════════════════════════════════════
            SECTION 2 — CODING
         ══════════════════════════════════════════ */
         #section2-wrap {
-            flex: 1; display: flex; flex-direction: column;
-            min-height: 0; background: #0d0d18; width: 100%; overflow: hidden;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            background: #0d0d18;
+            width: 100%;
+            overflow: hidden;
         }
 
         /* ── Toolbar ── */
         .code-toolbar {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 16px; background: #12112a;
-            border-bottom: 1px solid rgba(127,119,221,.15);
-            gap: 12px; flex-shrink: 0; height: 48px; flex-wrap: wrap;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            background: #12112a;
+            border-bottom: 1px solid rgba(127, 119, 221, .15);
+            gap: 12px;
+            flex-shrink: 0;
+            height: 48px;
+            flex-wrap: wrap;
         }
-        .code-toolbar-left  { display: flex; align-items: center; gap: 10px; min-width: 0; }
-        .code-toolbar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 
-        .qd { width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,.15); transition: all .3s; flex-shrink: 0; }
-        .qd.done    { background: var(--success); }
-        .qd.active  { background: var(--accent); transform: scale(1.5); }
-        .qd.skipped { background: var(--warning); }
-        .q-progress-dots-inline { display: flex; gap: 6px; align-items: center; }
+        .code-toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
 
-        .toolbar-label { font-size: .75rem; font-weight: 700; color: rgba(255,255,255,.45); letter-spacing: .06em; text-transform: uppercase; }
+        .code-toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
 
-        .difficulty-chip { font-size: .68rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; letter-spacing: .03em; text-transform: capitalize; }
-        .difficulty-chip.easy   { background: rgba(29,158,117,.18);  color: #1D9E75; border: 1px solid rgba(29,158,117,.3); }
-        .difficulty-chip.medium { background: rgba(239,159,39,.15);  color: #EF9F27; border: 1px solid rgba(239,159,39,.3); }
-        .difficulty-chip.hard   { background: rgba(226,75,74,.15);   color: #E24B4A; border: 1px solid rgba(226,75,74,.3); }
+        .qd {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .15);
+            transition: all .3s;
+            flex-shrink: 0;
+        }
+
+        .qd.done {
+            background: var(--success);
+        }
+
+        .qd.active {
+            background: var(--accent);
+            transform: scale(1.5);
+        }
+
+        .qd.skipped {
+            background: var(--warning);
+        }
+
+        .q-progress-dots-inline {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .toolbar-label {
+            font-size: .75rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, .45);
+            letter-spacing: .06em;
+            text-transform: uppercase;
+        }
+
+        .difficulty-chip {
+            font-size: .68rem;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: 20px;
+            letter-spacing: .03em;
+            text-transform: capitalize;
+        }
+
+        .difficulty-chip.easy {
+            background: rgba(29, 158, 117, .18);
+            color: #1D9E75;
+            border: 1px solid rgba(29, 158, 117, .3);
+        }
+
+        .difficulty-chip.medium {
+            background: rgba(239, 159, 39, .15);
+            color: #EF9F27;
+            border: 1px solid rgba(239, 159, 39, .3);
+        }
+
+        .difficulty-chip.hard {
+            background: rgba(226, 75, 74, .15);
+            color: #E24B4A;
+            border: 1px solid rgba(226, 75, 74, .3);
+        }
 
         .lang-select {
-            background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
-            color: #d0cfea; border-radius: 8px; padding: 5px 10px;
-            font-size: .78rem; cursor: pointer; font-family: var(--font); outline: none;
+            background: rgba(255, 255, 255, .07);
+            border: 1px solid rgba(255, 255, 255, .12);
+            color: #d0cfea;
+            border-radius: 8px;
+            padding: 5px 10px;
+            font-size: .78rem;
+            cursor: pointer;
+            font-family: var(--font);
+            outline: none;
         }
-        .lang-select option { background: #1a1830; }
+
+        .lang-select option {
+            background: #1a1830;
+        }
 
         .run-btn {
-            display: flex; align-items: center; gap: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
             background: linear-gradient(135deg, #1D9E75, #0F6E56);
-            color: #fff; border: none; border-radius: 8px;
-            padding: 6px 16px; font-size: .78rem; font-weight: 700;
-            cursor: pointer; transition: all .2s; font-family: var(--font); white-space: nowrap;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 16px;
+            font-size: .78rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .2s;
+            font-family: var(--font);
+            white-space: nowrap;
         }
-        .run-btn:hover:not(:disabled) { opacity: .85; transform: translateY(-1px); }
-        .run-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+
+        .run-btn:hover:not(:disabled) {
+            opacity: .85;
+            transform: translateY(-1px);
+        }
+
+        .run-btn:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+        }
 
         .submit-btn {
-            display: flex; align-items: center; gap: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
             background: linear-gradient(135deg, var(--accent), var(--purple-400));
-            color: #fff; border: none; border-radius: 8px;
-            padding: 6px 18px; font-size: .78rem; font-weight: 700;
-            cursor: pointer; transition: all .2s; font-family: var(--font);
-            white-space: nowrap; box-shadow: 0 3px 12px rgba(83,74,183,.4);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 18px;
+            font-size: .78rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .2s;
+            font-family: var(--font);
+            white-space: nowrap;
+            box-shadow: 0 3px 12px rgba(83, 74, 183, .4);
         }
-        .submit-btn:hover:not(:disabled) { opacity: .9; transform: translateY(-1px); }
-        .submit-btn:disabled { opacity: .35; cursor: not-allowed; transform: none; }
+
+        .submit-btn:hover:not(:disabled) {
+            opacity: .9;
+            transform: translateY(-1px);
+        }
+
+        .submit-btn:disabled {
+            opacity: .35;
+            cursor: not-allowed;
+            transform: none;
+        }
 
         .skip-btn-dark {
-            background: none; border: 1px solid rgba(255,255,255,.14);
-            color: rgba(255,255,255,.45); border-radius: 8px;
-            padding: 5px 12px; font-size: .72rem; font-weight: 600;
-            cursor: pointer; transition: all .2s; font-family: var(--font);
+            background: none;
+            border: 1px solid rgba(255, 255, 255, .14);
+            color: rgba(255, 255, 255, .45);
+            border-radius: 8px;
+            padding: 5px 12px;
+            font-size: .72rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s;
+            font-family: var(--font);
         }
-        .skip-btn-dark:hover { color: rgba(255,255,255,.75); border-color: rgba(255,255,255,.28); }
+
+        .skip-btn-dark:hover {
+            color: rgba(255, 255, 255, .75);
+            border-color: rgba(255, 255, 255, .28);
+        }
 
         /* ── Main Split ── */
         .code-split {
-            flex: 1; display: grid;
+            flex: 1;
+            display: grid;
             grid-template-columns: 420px 1fr;
-            min-height: 0; overflow: hidden;
+            min-height: 0;
+            overflow: hidden;
         }
+
         @media (max-width: 960px) {
-            .code-split { grid-template-columns: 1fr; grid-template-rows: 45% 55%; }
+            .code-split {
+                grid-template-columns: 1fr;
+                grid-template-rows: 45% 55%;
+            }
         }
 
         /* ── Problem Panel (LEFT) ── */
         .problem-panel {
             background: #0f0e1e;
-            border-right: 1px solid rgba(127,119,221,.12);
-            display: flex; flex-direction: column;
-            overflow: hidden; min-height: 0;
+            border-right: 1px solid rgba(127, 119, 221, .12);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-height: 0;
         }
-        .problem-tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,.06); flex-shrink: 0; }
+
+        .problem-tabs {
+            display: flex;
+            border-bottom: 1px solid rgba(255, 255, 255, .06);
+            flex-shrink: 0;
+        }
+
         .problem-tab {
-            padding: 10px 18px; font-size: .78rem; font-weight: 600;
-            color: rgba(255,255,255,.4); cursor: pointer;
-            border-bottom: 2px solid transparent; transition: all .2s;
-            background: none; border-top: none; border-left: none; border-right: none;
+            padding: 10px 18px;
+            font-size: .78rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, .4);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all .2s;
+            background: none;
+            border-top: none;
+            border-left: none;
+            border-right: none;
             font-family: var(--font);
         }
-        .problem-tab.active { color: #fff; border-bottom-color: var(--accent); }
-        .problem-tab:hover:not(.active) { color: rgba(255,255,255,.7); }
 
-        .problem-content { flex: 1; overflow-y: auto; padding: 20px 22px; }
-        .problem-content::-webkit-scrollbar { width: 4px; }
-        .problem-content::-webkit-scrollbar-thumb { background: rgba(127,119,221,.25); border-radius: 4px; }
+        .problem-tab.active {
+            color: #fff;
+            border-bottom-color: var(--accent);
+        }
 
-        .problem-title-text { font-size: 1.15rem; font-weight: 800; color: #fff; margin-bottom: 8px; line-height: 1.3; }
-        .problem-tags       { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
-        .problem-cat-chip   { font-size: .65rem; font-weight: 700; padding: 2px 9px; border-radius: 20px; background: rgba(127,119,221,.15); color: var(--accent-light); border: 1px solid rgba(127,119,221,.25); letter-spacing: .04em; text-transform: uppercase; }
-        .problem-desc-text  { font-size: .88rem; line-height: 1.75; color: rgba(255,255,255,.72); margin-bottom: 18px; }
-        .problem-desc-text code { font-family: 'JetBrains Mono', monospace; font-size: .82rem; background: rgba(127,119,221,.15); color: var(--accent-light); padding: 1px 5px; border-radius: 4px; }
+        .problem-tab:hover:not(.active) {
+            color: rgba(255, 255, 255, .7);
+        }
 
-        .section-label { font-size: .68rem; font-weight: 700; color: rgba(255,255,255,.3); letter-spacing: .09em; text-transform: uppercase; margin-bottom: 10px; margin-top: 18px; }
+        .problem-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 22px;
+        }
 
-        .examples-list { display: flex; flex-direction: column; gap: 14px; }
-        .example-card  { background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07); border-radius: 10px; padding: 12px 14px; font-family: 'JetBrains Mono', monospace; font-size: .78rem; }
-        .example-row   { display: flex; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
-        .example-row:last-child { margin-bottom: 0; }
-        .ex-key        { color: rgba(255,255,255,.35); flex-shrink: 0; }
-        .ex-val        { color: rgba(255,255,255,.85); font-weight: 500; word-break: break-all; }
-        .ex-explanation{ color: rgba(255,255,255,.4); font-style: italic; font-size: .74rem; margin-top: 6px; }
+        .problem-content::-webkit-scrollbar {
+            width: 4px;
+        }
 
-        .constraints-list { display: flex; flex-direction: column; gap: 4px; }
-        .constraint-row   { display: flex; align-items: baseline; gap: 8px; font-family: 'JetBrains Mono', monospace; font-size: .76rem; color: rgba(255,255,255,.5); }
-        .constraint-row::before { content: '•'; color: rgba(255,255,255,.2); flex-shrink: 0; }
+        .problem-content::-webkit-scrollbar-thumb {
+            background: rgba(127, 119, 221, .25);
+            border-radius: 4px;
+        }
 
-        .hint-box { background: rgba(239,159,39,.07); border: 1px solid rgba(239,159,39,.2); border-radius: 12px; padding: 14px 16px; font-size: .85rem; color: rgba(255,255,255,.65); line-height: 1.7; }
-        .hint-box strong { color: #EF9F27; }
+        .problem-title-text {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .problem-tags {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+
+        .problem-cat-chip {
+            font-size: .65rem;
+            font-weight: 700;
+            padding: 2px 9px;
+            border-radius: 20px;
+            background: rgba(127, 119, 221, .15);
+            color: var(--accent-light);
+            border: 1px solid rgba(127, 119, 221, .25);
+            letter-spacing: .04em;
+            text-transform: uppercase;
+        }
+
+        .problem-desc-text {
+            font-size: .88rem;
+            line-height: 1.75;
+            color: rgba(255, 255, 255, .72);
+            margin-bottom: 18px;
+        }
+
+        .problem-desc-text code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .82rem;
+            background: rgba(127, 119, 221, .15);
+            color: var(--accent-light);
+            padding: 1px 5px;
+            border-radius: 4px;
+        }
+
+        .section-label {
+            font-size: .68rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, .3);
+            letter-spacing: .09em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            margin-top: 18px;
+        }
+
+        .examples-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .example-card {
+            background: rgba(255, 255, 255, .03);
+            border: 1px solid rgba(255, 255, 255, .07);
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .78rem;
+        }
+
+        .example-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 4px;
+            flex-wrap: wrap;
+        }
+
+        .example-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .ex-key {
+            color: rgba(255, 255, 255, .35);
+            flex-shrink: 0;
+        }
+
+        .ex-val {
+            color: rgba(255, 255, 255, .85);
+            font-weight: 500;
+            word-break: break-all;
+        }
+
+        .ex-explanation {
+            color: rgba(255, 255, 255, .4);
+            font-style: italic;
+            font-size: .74rem;
+            margin-top: 6px;
+        }
+
+        .constraints-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .constraint-row {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .76rem;
+            color: rgba(255, 255, 255, .5);
+        }
+
+        .constraint-row::before {
+            content: '•';
+            color: rgba(255, 255, 255, .2);
+            flex-shrink: 0;
+        }
+
+        .hint-box {
+            background: rgba(239, 159, 39, .07);
+            border: 1px solid rgba(239, 159, 39, .2);
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-size: .85rem;
+            color: rgba(255, 255, 255, .65);
+            line-height: 1.7;
+        }
+
+        .hint-box strong {
+            color: #EF9F27;
+        }
 
         /* ── Editor Pane (RIGHT) ── */
-        .editor-pane { display: flex; flex-direction: column; background: #0d0d1a; overflow: hidden; min-height: 0; }
+        .editor-pane {
+            display: flex;
+            flex-direction: column;
+            background: #0d0d1a;
+            overflow: hidden;
+            min-height: 0;
+        }
 
         .editor-topbar {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 8px 14px; background: #12112a;
-            border-bottom: 1px solid rgba(255,255,255,.06);
-            flex-shrink: 0; flex-wrap: wrap; gap: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 14px;
+            background: #12112a;
+            border-bottom: 1px solid rgba(255, 255, 255, .06);
+            flex-shrink: 0;
+            flex-wrap: wrap;
+            gap: 8px;
         }
-        .editor-dots { display: flex; gap: 5px; }
-        .editor-dots span { width: 11px; height: 11px; border-radius: 50%; }
-        .editor-dots span:nth-child(1) { background: #ff5f57; }
-        .editor-dots span:nth-child(2) { background: #febc2e; }
-        .editor-dots span:nth-child(3) { background: #28c840; }
-        .editor-topbar-right { display: flex; align-items: center; gap: 8px; }
-        .lang-badge-pill { font-size: .65rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; padding: 3px 9px; border-radius: 20px; background: rgba(127,119,221,.18); color: var(--accent-light); border: 1px solid rgba(127,119,221,.28); }
+
+        .editor-dots {
+            display: flex;
+            gap: 5px;
+        }
+
+        .editor-dots span {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+        }
+
+        .editor-dots span:nth-child(1) {
+            background: #ff5f57;
+        }
+
+        .editor-dots span:nth-child(2) {
+            background: #febc2e;
+        }
+
+        .editor-dots span:nth-child(3) {
+            background: #28c840;
+        }
+
+        .editor-topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .lang-badge-pill {
+            font-size: .65rem;
+            font-weight: 800;
+            letter-spacing: .07em;
+            text-transform: uppercase;
+            padding: 3px 9px;
+            border-radius: 20px;
+            background: rgba(127, 119, 221, .18);
+            color: var(--accent-light);
+            border: 1px solid rgba(127, 119, 221, .28);
+        }
 
         .editor-hint-bar {
-            padding: 5px 14px; background: rgba(127,119,221,.05);
-            border-bottom: 1px solid rgba(127,119,221,.08);
-            font-size: .68rem; color: rgba(200,198,240,.45);
+            padding: 5px 14px;
+            background: rgba(127, 119, 221, .05);
+            border-bottom: 1px solid rgba(127, 119, 221, .08);
+            font-size: .68rem;
+            color: rgba(200, 198, 240, .45);
             font-family: 'JetBrains Mono', monospace;
-            display: flex; align-items: center; gap: 10px; flex-wrap: wrap; flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
         }
-        .editor-hint-bar kbd { display: inline-flex; align-items: center; padding: 1px 5px; border-radius: 4px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18); color: rgba(255,255,255,.65); font-family: inherit; font-size: .65rem; }
-        .reset-btn-inline { margin-left: auto; font-size: .65rem; font-weight: 600; padding: 2px 9px; border-radius: 6px; background: rgba(127,119,221,.12); border: 1px solid rgba(127,119,221,.22); color: var(--accent-light); cursor: pointer; font-family: var(--font); transition: background .2s; }
-        .reset-btn-inline:hover { background: rgba(127,119,221,.25); }
+
+        .editor-hint-bar kbd {
+            display: inline-flex;
+            align-items: center;
+            padding: 1px 5px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, .08);
+            border: 1px solid rgba(255, 255, 255, .18);
+            color: rgba(255, 255, 255, .65);
+            font-family: inherit;
+            font-size: .65rem;
+        }
+
+        .reset-btn-inline {
+            margin-left: auto;
+            font-size: .65rem;
+            font-weight: 600;
+            padding: 2px 9px;
+            border-radius: 6px;
+            background: rgba(127, 119, 221, .12);
+            border: 1px solid rgba(127, 119, 221, .22);
+            color: var(--accent-light);
+            cursor: pointer;
+            font-family: var(--font);
+            transition: background .2s;
+        }
+
+        .reset-btn-inline:hover {
+            background: rgba(127, 119, 221, .25);
+        }
 
         /* ── Compiled language note ── */
         #lang-compiled-note {
-            padding: 7px 14px; font-size: .71rem; line-height: 1.55;
-            color: rgba(255,200,100,.85);
-            background: rgba(239,159,39,.06);
-            border-bottom: 1px solid rgba(239,159,39,.14);
-            flex-shrink: 0; display: none;
+            padding: 7px 14px;
+            font-size: .71rem;
+            line-height: 1.55;
+            color: rgba(255, 200, 100, .85);
+            background: rgba(239, 159, 39, .06);
+            border-bottom: 1px solid rgba(239, 159, 39, .14);
+            flex-shrink: 0;
+            display: none;
         }
 
         #code-textarea {
-            flex: 1; width: 100%; min-height: 0;
-            background: #0d0d1a; color: #cdd0e3;
+            flex: 1;
+            width: 100%;
+            min-height: 0;
+            background: #0d0d1a;
+            color: #cdd0e3;
             font-family: 'JetBrains Mono', monospace;
-            font-size: .875rem; line-height: 1.8;
-            padding: 16px 18px; border: none; outline: none; resize: none;
-            tab-size: 4; caret-color: var(--accent-light);
-            white-space: pre; overflow-wrap: normal;
-            overflow-x: auto; overflow-y: auto;
+            font-size: .875rem;
+            line-height: 1.8;
+            padding: 16px 18px;
+            border: none;
+            outline: none;
+            resize: none;
+            tab-size: 4;
+            caret-color: var(--accent-light);
+            white-space: pre;
+            overflow-wrap: normal;
+            overflow-x: auto;
+            overflow-y: auto;
         }
-        #code-textarea::placeholder { color: rgba(255,255,255,.18); }
-        #code-textarea::-webkit-scrollbar { width: 4px; }
-        #code-textarea::-webkit-scrollbar-thumb { background: rgba(127,119,221,.25); border-radius: 4px; }
+
+        #code-textarea::placeholder {
+            color: rgba(255, 255, 255, .18);
+        }
+
+        #code-textarea::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        #code-textarea::-webkit-scrollbar-thumb {
+            background: rgba(127, 119, 221, .25);
+            border-radius: 4px;
+        }
 
         /* ══════════════════════════════════════════
            TEST RESULTS PANEL
         ══════════════════════════════════════════ */
         .test-panel {
             background: #08080f;
-            border-top: 1px solid rgba(127,119,221,.12);
-            flex-shrink: 0; height: 260px;
-            display: flex; flex-direction: column; overflow: hidden;
+            border-top: 1px solid rgba(127, 119, 221, .12);
+            flex-shrink: 0;
+            height: 260px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
+
         .test-panel-header {
-            display: flex; align-items: center; gap: 10px;
-            padding: 0 16px; height: 40px;
-            border-bottom: 1px solid rgba(255,255,255,.05); flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 16px;
+            height: 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, .05);
+            flex-shrink: 0;
         }
-        .test-panel-title { font-size: .72rem; font-weight: 700; color: rgba(255,255,255,.4); letter-spacing: .08em; text-transform: uppercase; }
-        .test-run-time    { font-size: .68rem; color: rgba(255,255,255,.2); margin-left: auto; font-family: 'JetBrains Mono', monospace; }
 
-        .test-summary-badge { font-size: .7rem; font-weight: 700; padding: 3px 12px; border-radius: 12px; font-family: var(--font); }
-        .test-summary-badge.idle     { background: rgba(255,255,255,.06); color: rgba(255,255,255,.35); border: 1px solid rgba(255,255,255,.1); }
-        .test-summary-badge.running  { background: rgba(239,159,39,.12);  color: #EF9F27; border: 1px solid rgba(239,159,39,.25); }
-        .test-summary-badge.accepted { background: rgba(29,158,117,.18);  color: #1D9E75; border: 1px solid rgba(29,158,117,.3); }
-        .test-summary-badge.wrong    { background: rgba(226,75,74,.15);   color: #E24B4A; border: 1px solid rgba(226,75,74,.3); }
-        .test-summary-badge.error    { background: rgba(239,159,39,.12);  color: #EF9F27; border: 1px solid rgba(239,159,39,.25); }
+        .test-panel-title {
+            font-size: .72rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, .4);
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
 
-        .test-table-wrap { flex: 1; overflow: auto; }
-        .test-table-wrap::-webkit-scrollbar { width: 4px; height: 4px; }
-        .test-table-wrap::-webkit-scrollbar-thumb { background: rgba(127,119,221,.2); border-radius: 4px; }
+        .test-run-time {
+            font-size: .68rem;
+            color: rgba(255, 255, 255, .2);
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+        }
 
-        .results-table { width: 100%; border-collapse: collapse; font-size: .78rem; }
+        .test-summary-badge {
+            font-size: .7rem;
+            font-weight: 700;
+            padding: 3px 12px;
+            border-radius: 12px;
+            font-family: var(--font);
+        }
+
+        .test-summary-badge.idle {
+            background: rgba(255, 255, 255, .06);
+            color: rgba(255, 255, 255, .35);
+            border: 1px solid rgba(255, 255, 255, .1);
+        }
+
+        .test-summary-badge.running {
+            background: rgba(239, 159, 39, .12);
+            color: #EF9F27;
+            border: 1px solid rgba(239, 159, 39, .25);
+        }
+
+        .test-summary-badge.accepted {
+            background: rgba(29, 158, 117, .18);
+            color: #1D9E75;
+            border: 1px solid rgba(29, 158, 117, .3);
+        }
+
+        .test-summary-badge.wrong {
+            background: rgba(226, 75, 74, .15);
+            color: #E24B4A;
+            border: 1px solid rgba(226, 75, 74, .3);
+        }
+
+        .test-summary-badge.error {
+            background: rgba(239, 159, 39, .12);
+            color: #EF9F27;
+            border: 1px solid rgba(239, 159, 39, .25);
+        }
+
+        .test-table-wrap {
+            flex: 1;
+            overflow: auto;
+        }
+
+        .test-table-wrap::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+
+        .test-table-wrap::-webkit-scrollbar-thumb {
+            background: rgba(127, 119, 221, .2);
+            border-radius: 4px;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: .78rem;
+        }
+
         .results-table th {
-            position: sticky; top: 0; z-index: 1;
-            background: #0f0e20; padding: 7px 14px;
-            text-align: left; font-size: .65rem; font-weight: 700;
-            color: rgba(255,255,255,.3); letter-spacing: .08em;
-            text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,.06);
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            background: #0f0e20;
+            padding: 7px 14px;
+            text-align: left;
+            font-size: .65rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, .3);
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(255, 255, 255, .06);
             white-space: nowrap;
         }
-        .results-table td { padding: 8px 14px; border-bottom: 1px solid rgba(255,255,255,.035); vertical-align: middle; }
-        .results-table tr:last-child td { border-bottom: none; }
-        .results-table tr:hover td     { background: rgba(255,255,255,.02); }
 
-        .tc-idx      { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: rgba(255,255,255,.4); font-size: .72rem; }
-        .status-pass { display: inline-flex; align-items: center; gap: 5px; color: #1D9E75; font-weight: 700; font-size: .78rem; }
-        .status-fail { display: inline-flex; align-items: center; gap: 5px; color: #E24B4A; font-weight: 700; font-size: .78rem; }
-        .status-err  { display: inline-flex; align-items: center; gap: 5px; color: #EF9F27; font-weight: 700; font-size: .78rem; }
-        .status-run  { display: inline-flex; align-items: center; gap: 5px; color: rgba(255,255,255,.35); font-size: .78rem; }
+        .results-table td {
+            padding: 8px 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, .035);
+            vertical-align: middle;
+        }
 
-        .mono-val      { font-family: 'JetBrains Mono', monospace; font-size: .74rem; color: rgba(255,255,255,.65); word-break: break-all; }
-        .mono-val.pass { color: #1D9E75; }
-        .mono-val.fail { color: #E24B4A; }
-        .mono-val.err  { color: #EF9F27; font-style: italic; }
+        .results-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .results-table tr:hover td {
+            background: rgba(255, 255, 255, .02);
+        }
+
+        .tc-idx {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            color: rgba(255, 255, 255, .4);
+            font-size: .72rem;
+        }
+
+        .status-pass {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: #1D9E75;
+            font-weight: 700;
+            font-size: .78rem;
+        }
+
+        .status-fail {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: #E24B4A;
+            font-weight: 700;
+            font-size: .78rem;
+        }
+
+        .status-err {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: #EF9F27;
+            font-weight: 700;
+            font-size: .78rem;
+        }
+
+        .status-run {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: rgba(255, 255, 255, .35);
+            font-size: .78rem;
+        }
+
+        .mono-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .74rem;
+            color: rgba(255, 255, 255, .65);
+            word-break: break-all;
+        }
+
+        .mono-val.pass {
+            color: #1D9E75;
+        }
+
+        .mono-val.fail {
+            color: #E24B4A;
+        }
+
+        .mono-val.err {
+            color: #EF9F27;
+            font-style: italic;
+        }
 
         .test-summary-row {
-            padding: 8px 16px; font-size: .78rem; color: rgba(255,255,255,.45);
-            border-top: 1px solid rgba(255,255,255,.05);
-            display: flex; align-items: center; gap: 16px; flex-shrink: 0;
+            padding: 8px 16px;
+            font-size: .78rem;
+            color: rgba(255, 255, 255, .45);
+            border-top: 1px solid rgba(255, 255, 255, .05);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-shrink: 0;
         }
-        .test-summary-row strong { font-weight: 700; }
 
-        .test-idle-placeholder { flex: 1; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,.2); font-size: .8rem; font-style: italic; font-family: 'JetBrains Mono', monospace; }
-        .test-special { margin: 12px 16px; padding: 12px 14px; font-family: 'JetBrains Mono', monospace; font-size: .76rem; line-height: 1.65; border-radius: 8px; white-space: pre-wrap; }
-        .test-special.ce  { color: #E24B4A; background: rgba(226,75,74,.07);  border: 1px solid rgba(226,75,74,.2); }
-        .test-special.tle { color: #EF9F27; background: rgba(239,159,39,.07); border: 1px solid rgba(239,159,39,.2); }
+        .test-summary-row strong {
+            font-weight: 700;
+        }
 
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .run-spinner { display: inline-block; width: 11px; height: 11px; border: 2px solid rgba(255,255,255,.25); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; vertical-align: middle; margin-right: 4px; }
+        .test-idle-placeholder {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, .2);
+            font-size: .8rem;
+            font-style: italic;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .test-special {
+            margin: 12px 16px;
+            padding: 12px 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .76rem;
+            line-height: 1.65;
+            border-radius: 8px;
+            white-space: pre-wrap;
+        }
+
+        .test-special.ce {
+            color: #E24B4A;
+            background: rgba(226, 75, 74, .07);
+            border: 1px solid rgba(226, 75, 74, .2);
+        }
+
+        .test-special.tle {
+            color: #EF9F27;
+            background: rgba(239, 159, 39, .07);
+            border: 1px solid rgba(239, 159, 39, .2);
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .run-spinner {
+            display: inline-block;
+            width: 11px;
+            height: 11px;
+            border: 2px solid rgba(255, 255, 255, .25);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin .6s linear infinite;
+            vertical-align: middle;
+            margin-right: 4px;
+        }
 
         /* ══════════════════════════════════════════
            MCQ
         ══════════════════════════════════════════ */
-        .mcq-grid    { display: flex; flex-direction: column; gap: 10px; margin-top: 1rem; }
-        .mcq-opt     { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: var(--radius-md); border: 1.5px solid var(--border-strong); background: var(--surface); cursor: pointer; transition: all .18s; font-size: .9rem; color: var(--text-primary); }
-        .mcq-opt:hover     { border-color: var(--accent-light); background: var(--purple-50); transform: translateX(3px); }
-        .mcq-opt.selected  { border-color: var(--accent);  background: var(--purple-50); font-weight: 600; }
-        .mcq-opt.correct   { border-color: var(--success); background: #e1f5ee; color: var(--success); font-weight: 600; pointer-events: none; }
-        .mcq-opt.wrong     { border-color: var(--danger);  background: #fcebeb; color: var(--danger);  pointer-events: none; }
+        .mcq-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 1rem;
+        }
 
-        .mcq-letter { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; background: var(--surface-2); border: 1.5px solid var(--border-strong); color: var(--text-secondary); }
-        .mcq-opt.selected .mcq-letter { background: var(--accent);  border-color: var(--accent);  color: #fff; }
-        .mcq-opt.correct  .mcq-letter { background: var(--success); border-color: var(--success); color: #fff; }
-        .mcq-opt.wrong    .mcq-letter { background: var(--danger);  border-color: var(--danger);  color: #fff; }
+        .mcq-opt {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 18px;
+            border-radius: var(--radius-md);
+            border: 1.5px solid var(--border-strong);
+            background: var(--surface);
+            cursor: pointer;
+            transition: all .18s;
+            font-size: .9rem;
+            color: var(--text-primary);
+        }
 
-        .mcq-explanation { margin-top: 1rem; padding: 12px 16px; background: linear-gradient(135deg, var(--purple-50), #fff); border: 1px solid var(--border-strong); border-radius: var(--radius-md); font-size: .85rem; color: var(--text-secondary); line-height: 1.6; animation: fade-up .3s ease; }
-        .mcq-score-bar { display: flex; align-items: center; gap: 6px; margin-bottom: 1.25rem; flex-wrap: wrap; }
-        .score-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--border-strong); display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: 700; transition: all .3s; background: var(--surface); }
-        .score-dot.correct { background: var(--success); border-color: var(--success); color: #fff; }
-        .score-dot.wrong   { background: var(--danger);  border-color: var(--danger);  color: #fff; }
-        .score-dot.skipped { background: var(--warning); border-color: var(--warning); color: #fff; }
-        .score-dot.active  { border-color: var(--accent); color: var(--accent); background: var(--purple-50); }
+        .mcq-opt:hover {
+            border-color: var(--accent-light);
+            background: var(--purple-50);
+            transform: translateX(3px);
+        }
 
-        .q-card { background: linear-gradient(145deg, var(--accent), var(--purple-800)); border-radius: 18px; padding: 1.5rem 1.75rem; color: #fff; position: relative; overflow: hidden; box-shadow: 0 8px 28px rgba(83,74,183,.3); margin-bottom: 1.25rem; }
-        .q-card::before { content: ''; position: absolute; top: -50%; right: -15%; width: 280px; height: 280px; border-radius: 50%; background: rgba(255,255,255,.05); pointer-events: none; }
-        .q-num  { font-size: .72rem; font-weight: 700; color: rgba(255,255,255,.55); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 8px; }
-        .q-tag  { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 12px; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.2); color: rgba(255,255,255,.9); }
-        .q-text { font-size: 1rem; font-weight: 500; color: #fff; line-height: 1.65; }
-        .nav-btns { display: flex; align-items: center; justify-content: space-between; margin-top: 1rem; gap: 10px; }
-        .skip-btn { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 10px; border: 1px solid var(--border-strong); background: none; color: var(--text-muted); font-size: .82rem; font-weight: 500; cursor: pointer; transition: all .2s; font-family: var(--font); }
-        .skip-btn:hover { color: var(--text-primary); background: var(--surface-2); }
+        .mcq-opt.selected {
+            border-color: var(--accent);
+            background: var(--purple-50);
+            font-weight: 600;
+        }
+
+        .mcq-opt.correct {
+            border-color: var(--success);
+            background: #e1f5ee;
+            color: var(--success);
+            font-weight: 600;
+            pointer-events: none;
+        }
+
+        .mcq-opt.wrong {
+            border-color: var(--danger);
+            background: #fcebeb;
+            color: var(--danger);
+            pointer-events: none;
+        }
+
+        .mcq-letter {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .8rem;
+            font-weight: 700;
+            background: var(--surface-2);
+            border: 1.5px solid var(--border-strong);
+            color: var(--text-secondary);
+        }
+
+        .mcq-opt.selected .mcq-letter {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+
+        .mcq-opt.correct .mcq-letter {
+            background: var(--success);
+            border-color: var(--success);
+            color: #fff;
+        }
+
+        .mcq-opt.wrong .mcq-letter {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: #fff;
+        }
+
+        .mcq-explanation {
+            margin-top: 1rem;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, var(--purple-50), #fff);
+            border: 1px solid var(--border-strong);
+            border-radius: var(--radius-md);
+            font-size: .85rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            animation: fade-up .3s ease;
+        }
+
+        .mcq-score-bar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 1.25rem;
+            flex-wrap: wrap;
+        }
+
+        .score-dot {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid var(--border-strong);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .7rem;
+            font-weight: 700;
+            transition: all .3s;
+            background: var(--surface);
+        }
+
+        .score-dot.correct {
+            background: var(--success);
+            border-color: var(--success);
+            color: #fff;
+        }
+
+        .score-dot.wrong {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: #fff;
+        }
+
+        .score-dot.skipped {
+            background: var(--warning);
+            border-color: var(--warning);
+            color: #fff;
+        }
+
+        .score-dot.active {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--purple-50);
+        }
+
+        .q-card {
+            background: linear-gradient(145deg, var(--accent), var(--purple-800));
+            border-radius: 18px;
+            padding: 1.5rem 1.75rem;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 28px rgba(83, 74, 183, .3);
+            margin-bottom: 1.25rem;
+        }
+
+        .q-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -15%;
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .05);
+            pointer-events: none;
+        }
+
+        .q-num {
+            font-size: .72rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, .55);
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .q-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: .68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            margin-bottom: 12px;
+            background: rgba(255, 255, 255, .15);
+            border: 1px solid rgba(255, 255, 255, .2);
+            color: rgba(255, 255, 255, .9);
+        }
+
+        .q-text {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #fff;
+            line-height: 1.65;
+        }
+
+        .nav-btns {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 1rem;
+            gap: 10px;
+        }
+
+        .skip-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border-strong);
+            background: none;
+            color: var(--text-muted);
+            font-size: .82rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all .2s;
+            font-family: var(--font);
+        }
+
+        .skip-btn:hover {
+            color: var(--text-primary);
+            background: var(--surface-2);
+        }
 
         /* ══════════════════════════════════════════
            VIDEO SECTION
         ══════════════════════════════════════════ */
-        #section3-wrap { background: #080816; margin: 0; padding: 1.5rem; max-width: 100%; }
-        .video-layout  { display: grid; grid-template-columns: 1fr 300px; gap: 14px; height: calc(100vh - 280px); min-height: 400px; }
-        @media (max-width: 820px) { .video-layout { grid-template-columns: 1fr; height: auto; } }
+        #section3-wrap {
+            background: #080816;
+            margin: 0;
+            padding: 1.5rem;
+            max-width: 100%;
+        }
 
-        .ai-panel     { position: relative; background: linear-gradient(145deg, #1a1830, #0f0e1e); border-radius: 18px; border: 1px solid rgba(127,119,221,.2); display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; min-height: 300px; }
-        .ai-panel-bg  { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 30%, rgba(83,74,183,.18) 0%, transparent 70%); }
-        .ai-avatar-wrap { position: relative; z-index: 1; text-align: center; }
-        .ai-avatar { width: 150px; height: 150px; border-radius: 50%; background: linear-gradient(145deg, #2a2450, #1a1830); border: 3px solid rgba(127,119,221,.4); display: flex; align-items: center; justify-content: center; font-size: 4rem; margin: 0 auto 1rem; box-shadow: 0 0 0 8px rgba(83,74,183,.08), 0 0 40px rgba(83,74,183,.2); transition: all .3s; }
-        .ai-avatar.speaking { border-color: var(--accent); box-shadow: 0 0 0 8px rgba(83,74,183,.15), 0 0 60px rgba(83,74,183,.4); animation: avatar-pulse 1.5s ease-in-out infinite; }
-        @keyframes avatar-pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.03)} }
+        .video-layout {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 14px;
+            height: calc(100vh - 280px);
+            min-height: 400px;
+        }
 
-        .soundwave { display: flex; align-items: center; gap: 4px; height: 28px; margin: 0 auto .5rem; opacity: 0; transition: opacity .3s; }
-        .soundwave.active { opacity: 1; }
-        .soundwave span { width: 3px; border-radius: 2px; background: var(--accent-light); animation: swv 1s ease-in-out infinite; }
-        .soundwave span:nth-child(1){height:6px;animation-delay:0s}.soundwave span:nth-child(2){height:18px;animation-delay:.1s}.soundwave span:nth-child(3){height:26px;animation-delay:.2s}.soundwave span:nth-child(4){height:14px;animation-delay:.3s}.soundwave span:nth-child(5){height:22px;animation-delay:.15s}.soundwave span:nth-child(6){height:10px;animation-delay:.25s}.soundwave span:nth-child(7){height:18px;animation-delay:.05s}
-        @keyframes swv { 0%,100%{transform:scaleY(.4);opacity:.4} 50%{transform:scaleY(1);opacity:1} }
+        @media (max-width: 820px) {
+            .video-layout {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+        }
 
-        .ai-name       { font-size: .9rem; font-weight: 700; color: rgba(255,255,255,.9); }
-        .ai-role-label { font-size: .72rem; color: rgba(255,255,255,.4); margin-top: 2px; }
+        .ai-panel {
+            position: relative;
+            background: linear-gradient(145deg, #1a1830, #0f0e1e);
+            border-radius: 18px;
+            border: 1px solid rgba(127, 119, 221, .2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            min-height: 300px;
+        }
 
-        .vi-question-box { position: absolute; bottom: 16px; left: 16px; right: 16px; background: rgba(10,10,26,.88); backdrop-filter: blur(12px); border: 1px solid rgba(127,119,221,.25); border-radius: 12px; padding: 14px 18px; z-index: 2; }
-        .vi-q-label { font-size: .68rem; font-weight: 700; color: var(--accent-light); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 7px; }
-        .vi-q-text  { font-size: .9rem; line-height: 1.6; color: rgba(255,255,255,.9); }
-        .vi-typing-dots { display: inline-flex; gap: 4px; align-items: center; }
-        .vi-typing-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-light); animation: tdot 1.2s ease-in-out infinite; }
-        .vi-typing-dots span:nth-child(2){animation-delay:.15s}.vi-typing-dots span:nth-child(3){animation-delay:.3s}
-        @keyframes tdot { 0%,60%,100%{transform:translateY(0);opacity:.4} 30%{transform:translateY(-5px);opacity:1} }
+        .ai-panel-bg {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 30%, rgba(83, 74, 183, .18) 0%, transparent 70%);
+        }
 
-        .user-panel { display: flex; flex-direction: column; gap: 10px; }
-        .user-cam   { flex: 1; background: #0a0a1a; border-radius: 14px; border: 1px solid rgba(255,255,255,.07); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; min-height: 180px; }
-        #user-video { width: 100%; height: 100%; object-fit: cover; border-radius: 14px; transform: scaleX(-1); }
-        .cam-off-badge { display: flex; flex-direction: column; align-items: center; gap: 8px; color: rgba(255,255,255,.3); font-size: .82rem; }
-        .user-name-tag { position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,.6); padding: 3px 10px; border-radius: 20px; font-size: .72rem; font-weight: 600; color: #fff; }
-        .rec-dot { position: absolute; top: 10px; right: 10px; width: 9px; height: 9px; border-radius: 50%; background: var(--danger); animation: blink 1s ease-in-out infinite; }
-        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+        .ai-avatar-wrap {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
 
-        .vi-transcript-box { background: #0a0a1a; border-radius: 12px; padding: 12px; height: 120px; overflow-y: auto; border: 1px solid rgba(255,255,255,.06); }
-        .vi-transcript-title { font-size: .65rem; font-weight: 700; color: rgba(255,255,255,.35); letter-spacing: .07em; text-transform: uppercase; margin-bottom: 8px; }
-        .transcript-line { font-size: .78rem; line-height: 1.6; color: rgba(255,255,255,.55); padding-left: 8px; border-left: 2px solid rgba(127,119,221,.3); margin-bottom: 4px; }
+        .ai-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #2a2450, #1a1830);
+            border: 3px solid rgba(127, 119, 221, .4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            margin: 0 auto 1rem;
+            box-shadow: 0 0 0 8px rgba(83, 74, 183, .08), 0 0 40px rgba(83, 74, 183, .2);
+            transition: all .3s;
+        }
 
-        .vi-answer-bar { display: flex; gap: 10px; align-items: flex-end; background: rgba(255,255,255,.04); border: 1px solid rgba(127,119,221,.2); border-radius: 14px; padding: 12px 14px; margin-top: 10px; }
-        .vi-answer-bar textarea { flex: 1; background: none; border: none; outline: none; resize: none; color: #fff; font-family: var(--font); font-size: .88rem; line-height: 1.6; min-height: 52px; max-height: 120px; }
-        .vi-answer-bar textarea::placeholder { color: rgba(255,255,255,.25); }
-        .vi-ctrl-btns { display: flex; gap: 8px; align-items: center; }
-        .vi-btn { width: 44px; height: 44px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; cursor: pointer; transition: all .2s; flex-shrink: 0; }
-        .vi-btn:hover { transform: scale(1.08); }
-        .vi-btn-mic    { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.12); }
-        .vi-btn-mic.recording { background: var(--danger); animation: mic-pulse 1.5s ease-in-out infinite; }
-        @keyframes mic-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(226,75,74,.4)} 50%{box-shadow:0 0 0 12px rgba(226,75,74,0)} }
-        .vi-btn-submit { background: linear-gradient(135deg, var(--accent), var(--purple-400)); border: none; box-shadow: 0 4px 14px rgba(83,74,183,.4); }
-        .vi-btn-cam    { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.1); }
-        .vi-btn-cam.off{ background: rgba(226,75,74,.15); border-color: rgba(226,75,74,.3); }
-        .vi-skip-btn-dark { display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,.15); background: none; color: rgba(255,255,255,.5); font-size: .78rem; font-weight: 500; cursor: pointer; transition: all .2s; white-space: nowrap; font-family: var(--font); }
-        .vi-skip-btn-dark:hover { color: rgba(255,255,255,.8); border-color: rgba(255,255,255,.3); }
-        .vi-q-type-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 12px; font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
-        .vi-q-type-behavioral { background: rgba(239,159,39,.2); color: var(--amber-400); border: 1px solid rgba(239,159,39,.3); }
-        .vi-q-type-technical  { background: rgba(127,119,221,.2); color: var(--accent-light); border: 1px solid rgba(127,119,221,.3); }
+        .ai-avatar.speaking {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 8px rgba(83, 74, 183, .15), 0 0 60px rgba(83, 74, 183, .4);
+            animation: avatar-pulse 1.5s ease-in-out infinite;
+        }
 
-        body.video-mode { background: #080816; }
-        body.video-mode .interview-header { background: rgba(10,10,26,.92); border-color: rgba(127,119,221,.15); }
+        @keyframes avatar-pulse {
+
+            0%,
+            100% {
+                transform: scale(1)
+            }
+
+            50% {
+                transform: scale(1.03)
+            }
+        }
+
+        .soundwave {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            height: 28px;
+            margin: 0 auto .5rem;
+            opacity: 0;
+            transition: opacity .3s;
+        }
+
+        .soundwave.active {
+            opacity: 1;
+        }
+
+        .soundwave span {
+            width: 3px;
+            border-radius: 2px;
+            background: var(--accent-light);
+            animation: swv 1s ease-in-out infinite;
+        }
+
+        .soundwave span:nth-child(1) {
+            height: 6px;
+            animation-delay: 0s
+        }
+
+        .soundwave span:nth-child(2) {
+            height: 18px;
+            animation-delay: .1s
+        }
+
+        .soundwave span:nth-child(3) {
+            height: 26px;
+            animation-delay: .2s
+        }
+
+        .soundwave span:nth-child(4) {
+            height: 14px;
+            animation-delay: .3s
+        }
+
+        .soundwave span:nth-child(5) {
+            height: 22px;
+            animation-delay: .15s
+        }
+
+        .soundwave span:nth-child(6) {
+            height: 10px;
+            animation-delay: .25s
+        }
+
+        .soundwave span:nth-child(7) {
+            height: 18px;
+            animation-delay: .05s
+        }
+
+        @keyframes swv {
+
+            0%,
+            100% {
+                transform: scaleY(.4);
+                opacity: .4
+            }
+
+            50% {
+                transform: scaleY(1);
+                opacity: 1
+            }
+        }
+
+        .ai-name {
+            font-size: .9rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, .9);
+        }
+
+        .ai-role-label {
+            font-size: .72rem;
+            color: rgba(255, 255, 255, .4);
+            margin-top: 2px;
+        }
+
+        .vi-question-box {
+            position: absolute;
+            bottom: 16px;
+            left: 16px;
+            right: 16px;
+            background: rgba(10, 10, 26, .88);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(127, 119, 221, .25);
+            border-radius: 12px;
+            padding: 14px 18px;
+            z-index: 2;
+        }
+
+        .vi-q-label {
+            font-size: .68rem;
+            font-weight: 700;
+            color: var(--accent-light);
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            margin-bottom: 7px;
+        }
+
+        .vi-q-text {
+            font-size: .9rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, .9);
+        }
+
+        .vi-typing-dots {
+            display: inline-flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .vi-typing-dots span {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent-light);
+            animation: tdot 1.2s ease-in-out infinite;
+        }
+
+        .vi-typing-dots span:nth-child(2) {
+            animation-delay: .15s
+        }
+
+        .vi-typing-dots span:nth-child(3) {
+            animation-delay: .3s
+        }
+
+        @keyframes tdot {
+
+            0%,
+            60%,
+            100% {
+                transform: translateY(0);
+                opacity: .4
+            }
+
+            30% {
+                transform: translateY(-5px);
+                opacity: 1
+            }
+        }
+
+        .user-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .user-cam {
+            flex: 1;
+            background: #0a0a1a;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, .07);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 180px;
+        }
+
+        #user-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 14px;
+            transform: scaleX(-1);
+        }
+
+        .cam-off-badge {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, .3);
+            font-size: .82rem;
+        }
+
+        .user-name-tag {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, .6);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: .72rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .rec-dot {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--danger);
+            animation: blink 1s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: .2
+            }
+        }
+
+        .vi-transcript-box {
+            background: #0a0a1a;
+            border-radius: 12px;
+            padding: 12px;
+            height: 120px;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, .06);
+        }
+
+        .vi-transcript-title {
+            font-size: .65rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, .35);
+            letter-spacing: .07em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .transcript-line {
+            font-size: .78rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, .55);
+            padding-left: 8px;
+            border-left: 2px solid rgba(127, 119, 221, .3);
+            margin-bottom: 4px;
+        }
+
+        .vi-answer-bar {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            background: rgba(255, 255, 255, .04);
+            border: 1px solid rgba(127, 119, 221, .2);
+            border-radius: 14px;
+            padding: 12px 14px;
+            margin-top: 10px;
+        }
+
+        .vi-answer-bar textarea {
+            flex: 1;
+            background: none;
+            border: none;
+            outline: none;
+            resize: none;
+            color: #fff;
+            font-family: var(--font);
+            font-size: .88rem;
+            line-height: 1.6;
+            min-height: 52px;
+            max-height: 120px;
+        }
+
+        .vi-answer-bar textarea::placeholder {
+            color: rgba(255, 255, 255, .25);
+        }
+
+        .vi-ctrl-btns {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .vi-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all .2s;
+            flex-shrink: 0;
+        }
+
+        .vi-btn:hover {
+            transform: scale(1.08);
+        }
+
+        .vi-btn-mic {
+            background: rgba(255, 255, 255, .1);
+            border: 1px solid rgba(255, 255, 255, .12);
+        }
+
+        .vi-btn-mic.recording {
+            background: var(--danger);
+            animation: mic-pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes mic-pulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(226, 75, 74, .4)
+            }
+
+            50% {
+                box-shadow: 0 0 0 12px rgba(226, 75, 74, 0)
+            }
+        }
+
+        .vi-btn-submit {
+            background: linear-gradient(135deg, var(--accent), var(--purple-400));
+            border: none;
+            box-shadow: 0 4px 14px rgba(83, 74, 183, .4);
+        }
+
+        .vi-btn-cam {
+            background: rgba(255, 255, 255, .08);
+            border: 1px solid rgba(255, 255, 255, .1);
+        }
+
+        .vi-btn-cam.off {
+            background: rgba(226, 75, 74, .15);
+            border-color: rgba(226, 75, 74, .3);
+        }
+
+        .vi-skip-btn-dark {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, .15);
+            background: none;
+            color: rgba(255, 255, 255, .5);
+            font-size: .78rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all .2s;
+            white-space: nowrap;
+            font-family: var(--font);
+        }
+
+        .vi-skip-btn-dark:hover {
+            color: rgba(255, 255, 255, .8);
+            border-color: rgba(255, 255, 255, .3);
+        }
+
+        .vi-q-type-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: .65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            margin-bottom: 6px;
+        }
+
+        .vi-q-type-behavioral {
+            background: rgba(239, 159, 39, .2);
+            color: var(--amber-400);
+            border: 1px solid rgba(239, 159, 39, .3);
+        }
+
+        .vi-q-type-technical {
+            background: rgba(127, 119, 221, .2);
+            color: var(--accent-light);
+            border: 1px solid rgba(127, 119, 221, .3);
+        }
+
+        body.video-mode {
+            background: #080816;
+        }
+
+        body.video-mode .interview-header {
+            background: rgba(10, 10, 26, .92);
+            border-color: rgba(127, 119, 221, .15);
+        }
 
         /* ── Complete Screen ── */
-        .complete-wrap      { text-align: center; padding: 3rem 1.5rem; animation: scale-in .4s cubic-bezier(.34,1.56,.64,1); }
-        .complete-icon-big  { width: 88px; height: 88px; border-radius: 50%; background: linear-gradient(135deg, var(--success), var(--teal-400)); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; margin: 0 auto 1.5rem; box-shadow: 0 8px 28px rgba(29,158,117,.35); }
+        .complete-wrap {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            animation: scale-in .4s cubic-bezier(.34, 1.56, .64, 1);
+        }
+
+        .complete-icon-big {
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--success), var(--teal-400));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 8px 28px rgba(29, 158, 117, .35);
+        }
     </style>
 </head>
+
 <body>
 
     <!-- Section Overlay (full-screen between sections) -->
     <div id="section-overlay">
-        <div class="section-badge"     id="ov-badge">📝</div>
+        <div class="section-badge" id="ov-badge">📝</div>
         <div class="section-title-big" id="ov-title">Section 1</div>
-        <div class="section-desc-big"  id="ov-desc">Get ready</div>
+        <div class="section-desc-big" id="ov-desc">Get ready</div>
         <button class="section-start-btn" id="ov-start-btn">Let's Go →</button>
     </div>
 
@@ -427,13 +1705,13 @@
                 <a href="/pages/dashboard.html" class="btn btn-ghost btn-sm btn-icon" style="font-size:1.1rem">←</a>
                 <div>
                     <div class="interview-role-badge" id="header-role">Loading…</div>
-                    <div class="text-xs text-muted"   id="header-level"></div>
+                    <div class="text-xs text-muted" id="header-level"></div>
                 </div>
             </div>
             <div class="section-nav">
                 <div class="sec-pill active" id="pill-1">📝 MCQ</div>
-                <div class="sec-pill"        id="pill-2">💻 Coding</div>
-                <div class="sec-pill"        id="pill-3">🎥 Video</div>
+                <div class="sec-pill" id="pill-2">💻 Coding</div>
+                <div class="sec-pill" id="pill-3">🎥 Video</div>
             </div>
             <div style="display:flex;align-items:center;gap:12px">
                 <div style="font-size:.78rem;color:var(--text-muted);font-weight:500" id="progress-label">Q 0 / 0</div>
@@ -464,7 +1742,7 @@
                     <button class="skip-btn" id="mcq-skip-btn">⏭ Skip question</button>
                     <div style="display:flex;gap:8px">
                         <button id="mcq-submit-btn" class="btn btn-primary ripple" disabled>Submit answer →</button>
-                        <button id="mcq-next-btn"   class="btn btn-secondary ripple hidden">Next →</button>
+                        <button id="mcq-next-btn" class="btn btn-secondary ripple hidden">Next →</button>
                     </div>
                 </div>
             </div>
@@ -490,8 +1768,9 @@
                             <option value="go">🐹 Go</option>
                             <option value="rust">🦀 Rust</option>
                         </select>
-                        <button class="run-btn"       id="run-btn">▶ Run Code</button>
-                        <button class="submit-btn"    id="code-submit-btn" disabled title="Run your code and pass all test cases first">Submit →</button>
+                        <button class="run-btn" id="run-btn">▶ Run Code</button>
+                        <button class="submit-btn" id="code-submit-btn" disabled
+                            title="Run your code and pass all test cases first">Submit →</button>
                         <button class="skip-btn-dark" id="code-skip-btn">⏭ Skip</button>
                     </div>
                 </div>
@@ -503,7 +1782,7 @@
                     <div class="problem-panel">
                         <div class="problem-tabs">
                             <button class="problem-tab active" data-tab="description">Description</button>
-                            <button class="problem-tab"        data-tab="hint">Hint</button>
+                            <button class="problem-tab" data-tab="hint">Hint</button>
                         </div>
                         <div class="problem-content" id="prob-description-tab">
                             <div class="problem-title-text" id="prob-title">Problem</div>
@@ -521,7 +1800,7 @@
                         </div>
                         <div class="problem-content hidden" id="prob-hint-tab">
                             <div class="hint-box" id="prob-hint-content">
-                                <strong>💡 Hint</strong><br/>Think about what data structure gives O(1) lookup.
+                                <strong>💡 Hint</strong><br />Think about what data structure gives O(1) lookup.
                             </div>
                         </div>
                     </div>
@@ -555,7 +1834,9 @@
                     </div>
                     <div class="test-table-wrap" id="test-table-wrap">
                         <div class="test-idle-placeholder">
-                            Press <kbd style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.65);padding:1px 6px;border-radius:4px;font-size:.7rem">▶ Run Code</kbd>&nbsp; to see test results
+                            Press <kbd
+                                style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.65);padding:1px 6px;border-radius:4px;font-size:.7rem">▶
+                                Run Code</kbd>&nbsp; to see test results
                         </div>
                     </div>
                 </div>
@@ -602,7 +1883,8 @@
                         <div class="vi-transcript-box">
                             <div class="vi-transcript-title">🎤 Live Transcript</div>
                             <div id="transcript-content">
-                                <div class="transcript-line" style="color:rgba(255,255,255,.2);font-style:italic">Speech will appear here…</div>
+                                <div class="transcript-line" style="color:rgba(255,255,255,.2);font-style:italic">Speech
+                                    will appear here…</div>
                             </div>
                         </div>
                     </div>
@@ -643,583 +1925,565 @@
 
     <div id="toast-container"></div>
     <script type="module">
-import { interviewApi } from '../js/api.js';
-import { requireAuth, showToast, $, hideEl, showEl, setLoading } from '../js/utils.js';
+        import { interviewApi } from '../js/api.js';
+        import { requireAuth, showToast, $, hideEl, showEl, setLoading } from '../js/utils.js';
 
-// ═══════════════════════════════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════════════════════════════
-let interview      = null;
-let currentSection = 1;
-let timerInterval  = null;
-let elapsedSecs    = 0;
-let isSubmitting   = false;
-let localAnswers   = [];
+        // ═══════════════════════════════════════════════════════════════
+        // STATE
+        // ═══════════════════════════════════════════════════════════════
+        let interview = null;
+        let currentSection = 1;
+        let timerInterval = null;
+        let elapsedSecs = 0;
+        let isSubmitting = false;
+        let localAnswers = [];
 
-// MCQ state
-let mcqIndex    = 0;
-let mcqSelected = null;
-let mcqAnswered = false;
-let mcqResults  = [];
+        // MCQ state
+        let mcqIndex = 0;
+        let mcqSelected = null;
+        let mcqAnswered = false;
+        let mcqResults = [];
 
-// Coding state
-let codeIndex     = 0;
-let isRunning     = false;
-let lastRunPassed = 0;   // how many visible tests passed on last run
+        // Coding state
+        let codeIndex = 0;
+        let isRunning = false;
+        let lastRunPassed = 0;   // how many visible tests passed on last run
 
-// Video state
-let viIndex     = 0;
-let mediaStream = null;
-let recognition = null;
-let isMicOn     = false;
-let isCamOn     = true;
+        // Video state
+        let viIndex = 0;
+        let mediaStream = null;
+        let recognition = null;
+        let isMicOn = false;
+        let isCamOn = true;
 
-// ═══════════════════════════════════════════════════════════════
-// TINY HELPERS
-// ═══════════════════════════════════════════════════════════════
-function setText(sel, val) { const el = $(sel); if (el) el.textContent = val; }
-function sleep(ms)         { return new Promise(r => setTimeout(r, ms)); }
-function getLang()         { return ($('#code-lang')?.value || 'javascript').toLowerCase(); }
-function escHtml(str = '') {
-    return String(str).replace(/[&<>"']/g, c =>
-        ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
-}
-
-// ═══════════════════════════════════════════════════════════════
-// LANGUAGE MAPS
-// ═══════════════════════════════════════════════════════════════
-const LANG_BADGE = {
-    javascript:'JS', python:'PY', java:'JAVA',
-    cpp:'C++', c:'C', typescript:'TS', go:'GO', rust:'RS',
-};
-
-// Notes shown in the editor for compiled languages
-const COMPILED_LANG_NOTE = {
-    java: `📌 Java: The harness calls your method automatically. Write a static method with the correct name and parameters. Include all imports at the top.`,
-    cpp:  `📌 C++: Write your solution function. The harness compiles with #include <bits/stdc++.h> and calls it automatically.`,
-    c:    `📌 C: Write your solution function. Include all required headers. The harness calls it automatically.`,
-    go:   `📌 Go: Write your function in the main package. Use fmt.Println() in main() to print your result.`,
-    rust: `📌 Rust: Write your function. Use println!() in main() to print your result.`,
-};
-
-// Starter code templates per language
-function getStarterForLang(lang, q) {
-    const fn = q.functionSignature || 'solution';
-
-    if (lang === 'javascript') {
-        // Use the problem bank's own starter code
-        return q.starterCode || `function ${fn}() {\n    // your code here\n}\n`;
-    }
-
-    const starters = {
-        typescript: `function ${fn}(...args: any[]): any {\n    // your code here\n}\n`,
-        python:     `def ${fn}(*args):\n    # your code here\n    pass\n`,
-        java: `import java.util.*;\n\nclass Solution {\n    public static Object ${fn}(Object... args) {\n        // your code here\n        return null;\n    }\n}\n`,
-        cpp:  `#include <bits/stdc++.h>\nusing namespace std;\n\n// Write your solution function here\n// Example: int ${fn}(vector<int>& nums) {\n//     return 0;\n// }\n`,
-        c:    `#include <stdio.h>\n#include <stdlib.h>\n\n// Write your solution function here\n// Example: int ${fn}(int* nums, int numsSize) {\n//     return 0;\n// }\n`,
-        go:   `package main\n\nimport "fmt"\n\n// Write your function and call it from main()\nfunc main() {\n    // result := ${fn}(...)\n    fmt.Println("result")\n}\n`,
-        rust: `fn main() {\n    // Write your function and call it here\n    // let result = ${fn}(...);\n    // println!("{:?}", result);\n    println!("result");\n}\n`,
-    };
-    return starters[lang] || `// Write your ${lang} solution for ${fn}\n`;
-}
-
-// ═══════════════════════════════════════════════════════════════
-// NORMALISE QUESTIONS
-// ═══════════════════════════════════════════════════════════════
-function normaliseQuestions(questions) {
-    if (!questions) return [];
-    return questions.map((q, i) => {
-        let section = Number(q.section);
-        if (!section || isNaN(section)) {
-            if (i < 8)       section = 1;
-            else if (i < 10) section = 2;
-            else             section = 3;
-        }
-        let category = q.category;
-        if (!category) {
-            if (section === 1)                category = 'mcq';
-            else if (section === 2)           category = 'coding';
-            else if (q.type === 'behavioral') category = 'behavioral';
-            else                              category = 'technical';
-        }
-        return { ...q, section, category };
-    });
-}
-
-const getS1 = () => (interview?.questions || []).filter(q => Number(q.section) === 1);
-const getS2 = () => (interview?.questions || []).filter(q => Number(q.section) === 2);
-const getS3 = () => (interview?.questions || []).filter(q => Number(q.section) === 3);
-
-// ═══════════════════════════════════════════════════════════════
-// BOOTSTRAP
-// ═══════════════════════════════════════════════════════════════
-(async () => {
-    await requireAuth();
-    const id = new URLSearchParams(window.location.search).get('id');
-    if (!id) {
-        showToast('No interview ID', 'error');
-        setTimeout(() => location.href = '/pages/dashboard.html', 1500);
-        return;
-    }
-    try {
-        const data = await interviewApi.get(id);
-        interview  = data.interview;
-        interview.questions = normaliseQuestions(interview.questions);
-
-        if (interview.status === 'completed' && interview.report) {
-            location.href = `/pages/report.html?id=${interview._id}`;
-            return;
+        // ═══════════════════════════════════════════════════════════════
+        // TINY HELPERS
+        // ═══════════════════════════════════════════════════════════════
+        function setText(sel, val) { const el = $(sel); if (el) el.textContent = val; }
+        function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+        function getLang() { return ($('#code-lang')?.value || 'javascript').toLowerCase(); }
+        function escHtml(str = '') {
+            return String(str).replace(/[&<>"']/g, c =>
+                ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
         }
 
-        setText('#header-role',  interview.role);
-        setText('#header-level', interview.expLevel + ' level');
-        hideEl($('#loading-state'));
-        startTimer();
-        showSectionOverlay(1, () => startSection1());
-    } catch (err) {
-        showToast(err.message || 'Could not load interview', 'error');
-    }
-})();
+        // ═══════════════════════════════════════════════════════════════
+        // LANGUAGE MAPS
+        // ═══════════════════════════════════════════════════════════════
+        const LANG_BADGE = {
+            javascript: 'JS', python: 'PY', java: 'JAVA',
+            cpp: 'C++', c: 'C', typescript: 'TS', go: 'GO', rust: 'RS',
+        };
 
-// ═══════════════════════════════════════════════════════════════
-// SECTION OVERLAY + PILLS
-// ═══════════════════════════════════════════════════════════════
-const sectionMeta = {
-    1: { badge:'📝', title:'Section 1 — Multiple Choice',
-         desc:'8 MCQ questions. Select the best answer or skip if unsure.' },
-    2: { badge:'💻', title:'Section 2 — Coding Challenge',
-         desc:'2 algorithmic problems. Write your solution and run it against the test cases. You must pass all tests to submit.' },
-    3: { badge:'🎥', title:'Section 3 — Video Interview',
-         desc:'6 questions with AI interviewer Alex. Speak or type your answers.' },
-};
+        // Default starter shown when user hasn't typed anything yet.
+        // q.starterCode is now an object keyed by language name.
+        function getStarterForLang(lang, q) {
+            if (q.starterCode && typeof q.starterCode === 'object') {
+                return q.starterCode[lang] || q.starterCode['python'] ||
+                    `# Read your input and print your output\n`;
+            }
+            // Fallback for any legacy problems that still have a string starterCode
+            if (q.starterCode && typeof q.starterCode === 'string') {
+                return q.starterCode;
+            }
+            return `# Read your input and print your output\n`;
+        }
 
-function showSectionOverlay(section, onStart) {
-    const m = sectionMeta[section];
-    setText('#ov-badge', m.badge);
-    setText('#ov-title', m.title);
-    setText('#ov-desc',  m.desc);
-    const ov = $('#section-overlay');
-    ov.classList.add('visible');
-    $('#ov-start-btn').onclick = () => { ov.classList.remove('visible'); onStart(); };
-}
+        // ═══════════════════════════════════════════════════════════════
+        // NORMALISE QUESTIONS
+        // ═══════════════════════════════════════════════════════════════
+        function normaliseQuestions(questions) {
+            if (!questions) return [];
+            return questions.map((q, i) => {
+                let section = Number(q.section);
+                if (!section || isNaN(section)) {
+                    if (i < 8) section = 1;
+                    else if (i < 10) section = 2;
+                    else section = 3;
+                }
+                let category = q.category;
+                if (!category) {
+                    if (section === 1) category = 'mcq';
+                    else if (section === 2) category = 'coding';
+                    else if (q.type === 'behavioral') category = 'behavioral';
+                    else category = 'technical';
+                }
+                return { ...q, section, category };
+            });
+        }
 
-function updatePills(active) {
-    for (let i = 1; i <= 3; i++) {
-        const p = $(`#pill-${i}`);
-        p.classList.remove('active', 'done');
-        if      (i < active)  p.classList.add('done');
-        else if (i === active) p.classList.add('active');
-    }
-}
+        const getS1 = () => (interview?.questions || []).filter(q => Number(q.section) === 1);
+        const getS2 = () => (interview?.questions || []).filter(q => Number(q.section) === 2);
+        const getS3 = () => (interview?.questions || []).filter(q => Number(q.section) === 3);
 
-// ═══════════════════════════════════════════════════════════════
-// TIMER
-// ═══════════════════════════════════════════════════════════════
-function startTimer() {
-    timerInterval = setInterval(() => {
-        elapsedSecs++;
-        const m = String(Math.floor(elapsedSecs / 60)).padStart(2, '0');
-        const s = String(elapsedSecs % 60).padStart(2, '0');
-        setText('#timer-display', `${m}:${s}`);
-    }, 1000);
-}
+        // ═══════════════════════════════════════════════════════════════
+        // BOOTSTRAP
+        // ═══════════════════════════════════════════════════════════════
+        (async () => {
+            await requireAuth();
+            const id = new URLSearchParams(window.location.search).get('id');
+            if (!id) {
+                showToast('No interview ID', 'error');
+                setTimeout(() => location.href = '/pages/dashboard.html', 1500);
+                return;
+            }
+            try {
+                const data = await interviewApi.get(id);
+                interview = data.interview;
+                interview.questions = normaliseQuestions(interview.questions);
 
-// ═══════════════════════════════════════════════════════════════
-// SECTION 1 — MCQ
-// ═══════════════════════════════════════════════════════════════
-function startSection1() {
-    currentSection = 1; mcqIndex = 0; updatePills(1);
-    if (!getS1().length) { showToast('No MCQ questions found', 'error'); return; }
-    showEl($('#section1-wrap'));
-    buildMcqDots();
-    showMcqQuestion(0);
-    $('#mcq-submit-btn').addEventListener('click', handleMcqSubmit);
-    $('#mcq-next-btn').addEventListener('click',   handleMcqNext);
-    $('#mcq-skip-btn').addEventListener('click',   handleMcqSkip);
-}
+                if (interview.status === 'completed' && interview.report) {
+                    location.href = `/pages/report.html?id=${interview._id}`;
+                    return;
+                }
 
-function buildMcqDots() {
-    $('#mcq-score-dots').innerHTML = getS1().map((_, i) =>
-        `<div class="score-dot" id="sd-${i}">${i + 1}</div>`).join('');
-}
+                setText('#header-role', interview.role);
+                setText('#header-level', interview.expLevel + ' level');
+                hideEl($('#loading-state'));
+                startTimer();
+                showSectionOverlay(1, () => startSection1());
+            } catch (err) {
+                showToast(err.message || 'Could not load interview', 'error');
+            }
+        })();
 
-function showMcqQuestion(idx) {
-    const qs = getS1();
-    if (idx >= qs.length) { endSection1(); return; }
-    mcqIndex = idx; mcqSelected = null; mcqAnswered = false;
-    const q  = qs[idx];
+        // ═══════════════════════════════════════════════════════════════
+        // SECTION OVERLAY + PILLS
+        // ═══════════════════════════════════════════════════════════════
+        const sectionMeta = {
+            1: {
+                badge: '📝', title: 'Section 1 — Multiple Choice',
+                desc: '8 MCQ questions. Select the best answer or skip if unsure.'
+            },
+            2: {
+                badge: '💻', title: 'Section 2 — Coding Challenge',
+                desc: '2 algorithmic problems. Write your solution and run it against the test cases. You must pass all tests to submit.'
+            },
+            3: {
+                badge: '🎥', title: 'Section 3 — Video Interview',
+                desc: '6 questions with AI interviewer Alex. Speak or type your answers.'
+            },
+        };
 
-    setText('#mcq-q-num',  `Question ${idx + 1} of ${qs.length}`);
-    setText('#mcq-q-text', q.text);
-    setText('#progress-label', `Q ${idx + 1} / ${qs.length}`);
+        function showSectionOverlay(section, onStart) {
+            const m = sectionMeta[section];
+            setText('#ov-badge', m.badge);
+            setText('#ov-title', m.title);
+            setText('#ov-desc', m.desc);
+            const ov = $('#section-overlay');
+            ov.classList.add('visible');
+            $('#ov-start-btn').onclick = () => { ov.classList.remove('visible'); onStart(); };
+        }
 
-    qs.forEach((_, i) => {
-        const d = $(`#sd-${i}`); if (!d) return;
-        d.classList.remove('active');
-        if (i === idx) d.classList.add('active');
-    });
+        function updatePills(active) {
+            for (let i = 1; i <= 3; i++) {
+                const p = $(`#pill-${i}`);
+                p.classList.remove('active', 'done');
+                if (i < active) p.classList.add('done');
+                else if (i === active) p.classList.add('active');
+            }
+        }
 
-    const opts = $('#mcq-opts');
-    opts.innerHTML = (q.options || []).map((opt, i) =>
-        `<div class="mcq-opt" data-index="${i}">
+        // ═══════════════════════════════════════════════════════════════
+        // TIMER
+        // ═══════════════════════════════════════════════════════════════
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                elapsedSecs++;
+                const m = String(Math.floor(elapsedSecs / 60)).padStart(2, '0');
+                const s = String(elapsedSecs % 60).padStart(2, '0');
+                setText('#timer-display', `${m}:${s}`);
+            }, 1000);
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        // SECTION 1 — MCQ
+        // ═══════════════════════════════════════════════════════════════
+        function startSection1() {
+            currentSection = 1; mcqIndex = 0; updatePills(1);
+            if (!getS1().length) { showToast('No MCQ questions found', 'error'); return; }
+            showEl($('#section1-wrap'));
+            buildMcqDots();
+            showMcqQuestion(0);
+            $('#mcq-submit-btn').addEventListener('click', handleMcqSubmit);
+            $('#mcq-next-btn').addEventListener('click', handleMcqNext);
+            $('#mcq-skip-btn').addEventListener('click', handleMcqSkip);
+        }
+
+        function buildMcqDots() {
+            $('#mcq-score-dots').innerHTML = getS1().map((_, i) =>
+                `<div class="score-dot" id="sd-${i}">${i + 1}</div>`).join('');
+        }
+
+        function showMcqQuestion(idx) {
+            const qs = getS1();
+            if (idx >= qs.length) { endSection1(); return; }
+            mcqIndex = idx; mcqSelected = null; mcqAnswered = false;
+            const q = qs[idx];
+
+            setText('#mcq-q-num', `Question ${idx + 1} of ${qs.length}`);
+            setText('#mcq-q-text', q.text);
+            setText('#progress-label', `Q ${idx + 1} / ${qs.length}`);
+
+            qs.forEach((_, i) => {
+                const d = $(`#sd-${i}`); if (!d) return;
+                d.classList.remove('active');
+                if (i === idx) d.classList.add('active');
+            });
+
+            const opts = $('#mcq-opts');
+            opts.innerHTML = (q.options || []).map((opt, i) =>
+                `<div class="mcq-opt" data-index="${i}">
             <div class="mcq-letter">${'ABCD'[i]}</div>
             <span>${escHtml(opt)}</span>
         </div>`).join('');
 
-    opts.querySelectorAll('.mcq-opt').forEach(el => {
-        el.addEventListener('click', () => {
-            if (mcqAnswered) return;
-            opts.querySelectorAll('.mcq-opt').forEach(o => o.classList.remove('selected'));
-            el.classList.add('selected');
-            mcqSelected = parseInt(el.dataset.index);
-            $('#mcq-submit-btn').disabled = false;
-        });
-    });
+            opts.querySelectorAll('.mcq-opt').forEach(el => {
+                el.addEventListener('click', () => {
+                    if (mcqAnswered) return;
+                    opts.querySelectorAll('.mcq-opt').forEach(o => o.classList.remove('selected'));
+                    el.classList.add('selected');
+                    mcqSelected = parseInt(el.dataset.index);
+                    $('#mcq-submit-btn').disabled = false;
+                });
+            });
 
-    $('#mcq-submit-btn').disabled = true;
-    hideEl($('#mcq-next-btn'));
-    showEl($('#mcq-submit-btn'));
-    showEl($('#mcq-skip-btn'));
-    hideEl($('#mcq-explanation'));
-}
-
-function handleMcqSubmit() {
-    if (mcqSelected === null || mcqAnswered) return;
-    mcqAnswered = true;
-    const qs = getS1(), q = qs[mcqIndex];
-    const isCorrect = mcqSelected === q.correctAnswer;
-    mcqResults[mcqIndex] = isCorrect;
-
-    $('#mcq-opts').querySelectorAll('.mcq-opt').forEach((el, i) => {
-        if (i === q.correctAnswer)                el.classList.add('correct');
-        else if (i === mcqSelected && !isCorrect) el.classList.add('wrong');
-    });
-
-    const dot = $(`#sd-${mcqIndex}`);
-    if (dot) {
-        dot.classList.remove('active');
-        dot.classList.add(isCorrect ? 'correct' : 'wrong');
-        dot.textContent = isCorrect ? '✓' : '✕';
-    }
-
-    if (q.explanation) {
-        const el = $('#mcq-explanation');
-        el.innerHTML = `<strong>${isCorrect ? '✅ Correct!' : '❌ Incorrect.'}</strong> ${escHtml(q.explanation)}`;
-        showEl(el);
-    }
-
-    saveAnswer(q.text, `${'ABCD'[mcqSelected]}: ${q.options[mcqSelected]}`);
-    hideEl($('#mcq-submit-btn'));
-    hideEl($('#mcq-skip-btn'));
-    showEl($('#mcq-next-btn'));
-    $('#mcq-next-btn').textContent =
-        mcqIndex < getS1().length - 1 ? 'Next Question →' : 'Go to Coding Section →';
-}
-
-function handleMcqNext() {
-    const qs = getS1();
-    if (mcqIndex < qs.length - 1) showMcqQuestion(mcqIndex + 1);
-    else endSection1();
-}
-
-function handleMcqSkip() {
-    const qs = getS1(), dot = $(`#sd-${mcqIndex}`);
-    if (dot) { dot.classList.remove('active'); dot.classList.add('skipped'); dot.textContent = '—'; }
-    mcqResults[mcqIndex] = null;
-    saveAnswer(qs[mcqIndex]?.text || '', '[Skipped]');
-    if (mcqIndex < qs.length - 1) showMcqQuestion(mcqIndex + 1);
-    else endSection1();
-}
-
-function endSection1() {
-    const correct = mcqResults.filter(r => r === true).length;
-    hideEl($('#section1-wrap'));
-    updatePills(2);
-    showToast(`MCQ done! ${correct}/${getS1().length} correct ✅`, 'success', 4000);
-    showSectionOverlay(2, () => startSection2());
-}
-
-// ═══════════════════════════════════════════════════════════════
-// SECTION 2 — CODING
-// All execution is REAL — goes through Judge0 via backend.
-// No new Function(), no fake analysis, no placeholders.
-// ═══════════════════════════════════════════════════════════════
-function startSection2() {
-    currentSection = 2; codeIndex = 0;
-    showEl($('#section2-wrap'));
-    buildCodeDots();
-    showCodeQuestion(0);
-
-    // Language switcher
-    $('#code-lang').addEventListener('change', () => {
-        const lang = getLang();
-        setText('#lang-badge', LANG_BADGE[lang] || lang.toUpperCase());
-        // Only replace if user hasn't edited
-        if ($('#code-textarea').dataset.isStarter === 'true') {
-            const q = getS2()[codeIndex];
-            $('#code-textarea').value = getStarterForLang(lang, q);
+            $('#mcq-submit-btn').disabled = true;
+            hideEl($('#mcq-next-btn'));
+            showEl($('#mcq-submit-btn'));
+            showEl($('#mcq-skip-btn'));
+            hideEl($('#mcq-explanation'));
         }
-        updateLangNote(lang);
-    });
 
-    // Mark as edited once user types
-    $('#code-textarea').addEventListener('input', () => {
-        $('#code-textarea').dataset.isStarter = 'false';
-    });
+        function handleMcqSubmit() {
+            if (mcqSelected === null || mcqAnswered) return;
+            mcqAnswered = true;
+            const qs = getS1(), q = qs[mcqIndex];
+            const isCorrect = mcqSelected === q.correctAnswer;
+            mcqResults[mcqIndex] = isCorrect;
 
-    $('#run-btn').addEventListener('click', runCode);
-    $('#code-submit-btn').addEventListener('click', handleCodeSubmit);
-    $('#code-skip-btn').addEventListener('click',   handleCodeSkip);
-    $('#reset-starter-btn').addEventListener('click', resetToStarter);
+            $('#mcq-opts').querySelectorAll('.mcq-opt').forEach((el, i) => {
+                if (i === q.correctAnswer) el.classList.add('correct');
+                else if (i === mcqSelected && !isCorrect) el.classList.add('wrong');
+            });
 
-    // Keyboard shortcuts
-    $('#code-textarea').addEventListener('keydown', e => {
-        // Ctrl+Enter → run code
-        if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); runCode(); return; }
-
-        // Tab → 4-space indent
-        if (e.key === 'Tab') {
-            e.preventDefault();
-            const ta = e.target, s = ta.selectionStart, en = ta.selectionEnd;
-            if (s === en) {
-                document.execCommand('insertText', false, '    ');
-            } else {
-                const ls    = ta.value.lastIndexOf('\n', s - 1) + 1;
-                const le    = ta.value.indexOf('\n', en - 1);
-                const block = ta.value.substring(ls, le === -1 ? ta.value.length : le);
-                const ind   = block.split('\n').map(l => '    ' + l).join('\n');
-                ta.setSelectionRange(ls, le === -1 ? ta.value.length : le);
-                document.execCommand('insertText', false, ind);
-                ta.setSelectionRange(ls, ls + ind.length);
+            const dot = $(`#sd-${mcqIndex}`);
+            if (dot) {
+                dot.classList.remove('active');
+                dot.classList.add(isCorrect ? 'correct' : 'wrong');
+                dot.textContent = isCorrect ? '✓' : '✕';
             }
-            return;
-        }
 
-        // Enter → auto-indent (with Python colon detection)
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            const lang = getLang(), ta = e.target, pos = ta.selectionStart;
-            const lineStart   = ta.value.lastIndexOf('\n', pos - 1) + 1;
-            const currentLine = ta.value.substring(lineStart, pos);
-            const indent = currentLine.match(/^(\s*)/)[1];
-            const extra  = (lang === 'python' && currentLine.trimEnd().endsWith(':')) ? '    ' : '';
-            document.execCommand('insertText', false, '\n' + indent + extra);
-        }
-    });
-
-    // Problem panel tab switching
-    document.querySelectorAll('.problem-tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-            document.querySelectorAll('.problem-tab').forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            if (tab.dataset.tab === 'description') {
-                showEl($('#prob-description-tab')); hideEl($('#prob-hint-tab'));
-            } else {
-                hideEl($('#prob-description-tab')); showEl($('#prob-hint-tab'));
+            if (q.explanation) {
+                const el = $('#mcq-explanation');
+                el.innerHTML = `<strong>${isCorrect ? '✅ Correct!' : '❌ Incorrect.'}</strong> ${escHtml(q.explanation)}`;
+                showEl(el);
             }
-        });
-    });
-}
 
-// Show/hide the compiled language note below editor
-function updateLangNote(lang) {
-    const el = $('#lang-compiled-note');
-    if (!el) return;
-    const note = COMPILED_LANG_NOTE[lang];
-    if (note) {
-        el.textContent   = note;
-        el.style.display = 'block';
-    } else {
-        el.style.display = 'none';
-    }
-}
+            saveAnswer(q.text, `${'ABCD'[mcqSelected]}: ${q.options[mcqSelected]}`);
+            hideEl($('#mcq-submit-btn'));
+            hideEl($('#mcq-skip-btn'));
+            showEl($('#mcq-next-btn'));
+            $('#mcq-next-btn').textContent =
+                mcqIndex < getS1().length - 1 ? 'Next Question →' : 'Go to Coding Section →';
+        }
 
-function buildCodeDots() {
-    $('#code-progress-dots').innerHTML = getS2().map((_, i) =>
-        `<div class="qd" id="cd-${i}"></div>`).join('');
-    $(`#cd-0`)?.classList.add('active');
-}
+        function handleMcqNext() {
+            const qs = getS1();
+            if (mcqIndex < qs.length - 1) showMcqQuestion(mcqIndex + 1);
+            else endSection1();
+        }
 
-function showCodeQuestion(idx) {
-    const qs = getS2();
-    if (idx >= qs.length) { endSection2(); return; }
-    codeIndex     = idx;
-    lastRunPassed = 0;
-    const q       = qs[idx];
+        function handleMcqSkip() {
+            const qs = getS1(), dot = $(`#sd-${mcqIndex}`);
+            if (dot) { dot.classList.remove('active'); dot.classList.add('skipped'); dot.textContent = '—'; }
+            mcqResults[mcqIndex] = null;
+            saveAnswer(qs[mcqIndex]?.text || '', '[Skipped]');
+            if (mcqIndex < qs.length - 1) showMcqQuestion(mcqIndex + 1);
+            else endSection1();
+        }
 
-    setText('#code-q-num',     `Coding ${idx + 1} of ${qs.length}`);
-    setText('#progress-label', `Coding ${idx + 1} / ${qs.length}`);
+        function endSection1() {
+            const correct = mcqResults.filter(r => r === true).length;
+            hideEl($('#section1-wrap'));
+            updatePills(2);
+            showToast(`MCQ done! ${correct}/${getS1().length} correct ✅`, 'success', 4000);
+            showSectionOverlay(2, () => startSection2());
+        }
 
-    // Difficulty chip
-    const diff   = (q.difficulty || 'medium').toLowerCase();
-    const diffEl = $('#difficulty-chip');
-    diffEl.textContent = diff.charAt(0).toUpperCase() + diff.slice(1);
-    diffEl.className   = `difficulty-chip ${diff}`;
+        // ═══════════════════════════════════════════════════════════════
+        // SECTION 2 — CODING
+        // All execution is REAL — goes through Judge0 via backend.
+        // No new Function(), no fake analysis, no placeholders.
+        // ═══════════════════════════════════════════════════════════════
+        function startSection2() {
+            currentSection = 2; codeIndex = 0;
+            showEl($('#section2-wrap'));
+            buildCodeDots();
+            showCodeQuestion(0);
 
-    // Problem description
-    setText('#prob-title', q.title || `Problem ${idx + 1}`);
-    $('#prob-desc').innerHTML = (q.text || '')
-        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-        .replace(/`([^`]+)`/g, '<code>$1</code>');
+            // Language switcher
+            $('#code-lang').addEventListener('change', () => {
+                const lang = getLang();
+                setText('#lang-badge', LANG_BADGE[lang] || lang.toUpperCase());
+                // Only replace if user hasn't edited
+                if ($('#code-textarea').dataset.isStarter === 'true') {
+                    const q = getS2()[codeIndex];
+                    $('#code-textarea').value = getStarterForLang(lang, q);
+                }
+                updateLangNote(lang);
+            });
 
-    // Examples
-    const exEl   = $('#prob-examples');
-    const richEx = Array.isArray(q.examples) && q.examples.length ? q.examples : null;
-    if (richEx) {
-        exEl.innerHTML = richEx.map(ex => `
+            // Mark as edited once user types
+            $('#code-textarea').addEventListener('input', () => {
+                $('#code-textarea').dataset.isStarter = 'false';
+            });
+
+            $('#run-btn').addEventListener('click', runCode);
+            $('#code-submit-btn').addEventListener('click', handleCodeSubmit);
+            $('#code-skip-btn').addEventListener('click', handleCodeSkip);
+            $('#reset-starter-btn').addEventListener('click', resetToStarter);
+
+            // Keyboard shortcuts
+            $('#code-textarea').addEventListener('keydown', e => {
+                // Ctrl+Enter → run code
+                if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); runCode(); return; }
+
+                // Tab → 4-space indent
+                if (e.key === 'Tab') {
+                    e.preventDefault();
+                    const ta = e.target, s = ta.selectionStart, en = ta.selectionEnd;
+                    if (s === en) {
+                        document.execCommand('insertText', false, '    ');
+                    } else {
+                        const ls = ta.value.lastIndexOf('\n', s - 1) + 1;
+                        const le = ta.value.indexOf('\n', en - 1);
+                        const block = ta.value.substring(ls, le === -1 ? ta.value.length : le);
+                        const ind = block.split('\n').map(l => '    ' + l).join('\n');
+                        ta.setSelectionRange(ls, le === -1 ? ta.value.length : le);
+                        document.execCommand('insertText', false, ind);
+                        ta.setSelectionRange(ls, ls + ind.length);
+                    }
+                    return;
+                }
+
+                // Enter → auto-indent (with Python colon detection)
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const lang = getLang(), ta = e.target, pos = ta.selectionStart;
+                    const lineStart = ta.value.lastIndexOf('\n', pos - 1) + 1;
+                    const currentLine = ta.value.substring(lineStart, pos);
+                    const indent = currentLine.match(/^(\s*)/)[1];
+                    const extra = (lang === 'python' && currentLine.trimEnd().endsWith(':')) ? '    ' : '';
+                    document.execCommand('insertText', false, '\n' + indent + extra);
+                }
+            });
+
+            // Problem panel tab switching
+            document.querySelectorAll('.problem-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.problem-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    if (tab.dataset.tab === 'description') {
+                        showEl($('#prob-description-tab')); hideEl($('#prob-hint-tab'));
+                    } else {
+                        hideEl($('#prob-description-tab')); showEl($('#prob-hint-tab'));
+                    }
+                });
+            });
+        }
+
+        // Show/hide the compiled language note below editor
+        function updateLangNote(_lang) {
+            const el = $('#lang-compiled-note');
+            if (el) el.style.display = 'none';
+        }
+
+        function buildCodeDots() {
+            $('#code-progress-dots').innerHTML = getS2().map((_, i) =>
+                `<div class="qd" id="cd-${i}"></div>`).join('');
+            $(`#cd-0`)?.classList.add('active');
+        }
+
+        function showCodeQuestion(idx) {
+            const qs = getS2();
+            if (idx >= qs.length) { endSection2(); return; }
+            codeIndex = idx;
+            lastRunPassed = 0;
+            const q = qs[idx];
+
+            setText('#code-q-num', `Coding ${idx + 1} of ${qs.length}`);
+            setText('#progress-label', `Coding ${idx + 1} / ${qs.length}`);
+
+            // Difficulty chip
+            const diff = (q.difficulty || 'medium').toLowerCase();
+            const diffEl = $('#difficulty-chip');
+            diffEl.textContent = diff.charAt(0).toUpperCase() + diff.slice(1);
+            diffEl.className = `difficulty-chip ${diff}`;
+
+            // Problem description
+            setText('#prob-title', q.title || `Problem ${idx + 1}`);
+            $('#prob-desc').innerHTML = (q.text || '')
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/`([^`]+)`/g, '<code>$1</code>');
+
+            // Examples
+            const exEl = $('#prob-examples');
+            const richEx = Array.isArray(q.examples) && q.examples.length ? q.examples : null;
+            if (richEx) {
+                exEl.innerHTML = richEx.map(ex => `
             <div class="example-card">
                 <div class="example-row"><span class="ex-key">Input:</span><span class="ex-val">${escHtml(ex.input || '')}</span></div>
                 <div class="example-row"><span class="ex-key">Output:</span><span class="ex-val">${escHtml(ex.output || ex.expected || '')}</span></div>
                 ${ex.explanation ? `<div class="ex-explanation">// ${escHtml(ex.explanation)}</div>` : ''}
             </div>`).join('');
-    } else {
-        exEl.innerHTML = `<div style="font-size:.8rem;color:rgba(255,255,255,.3);font-style:italic">See test results below.</div>`;
-    }
+            } else {
+                exEl.innerHTML = `<div style="font-size:.8rem;color:rgba(255,255,255,.3);font-style:italic">See test results below.</div>`;
+            }
 
-    // Constraints
-    const cWrap = $('#prob-constraints-wrap');
-    const cons  = Array.isArray(q.constraints) && q.constraints.length ? q.constraints : null;
-    if (cons) {
-        cWrap.classList.remove('hidden');
-        $('#prob-constraints').innerHTML = cons.map(c =>
-            `<div class="constraint-row">${escHtml(c)}</div>`).join('');
-    } else {
-        cWrap.classList.add('hidden');
-    }
+            // Constraints
+            const cWrap = $('#prob-constraints-wrap');
+            const cons = Array.isArray(q.constraints) && q.constraints.length ? q.constraints : null;
+            if (cons) {
+                cWrap.classList.remove('hidden');
+                $('#prob-constraints').innerHTML = cons.map(c =>
+                    `<div class="constraint-row">${escHtml(c)}</div>`).join('');
+            } else {
+                cWrap.classList.add('hidden');
+            }
 
-    // Hint
-    $('#prob-hint-content').innerHTML = q.explanation
-        ? `<strong>💡 Hint</strong><br/>${escHtml(q.explanation)}`
-        : `<strong>💡 Tips</strong><br/>Think about time complexity. Check the constraints for clues on the expected approach.`;
+            // Hint
+            $('#prob-hint-content').innerHTML = q.explanation
+                ? `<strong>💡 Hint</strong><br/>${escHtml(q.explanation)}`
+                : `<strong>💡 Tips</strong><br/>Think about time complexity. Check the constraints for clues on the expected approach.`;
 
-    // Code editor — always start with JavaScript
-    const lang = 'javascript';
-    $('#code-lang').value = lang;
-    setText('#lang-badge', 'JS');
-    updateLangNote(lang);
+            // Code editor — always start with JavaScript
+            const lang = 'python';
+            $('#code-lang').value = lang;
+            setText('#lang-badge', 'PY');
 
-    const ta = $('#code-textarea');
-    ta.value = getStarterForLang(lang, q);
-    ta.dataset.isStarter = 'true';
+            const ta = $('#code-textarea');
+            ta.value = getStarterForLang(lang, q);
+            ta.dataset.isStarter = 'true';
 
-    // Progress dots
-    getS2().forEach((_, i) => {
-        const d = $(`#cd-${i}`); if (!d) return;
-        d.classList.remove('active', 'done', 'skipped');
-        if      (i < idx)  d.classList.add('done');
-        else if (i === idx) d.classList.add('active');
-    });
+            // Progress dots
+            getS2().forEach((_, i) => {
+                const d = $(`#cd-${i}`); if (!d) return;
+                d.classList.remove('active', 'done', 'skipped');
+                if (i < idx) d.classList.add('done');
+                else if (i === idx) d.classList.add('active');
+            });
 
-    // Reset test panel + disable submit
-    resetTestPanel(q);
-    $('#code-submit-btn').disabled = true;
-    $('#code-submit-btn').title    = 'Run your code and pass all test cases first';
+            // Reset test panel + disable submit
+            resetTestPanel(q);
+            $('#code-submit-btn').disabled = true;
+            $('#code-submit-btn').title = 'Run your code and pass all test cases first';
 
-    // Switch to description tab
-    document.querySelectorAll('.problem-tab').forEach(t => t.classList.remove('active'));
-    document.querySelector('.problem-tab[data-tab="description"]')?.classList.add('active');
-    showEl($('#prob-description-tab'));
-    hideEl($('#prob-hint-tab'));
-}
+            // Switch to description tab
+            document.querySelectorAll('.problem-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector('.problem-tab[data-tab="description"]')?.classList.add('active');
+            showEl($('#prob-description-tab'));
+            hideEl($('#prob-hint-tab'));
+        }
 
-function resetToStarter() {
-    const q  = getS2()[codeIndex];
-    const ta = $('#code-textarea');
-    ta.value = getStarterForLang(getLang(), q);
-    ta.dataset.isStarter = 'true';
-    resetTestPanel(q);
-    $('#code-submit-btn').disabled = true;
-    showToast('Editor reset to starter code', 'info', 2000);
-}
+        function resetToStarter() {
+            const q = getS2()[codeIndex];
+            const ta = $('#code-textarea');
+            ta.value = getStarterForLang(getLang(), q);
+            ta.dataset.isStarter = 'true';
+            resetTestPanel(q);
+            $('#code-submit-btn').disabled = true;
+            showToast('Editor reset to starter code', 'info', 2000);
+        }
 
-// ── Test panel idle state ──────────────────────────────────────
-function resetTestPanel(q) {
-    const visibleTCs    = (q?.testCases || []).filter(tc => !tc.hidden);
-    const summaryEl     = $('#test-summary-badge');
-    summaryEl.className   = 'test-summary-badge idle';
-    summaryEl.textContent = visibleTCs.length
-        ? `${visibleTCs.length} test case${visibleTCs.length > 1 ? 's' : ''} ready`
-        : 'No test cases';
-    setText('#run-time-display', '');
-    $('#test-table-wrap').innerHTML = `
+        // ── Test panel idle state ──────────────────────────────────────
+        function resetTestPanel(q) {
+            const visibleTCs = (q?.testCases || []).filter(tc => !tc.hidden);
+            const summaryEl = $('#test-summary-badge');
+            summaryEl.className = 'test-summary-badge idle';
+            summaryEl.textContent = visibleTCs.length
+                ? `${visibleTCs.length} test case${visibleTCs.length > 1 ? 's' : ''} ready`
+                : 'No test cases';
+            setText('#run-time-display', '');
+            $('#test-table-wrap').innerHTML = `
         <div class="test-idle-placeholder">
             Press <kbd style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);
             color:rgba(255,255,255,.65);padding:1px 6px;border-radius:4px;font-size:.7rem">▶ Run Code</kbd>
             &nbsp; to see test results
         </div>`;
-}
+        }
 
-// ── Skeleton rows while waiting for Judge0 ─────────────────────
-function renderSkeleton(count) {
-    let rows = '';
-    for (let i = 0; i < count; i++) {
-        rows += `<tr>
+        // ── Skeleton rows while waiting for Judge0 ─────────────────────
+        function renderSkeleton(count) {
+            let rows = '';
+            for (let i = 0; i < count; i++) {
+                rows += `<tr>
             <td class="tc-idx">${i + 1}</td>
             <td><span class="status-run"><span class="run-spinner"></span> Running…</span></td>
             <td><span class="mono-val">—</span></td>
             <td><span class="mono-val">—</span></td>
             <td><span class="mono-val">—</span></td>
         </tr>`;
-    }
-    $('#test-table-wrap').innerHTML = `
+            }
+            $('#test-table-wrap').innerHTML = `
         <table class="results-table">
             <thead><tr>
                 <th>#</th><th>Status</th><th>Input</th><th>Expected</th><th>Your Output</th>
             </tr></thead>
             <tbody>${rows}</tbody>
         </table>`;
-}
-
-// ── Render final results table ─────────────────────────────────
-function renderResultsTable(results) {
-    const wrap = $('#test-table-wrap');
-
-    // Full compile error — show message block, no table
-    if (results.length && results[0].isCompileError) {
-        wrap.innerHTML = `<div class="test-special ce">⚠️ Compilation Error\n\n${escHtml(results[0].error || '')}</div>`;
-        return;
-    }
-
-    let rows = '';
-    results.forEach((r, i) => {
-        const isTLE      = r.error === 'Time Limit Exceeded — your code is too slow';
-        const isBlocked  = r.error === 'Blocked by compilation error';
-        const isRtError  = !r.passed && r.actual === null && !r.isCompileError;
-
-        let statusCell, outputCell;
-
-        if (r.isCompileError || isBlocked) {
-            statusCell = `<span class="status-err">⚠ CE</span>`;
-            outputCell = `<span class="mono-val err">${isBlocked ? 'Blocked' : 'Compile Error'}</span>`;
-        } else if (isTLE) {
-            statusCell = `<span class="status-err">⏱ TLE</span>`;
-            outputCell = `<span class="mono-val err">Time Limit Exceeded</span>`;
-        } else if (isRtError) {
-            statusCell = `<span class="status-err">✗ Error</span>`;
-            outputCell = `<span class="mono-val err" title="${escHtml(r.error || '')}">${escHtml((r.error || 'Runtime Error').slice(0, 120))}</span>`;
-        } else if (r.passed) {
-            statusCell = `<span class="status-pass">✓ Pass</span>`;
-            outputCell = `<span class="mono-val pass">${escHtml(String(r.actual ?? ''))}</span>`;
-        } else {
-            statusCell = `<span class="status-fail">✗ Fail</span>`;
-            outputCell = `<span class="mono-val fail">${escHtml(String(r.actual ?? '(no output)'))}</span>`;
         }
 
-        rows += `<tr>
+        // ── Render final results table ─────────────────────────────────
+        function renderResultsTable(results) {
+            const wrap = $('#test-table-wrap');
+
+            // Full compile error — show message block, no table
+            if (results.length && results[0].isCompileError) {
+                wrap.innerHTML = `<div class="test-special ce">⚠️ Compilation Error\n\n${escHtml(results[0].error || '')}</div>`;
+                return;
+            }
+
+            let rows = '';
+            results.forEach((r, i) => {
+                const isTLE = r.error === 'Time Limit Exceeded — your code is too slow';
+                const isBlocked = r.error === 'Blocked by compilation error';
+                const isRtError = !r.passed && r.actual === null && !r.isCompileError;
+
+                let statusCell, outputCell;
+
+                if (r.isCompileError || isBlocked) {
+                    statusCell = `<span class="status-err">⚠ CE</span>`;
+                    outputCell = `<span class="mono-val err">${isBlocked ? 'Blocked' : 'Compile Error'}</span>`;
+                } else if (isTLE) {
+                    statusCell = `<span class="status-err">⏱ TLE</span>`;
+                    outputCell = `<span class="mono-val err">Time Limit Exceeded</span>`;
+                } else if (isRtError) {
+                    statusCell = `<span class="status-err">✗ Error</span>`;
+                    outputCell = `<span class="mono-val err" title="${escHtml(r.error || '')}">${escHtml((r.error || 'Runtime Error').slice(0, 120))}</span>`;
+                } else if (r.passed) {
+                    statusCell = `<span class="status-pass">✓ Pass</span>`;
+                    outputCell = `<span class="mono-val pass">${escHtml(String(r.actual ?? ''))}</span>`;
+                } else {
+                    statusCell = `<span class="status-fail">✗ Fail</span>`;
+                    outputCell = `<span class="mono-val fail">${escHtml(String(r.actual ?? '(no output)'))}</span>`;
+                }
+
+                rows += `<tr>
             <td class="tc-idx">${i + 1}</td>
             <td>${statusCell}</td>
             <td><span class="mono-val">${escHtml(String(r.input || ''))}</span></td>
             <td><span class="mono-val">${escHtml(String(r.expected || ''))}</span></td>
             <td>${outputCell}</td>
         </tr>`;
-    });
+            });
 
-    const passed    = results.filter(r => r.passed).length;
-    const total     = results.length;
-    const allPass   = passed === total;
-    const color     = allPass ? '#1D9E75' : '#E24B4A';
+            const passed = results.filter(r => r.passed).length;
+            const total = results.length;
+            const allPass = passed === total;
+            const color = allPass ? '#1D9E75' : '#E24B4A';
 
-    wrap.innerHTML = `
+            wrap.innerHTML = `
         <table class="results-table">
             <thead><tr>
                 <th>#</th><th>Status</th><th>Input</th><th>Expected</th><th>Your Output</th>
@@ -1231,375 +2495,375 @@ function renderResultsTable(results) {
             &nbsp;·&nbsp;
             Result: <strong style="color:${color}">${allPass ? '✅ All Tests Passed!' : '❌ Wrong Answer'}</strong>
         </div>`;
-}
-
-// ══════════════════════════════════════════════════════════════
-// runCode — REAL execution via Judge0 through the backend
-// NO fake execution, NO new Function(), NO regex analysis
-// ══════════════════════════════════════════════════════════════
-async function runCode() {
-    if (isRunning) return;
-
-    const code = ($('#code-textarea').value || '').trim();
-    const lang = getLang();
-    const q    = getS2()[codeIndex];
-
-    if (!code || code.length < 3) {
-        showToast('Write some code first!', 'warning');
-        return;
-    }
-
-    // Only run visible (non-hidden) test cases
-    const visibleTCs = (q.testCases || []).filter(tc => !tc.hidden);
-    if (!visibleTCs.length) {
-        showToast('No test cases available for this problem', 'warning');
-        return;
-    }
-
-    // ── Set running state ────────────────────────────────────
-    isRunning = true;
-    const btn = $('#run-btn');
-    btn.disabled  = true;
-    btn.innerHTML = '<span class="run-spinner"></span> Running…';
-    $('#code-submit-btn').disabled = true;
-
-    const summaryEl = $('#test-summary-badge');
-    summaryEl.className   = 'test-summary-badge running';
-    summaryEl.textContent = `Running ${visibleTCs.length} test${visibleTCs.length > 1 ? 's' : ''}…`;
-    setText('#run-time-display', '');
-
-    // Show skeleton immediately so user sees progress
-    renderSkeleton(visibleTCs.length);
-
-    const t0 = performance.now();
-
-    try {
-        const token = sessionStorage.getItem('accessToken');
-        const resp  = await fetch('/api/interview/run-code', {
-            method:  'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                ...(token ? { Authorization: `Bearer ${token}` } : {}),
-            },
-            credentials: 'include',
-            body: JSON.stringify({
-                code,
-                language:     lang,
-                functionName: q.functionSignature || 'solution',
-                testCases:    visibleTCs,
-            }),
-        });
-
-        if (!resp.ok) {
-            const errData = await resp.json().catch(() => ({}));
-            throw new Error(errData.message || `Server error ${resp.status}`);
         }
 
-        const data = await resp.json();
+        // ══════════════════════════════════════════════════════════════
+        // runCode — REAL execution via Judge0 through the backend
+        // NO fake execution, NO new Function(), NO regex analysis
+        // ══════════════════════════════════════════════════════════════
+        async function runCode() {
+            if (isRunning) return;
 
-        if (!data.success) throw new Error(data.message || 'Execution failed');
+            const code = ($('#code-textarea').value || '').trim();
+            const lang = getLang();
+            const q = getS2()[codeIndex];
 
-        const elapsed = Math.round(performance.now() - t0);
-        setText('#run-time-display', `${elapsed} ms`);
+            if (!code || code.length < 3) {
+                showToast('Write some code first!', 'warning');
+                return;
+            }
 
-        const results = data.results || [];
-        const passed  = data.passed  ?? results.filter(r => r.passed).length;
-        const total   = data.total   ?? results.length;
-        lastRunPassed = passed;
+            // Only run visible (non-hidden) test cases
+            const visibleTCs = (q.testCases || []).filter(tc => !tc.hidden);
+            if (!visibleTCs.length) {
+                showToast('No test cases available for this problem', 'warning');
+                return;
+            }
 
-        // ── Update summary badge ─────────────────────────────
-        const hasCompile = results.some(r => r.isCompileError);
-        const hasError   = results.some(r => !r.passed && r.actual === null && !r.isCompileError);
-
-        if (hasCompile) {
-            summaryEl.className   = 'test-summary-badge error';
-            summaryEl.textContent = '⚠ Compilation Error';
-        } else if (passed === total && total > 0) {
-            summaryEl.className   = 'test-summary-badge accepted';
-            summaryEl.textContent = `✓ Accepted  ${passed}/${total} passed`;
-        } else if (hasError) {
-            summaryEl.className   = 'test-summary-badge error';
-            summaryEl.textContent = `✗ Error  ${passed}/${total} passed`;
-        } else {
-            summaryEl.className   = 'test-summary-badge wrong';
-            summaryEl.textContent = `✗ Wrong Answer  ${passed}/${total} passed`;
-        }
-
-        renderResultsTable(results);
-
-        // ── Enable submit ONLY when ALL tests pass ───────────
-        if (!hasCompile && passed === total && total > 0) {
-            $('#code-submit-btn').disabled = false;
-            $('#code-submit-btn').title    = 'All tests passed — click to submit';
-            showToast(`All ${total} tests passed! ✅ You can now submit.`, 'success', 4000);
-        } else {
+            // ── Set running state ────────────────────────────────────
+            isRunning = true;
+            const btn = $('#run-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="run-spinner"></span> Running…';
             $('#code-submit-btn').disabled = true;
-            if (!hasCompile) {
-                showToast(
-                    `${passed}/${total} tests passed`,
-                    passed > 0 ? 'warning' : 'error',
-                    3000
-                );
+
+            const summaryEl = $('#test-summary-badge');
+            summaryEl.className = 'test-summary-badge running';
+            summaryEl.textContent = `Running ${visibleTCs.length} test${visibleTCs.length > 1 ? 's' : ''}…`;
+            setText('#run-time-display', '');
+
+            // Show skeleton immediately so user sees progress
+            renderSkeleton(visibleTCs.length);
+
+            const t0 = performance.now();
+
+            try {
+                const token = sessionStorage.getItem('accessToken');
+                const resp = await fetch('/api/interview/run-code', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        code,
+                        language: lang,
+                        testCases: visibleTCs,
+                    }),
+                });
+
+                if (!resp.ok) {
+                    const errData = await resp.json().catch(() => ({}));
+                    throw new Error(errData.message || `Server error ${resp.status}`);
+                }
+
+                const data = await resp.json();
+
+                if (!data.success) throw new Error(data.message || 'Execution failed');
+
+                const elapsed = Math.round(performance.now() - t0);
+                setText('#run-time-display', `${elapsed} ms`);
+
+                const results = data.results || [];
+                const passed = data.passed ?? results.filter(r => r.passed).length;
+                const total = data.total ?? results.length;
+                lastRunPassed = passed;
+
+                // ── Update summary badge ─────────────────────────────
+                const hasCompile = results.some(r => r.isCompileError);
+                const hasError = results.some(r => !r.passed && r.actual === null && !r.isCompileError);
+
+                if (hasCompile) {
+                    summaryEl.className = 'test-summary-badge error';
+                    summaryEl.textContent = '⚠ Compilation Error';
+                } else if (passed === total && total > 0) {
+                    summaryEl.className = 'test-summary-badge accepted';
+                    summaryEl.textContent = `✓ Accepted  ${passed}/${total} passed`;
+                } else if (hasError) {
+                    summaryEl.className = 'test-summary-badge error';
+                    summaryEl.textContent = `✗ Error  ${passed}/${total} passed`;
+                } else {
+                    summaryEl.className = 'test-summary-badge wrong';
+                    summaryEl.textContent = `✗ Wrong Answer  ${passed}/${total} passed`;
+                }
+
+                renderResultsTable(results);
+
+                // ── Enable submit ONLY when ALL tests pass ───────────
+                if (!hasCompile && passed === total && total > 0) {
+                    $('#code-submit-btn').disabled = false;
+                    $('#code-submit-btn').title = 'All tests passed — click to submit';
+                    showToast(`All ${total} tests passed! ✅ You can now submit.`, 'success', 4000);
+                } else {
+                    $('#code-submit-btn').disabled = true;
+                    if (!hasCompile) {
+                        showToast(
+                            `${passed}/${total} tests passed`,
+                            passed > 0 ? 'warning' : 'error',
+                            3000
+                        );
+                    }
+                }
+
+            } catch (err) {
+                const summaryEl2 = $('#test-summary-badge');
+                summaryEl2.className = 'test-summary-badge error';
+                summaryEl2.textContent = '✗ Error';
+                $('#test-table-wrap').innerHTML = `
+            <div class="test-special ce">⚠️ ${escHtml(err.message || 'Unknown error — check your connection and try again')}</div>`;
+                showToast('Execution error: ' + (err.message || 'unknown'), 'error', 4000);
+            } finally {
+                isRunning = false;
+                btn.disabled = false;
+                btn.innerHTML = '▶ Run Code';
             }
         }
 
-    } catch (err) {
-        const summaryEl2 = $('#test-summary-badge');
-        summaryEl2.className   = 'test-summary-badge error';
-        summaryEl2.textContent = '✗ Error';
-        $('#test-table-wrap').innerHTML = `
-            <div class="test-special ce">⚠️ ${escHtml(err.message || 'Unknown error — check your connection and try again')}</div>`;
-        showToast('Execution error: ' + (err.message || 'unknown'), 'error', 4000);
-    } finally {
-        isRunning     = false;
-        btn.disabled  = false;
-        btn.innerHTML = '▶ Run Code';
-    }
-}
+        // ── handleCodeSubmit ─────────────────────────────────────────
+        // Only reachable after all tests pass (button disabled otherwise)
+        function handleCodeSubmit() {
+            const code = ($('#code-textarea').value || '').trim();
+            const lang = getLang();
 
-// ── handleCodeSubmit ─────────────────────────────────────────
-// Only reachable after all tests pass (button disabled otherwise)
-function handleCodeSubmit() {
-    const code = ($('#code-textarea').value || '').trim();
-    const lang = getLang();
+            if (!code || code.length < 3) {
+                showToast('Write some code before submitting', 'warning');
+                return;
+            }
+            if ($('#code-submit-btn').disabled) {
+                showToast('Run your code and pass all test cases first', 'warning');
+                return;
+            }
 
-    if (!code || code.length < 3) {
-        showToast('Write some code before submitting', 'warning');
-        return;
-    }
-    if ($('#code-submit-btn').disabled) {
-        showToast('Run your code and pass all test cases first', 'warning');
-        return;
-    }
+            const qs = getS2();
+            // Tag includes :OK to signal all tests passed — used in scoring
+            const tag = `[STDIN_CODE:${lang}:OK]`;
+            saveAnswer(qs[codeIndex]?.text || '', `${tag}\n${code}`);
 
-    const qs  = getS2();
-    // Tag includes :OK to signal all tests passed — used in scoring
-    const tag = `[CODE:${lang.toUpperCase()}:OK]`;
-    saveAnswer(qs[codeIndex]?.text || '', `${tag}\n${code}`);
+            const d = $(`#cd-${codeIndex}`);
+            if (d) { d.classList.remove('active'); d.classList.add('done'); }
 
-    const d = $(`#cd-${codeIndex}`);
-    if (d) { d.classList.remove('active'); d.classList.add('done'); }
+            showToast('Solution submitted! ✅', 'success');
 
-    showToast('Solution submitted! ✅', 'success');
+            if (codeIndex < qs.length - 1) showCodeQuestion(codeIndex + 1);
+            else endSection2();
+        }
 
-    if (codeIndex < qs.length - 1) showCodeQuestion(codeIndex + 1);
-    else endSection2();
-}
+        // ── handleCodeSkip ───────────────────────────────────────────
+        function handleCodeSkip() {
+            const qs = getS2(), d = $(`#cd-${codeIndex}`);
+            if (d) { d.classList.remove('active'); d.classList.add('skipped'); }
+            saveAnswer(qs[codeIndex]?.text || '', '[Skipped]');
+            if (codeIndex < qs.length - 1) showCodeQuestion(codeIndex + 1);
+            else endSection2();
+        }
 
-// ── handleCodeSkip ───────────────────────────────────────────
-function handleCodeSkip() {
-    const qs = getS2(), d = $(`#cd-${codeIndex}`);
-    if (d) { d.classList.remove('active'); d.classList.add('skipped'); }
-    saveAnswer(qs[codeIndex]?.text || '', '[Skipped]');
-    if (codeIndex < qs.length - 1) showCodeQuestion(codeIndex + 1);
-    else endSection2();
-}
+        function endSection2() {
+            hideEl($('#section2-wrap'));
+            updatePills(3);
+            showSectionOverlay(3, () => startSection3());
+        }
 
-function endSection2() {
-    hideEl($('#section2-wrap'));
-    updatePills(3);
-    showSectionOverlay(3, () => startSection3());
-}
+        // ═══════════════════════════════════════════════════════════════
+        // SECTION 3 — VIDEO
+        // ═══════════════════════════════════════════════════════════════
+        async function startSection3() {
+            currentSection = 3; viIndex = 0;
+            document.body.classList.add('video-mode');
+            showEl($('#section3-wrap'));
+            buildViDots();
+            await initCamera();
+            initSpeech();
+            await showViQuestion(0);
+            $('#vi-submit-btn').addEventListener('click', handleViSubmit);
+            $('#vi-skip-btn').addEventListener('click', handleViSkip);
+            $('#vi-mic-btn').addEventListener('click', toggleMic);
+            $('#vi-cam-btn').addEventListener('click', toggleCam);
+            $('#vi-answer').addEventListener('keydown', e => {
+                if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); handleViSubmit(); }
+            });
+        }
 
-// ═══════════════════════════════════════════════════════════════
-// SECTION 3 — VIDEO
-// ═══════════════════════════════════════════════════════════════
-async function startSection3() {
-    currentSection = 3; viIndex = 0;
-    document.body.classList.add('video-mode');
-    showEl($('#section3-wrap'));
-    buildViDots();
-    await initCamera();
-    initSpeech();
-    await showViQuestion(0);
-    $('#vi-submit-btn').addEventListener('click', handleViSubmit);
-    $('#vi-skip-btn').addEventListener('click',   handleViSkip);
-    $('#vi-mic-btn').addEventListener('click',    toggleMic);
-    $('#vi-cam-btn').addEventListener('click',    toggleCam);
-    $('#vi-answer').addEventListener('keydown', e => {
-        if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); handleViSubmit(); }
-    });
-}
+        function buildViDots() {
+            const qs = getS3();
+            $('#vi-progress-dots').innerHTML = qs.map((q, i) =>
+                `<div class="qd" id="vd-${i}" title="${q.category === 'behavioral' ? '🧠 Behavioral' : '⚙️ Technical'}"></div>`
+            ).join('') + `<span style="font-size:.72rem;color:rgba(255,255,255,.4);margin-left:6px">Video Interview</span>`;
+            $(`#vd-0`)?.classList.add('active');
+        }
 
-function buildViDots() {
-    const qs = getS3();
-    $('#vi-progress-dots').innerHTML = qs.map((q, i) =>
-        `<div class="qd" id="vd-${i}" title="${q.category === 'behavioral' ? '🧠 Behavioral' : '⚙️ Technical'}"></div>`
-    ).join('') + `<span style="font-size:.72rem;color:rgba(255,255,255,.4);margin-left:6px">Video Interview</span>`;
-    $(`#vd-0`)?.classList.add('active');
-}
+        async function showViQuestion(idx) {
+            const qs = getS3();
+            if (idx >= qs.length) { endSection3(); return; }
+            viIndex = idx;
+            const q = qs[idx];
 
-async function showViQuestion(idx) {
-    const qs = getS3();
-    if (idx >= qs.length) { endSection3(); return; }
-    viIndex = idx;
-    const q = qs[idx];
+            $('#vi-q-text').innerHTML = '<div class="vi-typing-dots"><span></span><span></span><span></span></div>';
+            $('#vi-answer').value = '';
 
-    $('#vi-q-text').innerHTML = '<div class="vi-typing-dots"><span></span><span></span><span></span></div>';
-    $('#vi-answer').value = '';
+            qs.forEach((_, i) => {
+                const d = $(`#vd-${i}`); if (!d) return;
+                d.classList.remove('active', 'done', 'skipped');
+                if (i < idx) d.classList.add('done');
+                else if (i === idx) d.classList.add('active');
+            });
+            setText('#progress-label', `Video ${idx + 1} / ${qs.length}`);
+            await sleep(1000);
 
-    qs.forEach((_, i) => {
-        const d = $(`#vd-${i}`); if (!d) return;
-        d.classList.remove('active', 'done', 'skipped');
-        if      (i < idx)  d.classList.add('done');
-        else if (i === idx) d.classList.add('active');
-    });
-    setText('#progress-label', `Video ${idx + 1} / ${qs.length}`);
-    await sleep(1000);
+            const intro = idx === 0
+                ? `Hi! I'm Alex, your interviewer. We have ${qs.length} questions. Let's begin! ${q.text}`
+                : q.text;
+            const badge = q.category === 'behavioral'
+                ? `<div class="vi-q-type-badge vi-q-type-behavioral">🧠 Behavioral</div>`
+                : `<div class="vi-q-type-badge vi-q-type-technical">⚙️ Technical</div>`;
+            $('#vi-q-text').innerHTML = badge + '<div>' + escHtml(q.text) + '</div>';
+            await speakText(intro);
+        }
 
-    const intro = idx === 0
-        ? `Hi! I'm Alex, your interviewer. We have ${qs.length} questions. Let's begin! ${q.text}`
-        : q.text;
-    const badge = q.category === 'behavioral'
-        ? `<div class="vi-q-type-badge vi-q-type-behavioral">🧠 Behavioral</div>`
-        : `<div class="vi-q-type-badge vi-q-type-technical">⚙️ Technical</div>`;
-    $('#vi-q-text').innerHTML = badge + '<div>' + escHtml(q.text) + '</div>';
-    await speakText(intro);
-}
+        async function handleViSubmit() {
+            if (isSubmitting) return;
+            const answer = $('#vi-answer').value.trim();
+            if (!answer || answer.length < 5) { showToast('Please give a more complete answer', 'warning'); return; }
 
-async function handleViSubmit() {
-    if (isSubmitting) return;
-    const answer = $('#vi-answer').value.trim();
-    if (!answer || answer.length < 5) { showToast('Please give a more complete answer', 'warning'); return; }
+            isSubmitting = true;
+            if (isMicOn) { recognition?.stop(); isMicOn = false; updateMicBtn(); $('#rec-dot').classList.add('hidden'); }
 
-    isSubmitting = true;
-    if (isMicOn) { recognition?.stop(); isMicOn = false; updateMicBtn(); $('#rec-dot').classList.add('hidden'); }
+            const btn = $('#vi-submit-btn');
+            btn.disabled = true; btn.textContent = '⏳';
 
-    const btn = $('#vi-submit-btn');
-    btn.disabled = true; btn.textContent = '⏳';
+            const qs = getS3();
+            saveAnswer(qs[viIndex]?.text || '', answer);
 
-    const qs = getS3();
-    saveAnswer(qs[viIndex]?.text || '', answer);
+            const d = $(`#vd-${viIndex}`);
+            if (d) { d.classList.remove('active'); d.classList.add('done'); }
 
-    const d = $(`#vd-${viIndex}`);
-    if (d) { d.classList.remove('active'); d.classList.add('done'); }
+            isSubmitting = false;
+            btn.disabled = false; btn.textContent = '➤';
 
-    isSubmitting = false;
-    btn.disabled = false; btn.textContent = '➤';
+            if (viIndex < qs.length - 1) { viIndex++; await showViQuestion(viIndex); }
+            else endSection3();
+        }
 
-    if (viIndex < qs.length - 1) { viIndex++; await showViQuestion(viIndex); }
-    else endSection3();
-}
+        function handleViSkip() {
+            const qs = getS3(), d = $(`#vd-${viIndex}`);
+            if (d) { d.classList.remove('active'); d.classList.add('skipped'); }
+            saveAnswer(qs[viIndex]?.text || '', '[Skipped]');
+            if (viIndex < qs.length - 1) { viIndex++; showViQuestion(viIndex); }
+            else endSection3();
+        }
 
-function handleViSkip() {
-    const qs = getS3(), d = $(`#vd-${viIndex}`);
-    if (d) { d.classList.remove('active'); d.classList.add('skipped'); }
-    saveAnswer(qs[viIndex]?.text || '', '[Skipped]');
-    if (viIndex < qs.length - 1) { viIndex++; showViQuestion(viIndex); }
-    else endSection3();
-}
+        function endSection3() {
+            if (isMicOn) { recognition?.stop(); isMicOn = false; }
+            window.speechSynthesis?.cancel();
+            mediaStream?.getTracks().forEach(t => t.stop());
+            document.body.classList.remove('video-mode');
+            hideEl($('#section3-wrap'));
+            clearInterval(timerInterval);
+            showEl($('#complete-wrap'));
+            $('#get-report-btn').addEventListener('click', handleEvaluate);
+        }
 
-function endSection3() {
-    if (isMicOn) { recognition?.stop(); isMicOn = false; }
-    window.speechSynthesis?.cancel();
-    mediaStream?.getTracks().forEach(t => t.stop());
-    document.body.classList.remove('video-mode');
-    hideEl($('#section3-wrap'));
-    clearInterval(timerInterval);
-    showEl($('#complete-wrap'));
-    $('#get-report-btn').addEventListener('click', handleEvaluate);
-}
+        async function initCamera() {
+            try {
+                mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                const v = $('#user-video'); if (v) v.srcObject = mediaStream;
+                isCamOn = true;
+            } catch (_) {
+                isCamOn = false;
+                showEl($('#cam-off'));
+                hideEl($('#user-video'));
+            }
+        }
 
-async function initCamera() {
-    try {
-        mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-        const v = $('#user-video'); if (v) v.srcObject = mediaStream;
-        isCamOn = true;
-    } catch (_) {
-        isCamOn = false;
-        showEl($('#cam-off'));
-        hideEl($('#user-video'));
-    }
-}
+        function toggleCam() {
+            isCamOn = !isCamOn;
+            const v = $('#user-video'), off = $('#cam-off'), btn = $('#vi-cam-btn');
+            if (isCamOn) {
+                showEl(v); hideEl(off); btn.classList.remove('off'); initCamera();
+            } else {
+                hideEl(v); showEl(off); btn.classList.add('off');
+                mediaStream?.getTracks().forEach(t => t.stop());
+            }
+        }
 
-function toggleCam() {
-    isCamOn = !isCamOn;
-    const v = $('#user-video'), off = $('#cam-off'), btn = $('#vi-cam-btn');
-    if (isCamOn) {
-        showEl(v); hideEl(off); btn.classList.remove('off'); initCamera();
-    } else {
-        hideEl(v); showEl(off); btn.classList.add('off');
-        mediaStream?.getTracks().forEach(t => t.stop());
-    }
-}
+        function initSpeech() {
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SR) return;
+            recognition = new SR();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+            recognition.onresult = e => {
+                const t = Array.from(e.results).map(r => r[0].transcript).join('');
+                $('#vi-answer').value = t;
+                const w = $('#transcript-content');
+                if (w) w.innerHTML = `<div class="transcript-line">${escHtml(t)}</div>`;
+            };
+            recognition.onerror = () => {
+                isMicOn = false; updateMicBtn(); $('#rec-dot').classList.add('hidden');
+            };
+        }
 
-function initSpeech() {
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR) return;
-    recognition = new SR();
-    recognition.continuous     = true;
-    recognition.interimResults = true;
-    recognition.lang           = 'en-US';
-    recognition.onresult = e => {
-        const t = Array.from(e.results).map(r => r[0].transcript).join('');
-        $('#vi-answer').value = t;
-        const w = $('#transcript-content');
-        if (w) w.innerHTML = `<div class="transcript-line">${escHtml(t)}</div>`;
-    };
-    recognition.onerror = () => {
-        isMicOn = false; updateMicBtn(); $('#rec-dot').classList.add('hidden');
-    };
-}
+        function toggleMic() {
+            if (!recognition) { showToast('Speech recognition not supported in this browser', 'warning'); return; }
+            isMicOn = !isMicOn;
+            if (isMicOn) { recognition.start(); $('#rec-dot').classList.remove('hidden'); }
+            else { recognition.stop(); $('#rec-dot').classList.add('hidden'); }
+            updateMicBtn();
+        }
 
-function toggleMic() {
-    if (!recognition) { showToast('Speech recognition not supported in this browser', 'warning'); return; }
-    isMicOn = !isMicOn;
-    if (isMicOn) { recognition.start(); $('#rec-dot').classList.remove('hidden'); }
-    else         { recognition.stop();  $('#rec-dot').classList.add('hidden'); }
-    updateMicBtn();
-}
+        function updateMicBtn() {
+            const btn = $('#vi-mic-btn'); if (!btn) return;
+            if (isMicOn) btn.classList.add('recording');
+            else btn.classList.remove('recording');
+        }
 
-function updateMicBtn() {
-    const btn = $('#vi-mic-btn'); if (!btn) return;
-    if (isMicOn) btn.classList.add('recording');
-    else         btn.classList.remove('recording');
-}
+        function speakText(text) {
+            return new Promise(resolve => {
+                if (!window.speechSynthesis) { resolve(); return; }
+                window.speechSynthesis.cancel();
+                const u = new SpeechSynthesisUtterance(text);
+                u.rate = 0.9; u.pitch = 1.0; u.volume = 1.0;
+                const vs = window.speechSynthesis.getVoices();
+                const v = vs.find(v => v.name.includes('Google') && v.lang.startsWith('en'))
+                    || vs.find(v => v.lang.startsWith('en'))
+                    || vs[0];
+                if (v) u.voice = v;
+                u.onstart = () => { $('#ai-avatar')?.classList.add('speaking'); $('#soundwave')?.classList.add('active'); };
+                u.onend = () => { $('#ai-avatar')?.classList.remove('speaking'); $('#soundwave')?.classList.remove('active'); resolve(); };
+                u.onerror = () => resolve();
+                window.speechSynthesis.speak(u);
+            });
+        }
 
-function speakText(text) {
-    return new Promise(resolve => {
-        if (!window.speechSynthesis) { resolve(); return; }
-        window.speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(text);
-        u.rate = 0.9; u.pitch = 1.0; u.volume = 1.0;
-        const vs = window.speechSynthesis.getVoices();
-        const v  = vs.find(v => v.name.includes('Google') && v.lang.startsWith('en'))
-                || vs.find(v => v.lang.startsWith('en'))
-                || vs[0];
-        if (v) u.voice = v;
-        u.onstart = () => { $('#ai-avatar')?.classList.add('speaking');    $('#soundwave')?.classList.add('active'); };
-        u.onend   = () => { $('#ai-avatar')?.classList.remove('speaking'); $('#soundwave')?.classList.remove('active'); resolve(); };
-        u.onerror = () => resolve();
-        window.speechSynthesis.speak(u);
-    });
-}
+        // ═══════════════════════════════════════════════════════════════
+        // SAVE ANSWERS + EVALUATE
+        // ═══════════════════════════════════════════════════════════════
+        function saveAnswer(question, answer) {
+            localAnswers.push({ question, answer, answeredAt: new Date().toISOString() });
+        }
 
-// ═══════════════════════════════════════════════════════════════
-// SAVE ANSWERS + EVALUATE
-// ═══════════════════════════════════════════════════════════════
-function saveAnswer(question, answer) {
-    localAnswers.push({ question, answer, answeredAt: new Date().toISOString() });
-}
+        async function handleEvaluate() {
+            const btn = $('#get-report-btn');
+            const spinner = $('#report-spinner');
+            showEl(spinner);
+            setLoading(btn, true, 'Generating report…');
 
-async function handleEvaluate() {
-    const btn     = $('#get-report-btn');
-    const spinner = $('#report-spinner');
-    showEl(spinner);
-    setLoading(btn, true, 'Generating report…');
+            try {
+                // Bulk-save all answers in one call
+                try {
+                    await interviewApi.answer(interview._id, { answers: localAnswers });
+                } catch (_) { /* if bulk save fails, evaluation still uses what's in DB */ }
 
-    try {
-        // Bulk-save all answers in one call
-        try {
-            await interviewApi.answer(interview._id, { answers: localAnswers });
-        } catch (_) { /* if bulk save fails, evaluation still uses what's in DB */ }
-
-        await interviewApi.evaluate(interview._id);
-        location.href = `/pages/report.html?id=${interview._id}`;
-    } catch (err) {
-        showToast(err.message || 'Could not generate report', 'error');
-        hideEl(spinner);
-        setLoading(btn, false, 'Get My Report →');
-    }
-}
-</script>
+                await interviewApi.evaluate(interview._id);
+                location.href = `/pages/report.html?id=${interview._id}`;
+            } catch (err) {
+                showToast(err.message || 'Could not generate report', 'error');
+                hideEl(spinner);
+                setLoading(btn, false, 'Get My Report →');
+            }
+        }
+    </script>
 </body>
+
 </html>

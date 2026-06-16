@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const testCaseSchema = new mongoose.Schema({
     input:           { type: String, default: '' },
     inputCode:       { type: String, default: '[]' },
+    stdin:           { type: String, default: '' },        // ← new: plain stdin text
     expected:        { type: String, default: 'null' },
     expectedDisplay: { type: String, default: '' },
     hidden:          { type: Boolean, default: false },
@@ -26,9 +27,8 @@ const questionSchema = new mongoose.Schema({
     language:          String,
     explanation:       String,
     functionSignature: String,
-    starterCode:       String,
+    starterCode:       { type: mongoose.Schema.Types.Mixed, default: null },  // ← String OR {python,javascript,...}
     testCases:         { type: [testCaseSchema], default: undefined },
-    // LeetCode-style rich fields
     title:             { type: String, default: null },
     difficulty:        { type: String, enum: ['easy', 'medium', 'hard', null], default: null },
     constraints:       { type: [String], default: [] },

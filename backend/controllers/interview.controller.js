@@ -245,31 +245,38 @@ exports.deleteInterview = async (req, res, next) => {
 //     passed, total }
 // ═════════════════════════════════════════════════════════════════
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// POST /api/interview/run-code
+//
+// Beginner-friendly execution:
+//   • User writes complete stdin/stdout programs (input() / Scanner / cin)
+//   • We pipe tc.stdin straight into the program — no harness injection
+//   • Compare trimmed stdout to tc.expected
+// ═══════════════════════════════════════════════════════════════════════════════
+
 const https = require('https');
 
-// Judge0 CE public endpoint
 const JUDGE0_URL = 'https://ce.judge0.com/submissions?base64_encoded=false&wait=true';
 
-// Language IDs on Judge0 CE
 const LANG_IDS = {
-    javascript: 63,   // Node.js 12.14.0
-    python:     71,   // Python 3.8.1
-    java:       62,   // Java (OpenJDK 13.0.1)
-    cpp:        54,   // C++ (GCC 9.2.0)
-    c:          50,   // C (GCC 9.2.0)
-    typescript: 74,   // TypeScript 3.7.4
-    go:         60,   // Go 1.13.5
-    rust:       73,   // Rust 1.40.0
-    ruby:       72,   // Ruby 2.7.0
+    javascript: 63,
+    python:     71,
+    java:       62,
+    cpp:        54,
+    c:          50,
+    typescript: 74,
+    go:         60,
+    rust:       73,
+    ruby:       72,
 };
 
-// ─── Submit code to Judge0 and wait for result ────────────────────
-function judge0Submit(sourceCode, languageId) {
+// ── Submit to Judge0 ───────────────────────────────────────────────────────────
+function judge0Submit(sourceCode, languageId, stdin = '') {
     return new Promise((resolve, reject) => {
         const body = JSON.stringify({
             source_code: sourceCode,
             language_id: languageId,
-            stdin:       '',
+            stdin,
         });
 
         const urlObj  = new URL(JUDGE0_URL);
@@ -293,7 +300,6 @@ function judge0Submit(sourceCode, languageId) {
         });
 
         req.on('error', reject);
-        // 25 second timeout — Judge0 free tier can be slow
         req.setTimeout(25000, () => {
             req.destroy();
             reject(new Error('Judge0 timeout — please try again'));
@@ -303,155 +309,32 @@ function judge0Submit(sourceCode, languageId) {
     });
 }
 
-// ─── Build a self-contained harness per language ──────────────────
-//
-// The harness:
-//   1. Pastes the user's code verbatim
-//   2. Calls their function with the parsed args from inputCode
-//   3. Prints the result as compact JSON to stdout (one line)
-//
-// argsJson  = tc.inputCode,   e.g. '[[2,7,11,15], 9]'
-// fnName    = functionSignature, e.g. 'twoSum'
-// ─────────────────────────────────────────────────────────────────
-function buildHarness(lang, userCode, fnName, argsJson) {
-
-    // Sanitise argsJson — must be a valid JSON array string
-    let safeArgs = argsJson || '[]';
-    try { JSON.parse(safeArgs); } catch (_) { safeArgs = '[]'; }
-
-    switch (lang) {
-
-        // ── JavaScript ──────────────────────────────────────────────
-        case 'javascript':
-        case 'typescript': {
-            return `"use strict";
-
-${userCode}
-
-try {
-    const _args   = ${safeArgs};
-    const _result = ${fnName}(..._args);
-    if (typeof _result === 'boolean') {
-        process.stdout.write(String(_result) + '\\n');
-    } else if (_result === null || _result === undefined) {
-        process.stdout.write('null\\n');
-    } else {
-        process.stdout.write(JSON.stringify(_result) + '\\n');
-    }
-} catch (e) {
-    process.stderr.write('RuntimeError: ' + e.message + '\\n');
-    process.exit(1);
-}
-`;
-        }
-
-        // ── Python ──────────────────────────────────────────────────
-        // Escape the args JSON safely for embedding in a Python string
-        case 'python': {
-            // Replace backslashes then single-quotes so the f-string is safe
-            const pyArgs = safeArgs
-                .replace(/\\/g, '\\\\')
-                .replace(/'/g, "\\'");
-
-            return `import json, sys
-
-${userCode}
-
-try:
-    _args   = json.loads('${pyArgs}')
-    _result = ${fnName}(*_args)
-    if isinstance(_result, bool):
-        print(str(_result).lower(), end='\\n')
-    elif _result is None:
-        print('null', end='\\n')
-    else:
-        print(json.dumps(_result, separators=(',', ':')), end='\\n')
-except Exception as e:
-    sys.stderr.write('RuntimeError: ' + str(e) + '\\n')
-    sys.exit(1)
-`;
-        }
-
-        // ── Java ────────────────────────────────────────────────────
-        // For Java we cannot auto-inject args generically without reflection.
-        // The user is shown a note to write a complete class with main().
-        // We ship their code verbatim — they are responsible for printing.
-        case 'java': {
-            return userCode;
-        }
-
-        // ── C ───────────────────────────────────────────────────────
-        case 'c': {
-            return userCode;
-        }
-
-        // ── C++ ─────────────────────────────────────────────────────
-        case 'cpp': {
-            return userCode;
-        }
-
-        // ── Go ──────────────────────────────────────────────────────
-        case 'go': {
-            return userCode;
-        }
-
-        // ── Rust ────────────────────────────────────────────────────
-        case 'rust': {
-            return userCode;
-        }
-
-        default:
-            return userCode;
-    }
-}
-
-// ─── Normalise output for comparison ─────────────────────────────
-// Handles: spacing differences, boolean casing, array ordering
-function normaliseForCompare(raw) {
-    if (raw === undefined || raw === null) return 'null';
-    const s = String(raw).trim();
-
-    // Strip surrounding quotes that some languages add
-    if ((s.startsWith('"') && s.endsWith('"')) ||
-        (s.startsWith("'") && s.endsWith("'"))) {
-        return s.slice(1, -1);
-    }
-
-    // Try to JSON round-trip to normalise spacing
-    try {
-        return JSON.stringify(JSON.parse(s));
-    } catch (_) {
-        // Handle Python/Ruby True/False/None vs true/false/null
-        const lower = s.toLowerCase();
-        if (lower === 'true' || lower === 'false' || lower === 'none') return lower.replace('none', 'null');
-        return lower;
-    }
+// ── Normalise output for comparison ───────────────────────────────────────────
+// Strips trailing whitespace/newlines and lowercases booleans
+function normalise(raw) {
+    if (raw === undefined || raw === null) return '';
+    // Trim each line and rejoin so trailing spaces per line don't cause false fails
+    return String(raw)
+        .split('\n')
+        .map(l => l.trimEnd())
+        .join('\n')
+        .trim();
 }
 
 function valuesMatch(actual, expected) {
-    const a = normaliseForCompare(actual);
-    const e = normaliseForCompare(expected);
-    if (a === e) return true;
-
-    // Order-insensitive array comparison (e.g. twoSum [0,1] vs [1,0])
-    try {
-        const ap = JSON.parse(a);
-        const ep = JSON.parse(e);
-        if (Array.isArray(ap) && Array.isArray(ep) && ap.length === ep.length) {
-            const sortFn = (x, y) => JSON.stringify(x) < JSON.stringify(y) ? -1 : 1;
-            return JSON.stringify([...ap].sort(sortFn)) === JSON.stringify([...ep].sort(sortFn));
-        }
-    } catch (_) {}
-
-    return false;
+    // Direct match
+    if (normalise(actual) === normalise(expected)) return true;
+    // Python True/False vs true/false
+    const a = normalise(actual).toLowerCase();
+    const e = normalise(expected).toLowerCase();
+    return a === e;
 }
 
-// ─── Main export ──────────────────────────────────────────────────
+// ── Main export ────────────────────────────────────────────────────────────────
 exports.runCode = async (req, res, next) => {
     try {
-        const { code, language, functionName, testCases } = req.body;
+        const { code, language, testCases } = req.body;
 
-        // Validate
         if (!code)     return res.status(400).json({ success: false, message: 'Missing code' });
         if (!language) return res.status(400).json({ success: false, message: 'Missing language' });
 
@@ -465,11 +348,11 @@ exports.runCode = async (req, res, next) => {
             });
         }
 
-        // ── No test cases: just run the code as-is (raw run) ────────
+        // ── No test cases: raw run (empty stdin) ───────────────────────────────
         if (!Array.isArray(testCases) || testCases.length === 0) {
             let j0;
             try {
-                j0 = await judge0Submit(code, languageId);
+                j0 = await judge0Submit(code, languageId, '');
             } catch (e) {
                 return res.status(502).json({ success: false, message: 'Code runner unavailable: ' + e.message });
             }
@@ -480,111 +363,107 @@ exports.runCode = async (req, res, next) => {
             const statusId   = j0.status?.id;
 
             let ran = false, error = null;
-            if (statusId === 6 || compileErr)           { error = compileErr || 'Compilation error'; }
-            else if (statusId === 5)                    { error = 'Time Limit Exceeded'; }
-            else if (statusId >= 7 && statusId <= 14)   { error = stderr || j0.status?.description || 'Runtime error'; }
-            else                                        { ran = true; if (stderr) error = stderr; }
+            if (statusId === 6 || compileErr)         { error = compileErr || 'Compilation error'; }
+            else if (statusId === 5)                  { error = 'Time Limit Exceeded'; }
+            else if (statusId >= 7 && statusId <= 14) { error = stderr || j0.status?.description || 'Runtime error'; }
+            else                                      { ran = true; if (stderr) error = stderr; }
 
             return res.json({ success: true, ran, output: stdout, error, statusId });
         }
 
-        // ── Run each VISIBLE test case through Judge0 ────────────────
-        const fn      = (functionName || 'solution').trim();
-        const results = [];
-        let passedCount = 0;
-
-        // Only run visible (non-hidden) test cases
+        // ── Run each VISIBLE test case ─────────────────────────────────────────
         const visibleTCs = testCases.filter(tc => !tc.hidden);
+        const results    = [];
+        let passedCount  = 0;
 
         for (let i = 0; i < visibleTCs.length; i++) {
-            const tc       = visibleTCs[i];
-            const argsJson = tc.inputCode || '[]';
-            const harness  = buildHarness(lang, code, fn, argsJson);
+            const tc = visibleTCs[i];
+
+            // Support both new (.stdin) and legacy (.inputCode) fields
+            const stdin = tc.stdin !== undefined ? String(tc.stdin) : String(tc.inputCode || '');
 
             let j0;
             try {
-                j0 = await judge0Submit(harness, languageId);
+                j0 = await judge0Submit(code, languageId, stdin);
             } catch (e) {
                 results.push({
                     passed:   false,
                     expected: tc.expectedDisplay || tc.expected,
                     actual:   null,
-                    input:    tc.input || argsJson,
+                    input:    tc.input || stdin,
                     error:    'Code runner unavailable: ' + e.message,
                     statusId: null,
                 });
                 continue;
             }
 
-            const stdout     = (j0.stdout         || '').trim();
-            const stderr     = (j0.stderr         || '').trim();
-            const compileErr = (j0.compile_output || '').trim();
+            const stdout     = (j0.stdout         || '').trimEnd();
+            const stderr     = (j0.stderr         || '').trimEnd();
+            const compileErr = (j0.compile_output || '').trimEnd();
             const statusId   = j0.status?.id;
 
-            // ── Compilation error — abort remaining tests ────────────
+            // ── Compilation error — abort all remaining tests ──────────────────
             if (statusId === 6 || compileErr) {
                 const errMsg = compileErr || 'Compilation Error';
                 results.push({
-                    passed:         false,
-                    expected:       tc.expectedDisplay || tc.expected,
-                    actual:         null,
-                    input:          tc.input || argsJson,
-                    error:          errMsg,
+                    passed: false,
+                    expected: tc.expectedDisplay || tc.expected,
+                    actual:   null,
+                    input:    tc.input || stdin,
+                    error:    errMsg,
                     statusId,
                     isCompileError: true,
                 });
-                // Mark remaining tests as blocked by compile error
                 for (let j = i + 1; j < visibleTCs.length; j++) {
                     const rem = visibleTCs[j];
                     results.push({
-                        passed:         false,
-                        expected:       rem.expectedDisplay || rem.expected,
-                        actual:         null,
-                        input:          rem.input || rem.inputCode || '',
-                        error:          'Blocked by compilation error',
-                        statusId:       6,
+                        passed: false,
+                        expected: rem.expectedDisplay || rem.expected,
+                        actual:   null,
+                        input:    rem.input || rem.stdin || '',
+                        error:    'Blocked by compilation error',
+                        statusId: 6,
                         isCompileError: true,
                     });
                 }
-                break; // stop running more test cases
+                break;
             }
 
-            // ── Time Limit Exceeded ──────────────────────────────────
+            // ── Time Limit Exceeded ────────────────────────────────────────────
             if (statusId === 5) {
                 results.push({
                     passed:   false,
                     expected: tc.expectedDisplay || tc.expected,
                     actual:   null,
-                    input:    tc.input || argsJson,
+                    input:    tc.input || stdin,
                     error:    'Time Limit Exceeded — your code is too slow',
                     statusId,
                 });
                 continue;
             }
 
-            // ── Runtime error ────────────────────────────────────────
+            // ── Runtime error ──────────────────────────────────────────────────
             if (statusId >= 7 && statusId <= 14) {
                 results.push({
                     passed:   false,
                     expected: tc.expectedDisplay || tc.expected,
                     actual:   null,
-                    input:    tc.input || argsJson,
+                    input:    tc.input || stdin,
                     error:    stderr || j0.status?.description || 'Runtime Error',
                     statusId,
                 });
                 continue;
             }
 
-            // ── Code ran — compare output vs expected ────────────────
-            const actual  = stdout;
-            const passed  = valuesMatch(actual, tc.expected);
+            // ── Code ran — compare stdout to expected ──────────────────────────
+            const passed = valuesMatch(stdout, tc.expected);
             if (passed) passedCount++;
 
             results.push({
                 passed,
                 expected: tc.expectedDisplay || tc.expected,
-                actual:   actual.length > 0 ? actual : '(no output)',
-                input:    tc.input || argsJson,
+                actual:   stdout.length > 0 ? stdout : '(no output)',
+                input:    tc.input || stdin,
                 error:    stderr || null,
                 statusId,
             });
