@@ -19,7 +19,6 @@
             display: flex; flex-direction: column;
             height: 100vh; overflow: hidden;
         }
-
         .interview-body {
             flex: 1; overflow: hidden; display: flex;
             flex-direction: column; min-height: 0;
@@ -32,7 +31,7 @@
             margin: 0 auto; flex: 1; min-height: 0;
         }
 
-        /* ─── Section Overlay ─────────────────────────────────── */
+        /* ── Section Overlay ── */
         #section-overlay {
             position: fixed; inset: 0; z-index: 500;
             background: linear-gradient(135deg, var(--purple-900), var(--accent));
@@ -42,11 +41,9 @@
             transition: opacity 0.4s ease;
         }
         #section-overlay.visible { opacity: 1; pointer-events: all; }
-
-        .section-badge { font-size: 4rem; animation: bounce-in .5s cubic-bezier(.34,1.56,.64,1); }
+        .section-badge     { font-size: 4rem; animation: bounce-in .5s cubic-bezier(.34,1.56,.64,1); }
         .section-title-big { font-size: 2rem; font-weight: 800; color: #fff; text-align: center; letter-spacing: -.03em; }
         .section-desc-big  { color: rgba(255,255,255,.75); font-size: 1rem; text-align: center; max-width: 420px; line-height: 1.65; }
-
         .section-start-btn {
             padding: 12px 32px; background: #fff; color: var(--accent);
             font-weight: 700; font-size: 1rem; border: none; border-radius: 50px;
@@ -54,10 +51,9 @@
             transition: transform .2s, box-shadow .2s; font-family: var(--font);
         }
         .section-start-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(0,0,0,.3); }
-
         @keyframes bounce-in { from { transform: scale(.4); opacity: 0 } to { transform: scale(1); opacity: 1 } }
 
-        /* ─── Section Pills ───────────────────────────────────── */
+        /* ── Section Pills ── */
         .section-nav {
             display: flex; align-items: center;
             background: var(--surface-2); border-radius: 50px;
@@ -72,15 +68,15 @@
         .sec-pill.active { background: linear-gradient(135deg, var(--accent), var(--purple-400)); color: #fff; box-shadow: 0 3px 10px rgba(83,74,183,.4); }
         .sec-pill.done   { color: var(--success); }
 
-        /* ═══════════════════════════════════════════════════════
+        /* ══════════════════════════════════════════
            SECTION 2 — CODING
-           ═══════════════════════════════════════════════════════ */
+        ══════════════════════════════════════════ */
         #section2-wrap {
             flex: 1; display: flex; flex-direction: column;
             min-height: 0; background: #0d0d18; width: 100%; overflow: hidden;
         }
 
-        /* ─── Toolbar ─────────────────────────────────────────── */
+        /* ── Toolbar ── */
         .code-toolbar {
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 16px; background: #12112a;
@@ -128,7 +124,8 @@
             cursor: pointer; transition: all .2s; font-family: var(--font);
             white-space: nowrap; box-shadow: 0 3px 12px rgba(83,74,183,.4);
         }
-        .submit-btn:hover { opacity: .9; transform: translateY(-1px); }
+        .submit-btn:hover:not(:disabled) { opacity: .9; transform: translateY(-1px); }
+        .submit-btn:disabled { opacity: .35; cursor: not-allowed; transform: none; }
 
         .skip-btn-dark {
             background: none; border: 1px solid rgba(255,255,255,.14);
@@ -138,7 +135,7 @@
         }
         .skip-btn-dark:hover { color: rgba(255,255,255,.75); border-color: rgba(255,255,255,.28); }
 
-        /* ─── Main Split ──────────────────────────────────────── */
+        /* ── Main Split ── */
         .code-split {
             flex: 1; display: grid;
             grid-template-columns: 420px 1fr;
@@ -148,14 +145,13 @@
             .code-split { grid-template-columns: 1fr; grid-template-rows: 45% 55%; }
         }
 
-        /* ─── Problem Panel (LEFT) ────────────────────────────── */
+        /* ── Problem Panel (LEFT) ── */
         .problem-panel {
             background: #0f0e1e;
             border-right: 1px solid rgba(127,119,221,.12);
             display: flex; flex-direction: column;
             overflow: hidden; min-height: 0;
         }
-
         .problem-tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,.06); flex-shrink: 0; }
         .problem-tab {
             padding: 10px 18px; font-size: .78rem; font-weight: 600;
@@ -194,7 +190,7 @@
         .hint-box { background: rgba(239,159,39,.07); border: 1px solid rgba(239,159,39,.2); border-radius: 12px; padding: 14px 16px; font-size: .85rem; color: rgba(255,255,255,.65); line-height: 1.7; }
         .hint-box strong { color: #EF9F27; }
 
-        /* ─── Editor Pane (RIGHT) ─────────────────────────────── */
+        /* ── Editor Pane (RIGHT) ── */
         .editor-pane { display: flex; flex-direction: column; background: #0d0d1a; overflow: hidden; min-height: 0; }
 
         .editor-topbar {
@@ -209,7 +205,6 @@
         .editor-dots span:nth-child(2) { background: #febc2e; }
         .editor-dots span:nth-child(3) { background: #28c840; }
         .editor-topbar-right { display: flex; align-items: center; gap: 8px; }
-
         .lang-badge-pill { font-size: .65rem; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; padding: 3px 9px; border-radius: 20px; background: rgba(127,119,221,.18); color: var(--accent-light); border: 1px solid rgba(127,119,221,.28); }
 
         .editor-hint-bar {
@@ -222,6 +217,15 @@
         .editor-hint-bar kbd { display: inline-flex; align-items: center; padding: 1px 5px; border-radius: 4px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18); color: rgba(255,255,255,.65); font-family: inherit; font-size: .65rem; }
         .reset-btn-inline { margin-left: auto; font-size: .65rem; font-weight: 600; padding: 2px 9px; border-radius: 6px; background: rgba(127,119,221,.12); border: 1px solid rgba(127,119,221,.22); color: var(--accent-light); cursor: pointer; font-family: var(--font); transition: background .2s; }
         .reset-btn-inline:hover { background: rgba(127,119,221,.25); }
+
+        /* ── Compiled language note ── */
+        #lang-compiled-note {
+            padding: 7px 14px; font-size: .71rem; line-height: 1.55;
+            color: rgba(255,200,100,.85);
+            background: rgba(239,159,39,.06);
+            border-bottom: 1px solid rgba(239,159,39,.14);
+            flex-shrink: 0; display: none;
+        }
 
         #code-textarea {
             flex: 1; width: 100%; min-height: 0;
@@ -237,25 +241,23 @@
         #code-textarea::-webkit-scrollbar { width: 4px; }
         #code-textarea::-webkit-scrollbar-thumb { background: rgba(127,119,221,.25); border-radius: 4px; }
 
-        /* ═══════════════════════════════════════════════════════
-           TEST RESULTS TABLE  (LeetCode-style)
-           ═══════════════════════════════════════════════════════ */
+        /* ══════════════════════════════════════════
+           TEST RESULTS PANEL
+        ══════════════════════════════════════════ */
         .test-panel {
             background: #08080f;
             border-top: 1px solid rgba(127,119,221,.12);
             flex-shrink: 0; height: 260px;
             display: flex; flex-direction: column; overflow: hidden;
         }
-
         .test-panel-header {
             display: flex; align-items: center; gap: 10px;
             padding: 0 16px; height: 40px;
             border-bottom: 1px solid rgba(255,255,255,.05); flex-shrink: 0;
         }
         .test-panel-title { font-size: .72rem; font-weight: 700; color: rgba(255,255,255,.4); letter-spacing: .08em; text-transform: uppercase; }
-        .test-run-time { font-size: .68rem; color: rgba(255,255,255,.2); margin-left: auto; font-family: 'JetBrains Mono', monospace; }
+        .test-run-time    { font-size: .68rem; color: rgba(255,255,255,.2); margin-left: auto; font-family: 'JetBrains Mono', monospace; }
 
-        /* Summary badge */
         .test-summary-badge { font-size: .7rem; font-weight: 700; padding: 3px 12px; border-radius: 12px; font-family: var(--font); }
         .test-summary-badge.idle     { background: rgba(255,255,255,.06); color: rgba(255,255,255,.35); border: 1px solid rgba(255,255,255,.1); }
         .test-summary-badge.running  { background: rgba(239,159,39,.12);  color: #EF9F27; border: 1px solid rgba(239,159,39,.25); }
@@ -263,14 +265,11 @@
         .test-summary-badge.wrong    { background: rgba(226,75,74,.15);   color: #E24B4A; border: 1px solid rgba(226,75,74,.3); }
         .test-summary-badge.error    { background: rgba(239,159,39,.12);  color: #EF9F27; border: 1px solid rgba(239,159,39,.25); }
 
-        /* Scrollable table wrapper */
         .test-table-wrap { flex: 1; overflow: auto; }
         .test-table-wrap::-webkit-scrollbar { width: 4px; height: 4px; }
         .test-table-wrap::-webkit-scrollbar-thumb { background: rgba(127,119,221,.2); border-radius: 4px; }
 
-        /* Results table */
         .results-table { width: 100%; border-collapse: collapse; font-size: .78rem; }
-
         .results-table th {
             position: sticky; top: 0; z-index: 1;
             background: #0f0e20; padding: 7px 14px;
@@ -279,30 +278,21 @@
             text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,.06);
             white-space: nowrap;
         }
-
-        .results-table td {
-            padding: 8px 14px;
-            border-bottom: 1px solid rgba(255,255,255,.035);
-            vertical-align: middle;
-        }
+        .results-table td { padding: 8px 14px; border-bottom: 1px solid rgba(255,255,255,.035); vertical-align: middle; }
         .results-table tr:last-child td { border-bottom: none; }
         .results-table tr:hover td     { background: rgba(255,255,255,.02); }
 
-        .tc-idx { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: rgba(255,255,255,.4); font-size: .72rem; }
-
-        /* Status cells */
+        .tc-idx      { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: rgba(255,255,255,.4); font-size: .72rem; }
         .status-pass { display: inline-flex; align-items: center; gap: 5px; color: #1D9E75; font-weight: 700; font-size: .78rem; }
         .status-fail { display: inline-flex; align-items: center; gap: 5px; color: #E24B4A; font-weight: 700; font-size: .78rem; }
         .status-err  { display: inline-flex; align-items: center; gap: 5px; color: #EF9F27; font-weight: 700; font-size: .78rem; }
         .status-run  { display: inline-flex; align-items: center; gap: 5px; color: rgba(255,255,255,.35); font-size: .78rem; }
 
-        /* Value cells */
         .mono-val      { font-family: 'JetBrains Mono', monospace; font-size: .74rem; color: rgba(255,255,255,.65); word-break: break-all; }
         .mono-val.pass { color: #1D9E75; }
         .mono-val.fail { color: #E24B4A; }
         .mono-val.err  { color: #EF9F27; font-style: italic; }
 
-        /* Summary footer row */
         .test-summary-row {
             padding: 8px 16px; font-size: .78rem; color: rgba(255,255,255,.45);
             border-top: 1px solid rgba(255,255,255,.05);
@@ -310,19 +300,17 @@
         }
         .test-summary-row strong { font-weight: 700; }
 
-        /* Idle / special states */
         .test-idle-placeholder { flex: 1; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,.2); font-size: .8rem; font-style: italic; font-family: 'JetBrains Mono', monospace; }
         .test-special { margin: 12px 16px; padding: 12px 14px; font-family: 'JetBrains Mono', monospace; font-size: .76rem; line-height: 1.65; border-radius: 8px; white-space: pre-wrap; }
         .test-special.ce  { color: #E24B4A; background: rgba(226,75,74,.07);  border: 1px solid rgba(226,75,74,.2); }
         .test-special.tle { color: #EF9F27; background: rgba(239,159,39,.07); border: 1px solid rgba(239,159,39,.2); }
 
-        /* Spinner */
         @keyframes spin { to { transform: rotate(360deg); } }
         .run-spinner { display: inline-block; width: 11px; height: 11px; border: 2px solid rgba(255,255,255,.25); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; vertical-align: middle; margin-right: 4px; }
 
-        /* ═══════════════════════════════════════════════════════
-           MCQ STYLES
-           ═══════════════════════════════════════════════════════ */
+        /* ══════════════════════════════════════════
+           MCQ
+        ══════════════════════════════════════════ */
         .mcq-grid    { display: flex; flex-direction: column; gap: 10px; margin-top: 1rem; }
         .mcq-opt     { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: var(--radius-md); border: 1.5px solid var(--border-strong); background: var(--surface); cursor: pointer; transition: all .18s; font-size: .9rem; color: var(--text-primary); }
         .mcq-opt:hover     { border-color: var(--accent-light); background: var(--purple-50); transform: translateX(3px); }
@@ -336,7 +324,6 @@
         .mcq-opt.wrong    .mcq-letter { background: var(--danger);  border-color: var(--danger);  color: #fff; }
 
         .mcq-explanation { margin-top: 1rem; padding: 12px 16px; background: linear-gradient(135deg, var(--purple-50), #fff); border: 1px solid var(--border-strong); border-radius: var(--radius-md); font-size: .85rem; color: var(--text-secondary); line-height: 1.6; animation: fade-up .3s ease; }
-
         .mcq-score-bar { display: flex; align-items: center; gap: 6px; margin-bottom: 1.25rem; flex-wrap: wrap; }
         .score-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--border-strong); display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: 700; transition: all .3s; background: var(--surface); }
         .score-dot.correct { background: var(--success); border-color: var(--success); color: #fff; }
@@ -349,14 +336,13 @@
         .q-num  { font-size: .72rem; font-weight: 700; color: rgba(255,255,255,.55); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 8px; }
         .q-tag  { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 12px; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.2); color: rgba(255,255,255,.9); }
         .q-text { font-size: 1rem; font-weight: 500; color: #fff; line-height: 1.65; }
-
-        .nav-btns  { display: flex; align-items: center; justify-content: space-between; margin-top: 1rem; gap: 10px; }
-        .skip-btn  { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 10px; border: 1px solid var(--border-strong); background: none; color: var(--text-muted); font-size: .82rem; font-weight: 500; cursor: pointer; transition: all .2s; font-family: var(--font); }
+        .nav-btns { display: flex; align-items: center; justify-content: space-between; margin-top: 1rem; gap: 10px; }
+        .skip-btn { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 10px; border: 1px solid var(--border-strong); background: none; color: var(--text-muted); font-size: .82rem; font-weight: 500; cursor: pointer; transition: all .2s; font-family: var(--font); }
         .skip-btn:hover { color: var(--text-primary); background: var(--surface-2); }
 
-        /* ═══════════════════════════════════════════════════════
+        /* ══════════════════════════════════════════
            VIDEO SECTION
-           ═══════════════════════════════════════════════════════ */
+        ══════════════════════════════════════════ */
         #section3-wrap { background: #080816; margin: 0; padding: 1.5rem; max-width: 100%; }
         .video-layout  { display: grid; grid-template-columns: 1fr 300px; gap: 14px; height: calc(100vh - 280px); min-height: 400px; }
         @media (max-width: 820px) { .video-layout { grid-template-columns: 1fr; height: auto; } }
@@ -374,13 +360,12 @@
         .soundwave span:nth-child(1){height:6px;animation-delay:0s}.soundwave span:nth-child(2){height:18px;animation-delay:.1s}.soundwave span:nth-child(3){height:26px;animation-delay:.2s}.soundwave span:nth-child(4){height:14px;animation-delay:.3s}.soundwave span:nth-child(5){height:22px;animation-delay:.15s}.soundwave span:nth-child(6){height:10px;animation-delay:.25s}.soundwave span:nth-child(7){height:18px;animation-delay:.05s}
         @keyframes swv { 0%,100%{transform:scaleY(.4);opacity:.4} 50%{transform:scaleY(1);opacity:1} }
 
-        .ai-name      { font-size: .9rem; font-weight: 700; color: rgba(255,255,255,.9); }
-        .ai-role-label{ font-size: .72rem; color: rgba(255,255,255,.4); margin-top: 2px; }
+        .ai-name       { font-size: .9rem; font-weight: 700; color: rgba(255,255,255,.9); }
+        .ai-role-label { font-size: .72rem; color: rgba(255,255,255,.4); margin-top: 2px; }
 
         .vi-question-box { position: absolute; bottom: 16px; left: 16px; right: 16px; background: rgba(10,10,26,.88); backdrop-filter: blur(12px); border: 1px solid rgba(127,119,221,.25); border-radius: 12px; padding: 14px 18px; z-index: 2; }
         .vi-q-label { font-size: .68rem; font-weight: 700; color: var(--accent-light); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 7px; }
         .vi-q-text  { font-size: .9rem; line-height: 1.6; color: rgba(255,255,255,.9); }
-
         .vi-typing-dots { display: inline-flex; gap: 4px; align-items: center; }
         .vi-typing-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-light); animation: tdot 1.2s ease-in-out infinite; }
         .vi-typing-dots span:nth-child(2){animation-delay:.15s}.vi-typing-dots span:nth-child(3){animation-delay:.3s}
@@ -401,7 +386,6 @@
         .vi-answer-bar { display: flex; gap: 10px; align-items: flex-end; background: rgba(255,255,255,.04); border: 1px solid rgba(127,119,221,.2); border-radius: 14px; padding: 12px 14px; margin-top: 10px; }
         .vi-answer-bar textarea { flex: 1; background: none; border: none; outline: none; resize: none; color: #fff; font-family: var(--font); font-size: .88rem; line-height: 1.6; min-height: 52px; max-height: 120px; }
         .vi-answer-bar textarea::placeholder { color: rgba(255,255,255,.25); }
-
         .vi-ctrl-btns { display: flex; gap: 8px; align-items: center; }
         .vi-btn { width: 44px; height: 44px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; cursor: pointer; transition: all .2s; flex-shrink: 0; }
         .vi-btn:hover { transform: scale(1.08); }
@@ -411,10 +395,8 @@
         .vi-btn-submit { background: linear-gradient(135deg, var(--accent), var(--purple-400)); border: none; box-shadow: 0 4px 14px rgba(83,74,183,.4); }
         .vi-btn-cam    { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.1); }
         .vi-btn-cam.off{ background: rgba(226,75,74,.15); border-color: rgba(226,75,74,.3); }
-
         .vi-skip-btn-dark { display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,.15); background: none; color: rgba(255,255,255,.5); font-size: .78rem; font-weight: 500; cursor: pointer; transition: all .2s; white-space: nowrap; font-family: var(--font); }
         .vi-skip-btn-dark:hover { color: rgba(255,255,255,.8); border-color: rgba(255,255,255,.3); }
-
         .vi-q-type-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 12px; font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
         .vi-q-type-behavioral { background: rgba(239,159,39,.2); color: var(--amber-400); border: 1px solid rgba(239,159,39,.3); }
         .vi-q-type-technical  { background: rgba(127,119,221,.2); color: var(--accent-light); border: 1px solid rgba(127,119,221,.3); }
@@ -422,22 +404,16 @@
         body.video-mode { background: #080816; }
         body.video-mode .interview-header { background: rgba(10,10,26,.92); border-color: rgba(127,119,221,.15); }
 
-        /* ─── Complete Screen ─────────────────────────────────── */
+        /* ── Complete Screen ── */
         .complete-wrap      { text-align: center; padding: 3rem 1.5rem; animation: scale-in .4s cubic-bezier(.34,1.56,.64,1); }
         .complete-icon-big  { width: 88px; height: 88px; border-radius: 50%; background: linear-gradient(135deg, var(--success), var(--teal-400)); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; margin: 0 auto 1.5rem; box-shadow: 0 8px 28px rgba(29,158,117,.35); }
     </style>
 </head>
-<!-- Part 1 ends here. Continue with Part 2 (HTML body) -->
- <!-- ═══════════════════════════════════════════════════════
-     PART 2 — HTML Body
-     Paste this immediately after the closing </head> tag
-     from Part 1, replacing everything from <body> onwards
-     ═══════════════════════════════════════════════════════ -->
 <body>
 
     <!-- Section Overlay (full-screen between sections) -->
     <div id="section-overlay">
-        <div class="section-badge"  id="ov-badge">📝</div>
+        <div class="section-badge"     id="ov-badge">📝</div>
         <div class="section-title-big" id="ov-title">Section 1</div>
         <div class="section-desc-big"  id="ov-desc">Get ready</div>
         <button class="section-start-btn" id="ov-start-btn">Let's Go →</button>
@@ -445,7 +421,7 @@
 
     <div class="interview-layout">
 
-        <!-- ─── Header ──────────────────────────────────────────── -->
+        <!-- ── Header ── -->
         <header class="interview-header">
             <div class="interview-header-left">
                 <a href="/pages/dashboard.html" class="btn btn-ghost btn-sm btn-icon" style="font-size:1.1rem">←</a>
@@ -465,16 +441,16 @@
             </div>
         </header>
 
-        <!-- ─── Main body ────────────────────────────────────────── -->
+        <!-- ── Main body ── -->
         <main class="interview-body" id="main-body">
 
-            <!-- Loading spinner -->
+            <!-- Loading -->
             <div id="loading-state" style="text-align:center;padding:5rem 0">
                 <div class="spinner spinner-lg" style="margin:0 auto 1.25rem"></div>
                 <p class="text-muted">Preparing your personalised interview…</p>
             </div>
 
-            <!-- ═══ SECTION 1: MCQ ═══════════════════════════════ -->
+            <!-- ═══ SECTION 1: MCQ ═══ -->
             <div id="section1-wrap" class="hidden">
                 <div class="mcq-score-bar" id="mcq-score-dots"></div>
                 <div class="q-card">
@@ -493,7 +469,7 @@
                 </div>
             </div>
 
-            <!-- ═══ SECTION 2: CODING ════════════════════════════ -->
+            <!-- ═══ SECTION 2: CODING ═══ -->
             <div id="section2-wrap" class="hidden">
 
                 <!-- Top toolbar -->
@@ -514,8 +490,8 @@
                             <option value="go">🐹 Go</option>
                             <option value="rust">🦀 Rust</option>
                         </select>
-                        <button class="run-btn"     id="run-btn">▶ Run Code</button>
-                        <button class="submit-btn"  id="code-submit-btn">Submit →</button>
+                        <button class="run-btn"       id="run-btn">▶ Run Code</button>
+                        <button class="submit-btn"    id="code-submit-btn" disabled title="Run your code and pass all test cases first">Submit →</button>
                         <button class="skip-btn-dark" id="code-skip-btn">⏭ Skip</button>
                     </div>
                 </div>
@@ -563,19 +539,20 @@
                             <span><kbd>Ctrl+Enter</kbd> run</span>
                             <button class="reset-btn-inline" id="reset-starter-btn">↺ Reset starter</button>
                         </div>
+                        <!-- Compiled language note (shown dynamically) -->
+                        <div id="lang-compiled-note"></div>
                         <textarea id="code-textarea" spellcheck="false"
                             placeholder="// Write your solution here…"></textarea>
                     </div>
                 </div>
 
-                <!-- BOTTOM: Test Results Table -->
+                <!-- BOTTOM: Test Results Panel -->
                 <div class="test-panel" id="test-panel">
                     <div class="test-panel-header">
                         <span class="test-panel-title">Test Results</span>
                         <span class="test-summary-badge idle" id="test-summary-badge">Not run yet</span>
                         <span class="test-run-time" id="run-time-display"></span>
                     </div>
-                    <!-- Content swapped between idle placeholder and live table -->
                     <div class="test-table-wrap" id="test-table-wrap">
                         <div class="test-idle-placeholder">
                             Press <kbd style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.65);padding:1px 6px;border-radius:4px;font-size:.7rem">▶ Run Code</kbd>&nbsp; to see test results
@@ -585,7 +562,7 @@
 
             </div><!-- /section2-wrap -->
 
-            <!-- ═══ SECTION 3: VIDEO ═════════════════════════════ -->
+            <!-- ═══ SECTION 3: VIDEO ═══ -->
             <div id="section3-wrap" class="hidden">
                 <div class="q-progress-dots-inline" id="vi-progress-dots"
                     style="margin-bottom:1rem;flex-wrap:wrap;display:flex;gap:5px;align-items:center"></div>
@@ -646,7 +623,7 @@
                 </div>
             </div><!-- /section3-wrap -->
 
-            <!-- ═══ COMPLETE ═════════════════════════════════════ -->
+            <!-- ═══ COMPLETE ═══ -->
             <div id="complete-wrap" class="complete-wrap hidden">
                 <div class="complete-icon-big">🎉</div>
                 <h2 style="font-size:1.6rem;font-weight:800;letter-spacing:-.03em;margin-bottom:8px">
@@ -665,22 +642,13 @@
     </div><!-- /interview-layout -->
 
     <div id="toast-container"></div>
-
-<!-- Part 2 ends here. Continue with Part 3 (JavaScript). -->
-<!-- The <script type="module"> block from Part 3 goes here, -->
-<!-- followed by </body></html>                              -->
- <!-- ═══════════════════════════════════════════════════════
-     PART 3 — JavaScript
-     Paste this block right after the toast-container div
-     from Part 2, then close with </body></html>
-     ═══════════════════════════════════════════════════════ -->
-<script type="module">
+    <script type="module">
 import { interviewApi } from '../js/api.js';
 import { requireAuth, showToast, $, hideEl, showEl, setLoading } from '../js/utils.js';
 
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 // STATE
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 let interview      = null;
 let currentSection = 1;
 let timerInterval  = null;
@@ -688,37 +656,76 @@ let elapsedSecs    = 0;
 let isSubmitting   = false;
 let localAnswers   = [];
 
-// MCQ
-let mcqIndex = 0, mcqSelected = null, mcqAnswered = false, mcqResults = [];
+// MCQ state
+let mcqIndex    = 0;
+let mcqSelected = null;
+let mcqAnswered = false;
+let mcqResults  = [];
 
-// Coding
+// Coding state
 let codeIndex     = 0;
 let isRunning     = false;
-let lastRunPassed = 0;  // count of visible TCs that passed on last run
+let lastRunPassed = 0;   // how many visible tests passed on last run
 
-// Video
-let viIndex = 0, mediaStream = null, recognition = null, isMicOn = false, isCamOn = true;
+// Video state
+let viIndex     = 0;
+let mediaStream = null;
+let recognition = null;
+let isMicOn     = false;
+let isCamOn     = true;
 
-// ─── Language badge map ────────────────────────────────
-const LANG_BADGE = {
-    javascript: 'JS', python: 'PY', java: 'JAVA',
-    cpp: 'C++', c: 'C', typescript: 'TS', go: 'GO', rust: 'RS',
-};
-
-// ═══════════════════════════════════════════════════════
-// HELPERS
-// ═══════════════════════════════════════════════════════
-function setText(sel, val)  { const el = $(sel); if (el) el.textContent = val; }
-function sleep(ms)          { return new Promise(r => setTimeout(r, ms)); }
+// ═══════════════════════════════════════════════════════════════
+// TINY HELPERS
+// ═══════════════════════════════════════════════════════════════
+function setText(sel, val) { const el = $(sel); if (el) el.textContent = val; }
+function sleep(ms)         { return new Promise(r => setTimeout(r, ms)); }
+function getLang()         { return ($('#code-lang')?.value || 'javascript').toLowerCase(); }
 function escHtml(str = '') {
     return String(str).replace(/[&<>"']/g, c =>
         ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 }
-function getLang() { return ($('#code-lang')?.value || 'javascript').toLowerCase(); }
 
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+// LANGUAGE MAPS
+// ═══════════════════════════════════════════════════════════════
+const LANG_BADGE = {
+    javascript:'JS', python:'PY', java:'JAVA',
+    cpp:'C++', c:'C', typescript:'TS', go:'GO', rust:'RS',
+};
+
+// Notes shown in the editor for compiled languages
+const COMPILED_LANG_NOTE = {
+    java: `📌 Java: The harness calls your method automatically. Write a static method with the correct name and parameters. Include all imports at the top.`,
+    cpp:  `📌 C++: Write your solution function. The harness compiles with #include <bits/stdc++.h> and calls it automatically.`,
+    c:    `📌 C: Write your solution function. Include all required headers. The harness calls it automatically.`,
+    go:   `📌 Go: Write your function in the main package. Use fmt.Println() in main() to print your result.`,
+    rust: `📌 Rust: Write your function. Use println!() in main() to print your result.`,
+};
+
+// Starter code templates per language
+function getStarterForLang(lang, q) {
+    const fn = q.functionSignature || 'solution';
+
+    if (lang === 'javascript') {
+        // Use the problem bank's own starter code
+        return q.starterCode || `function ${fn}() {\n    // your code here\n}\n`;
+    }
+
+    const starters = {
+        typescript: `function ${fn}(...args: any[]): any {\n    // your code here\n}\n`,
+        python:     `def ${fn}(*args):\n    # your code here\n    pass\n`,
+        java: `import java.util.*;\n\nclass Solution {\n    public static Object ${fn}(Object... args) {\n        // your code here\n        return null;\n    }\n}\n`,
+        cpp:  `#include <bits/stdc++.h>\nusing namespace std;\n\n// Write your solution function here\n// Example: int ${fn}(vector<int>& nums) {\n//     return 0;\n// }\n`,
+        c:    `#include <stdio.h>\n#include <stdlib.h>\n\n// Write your solution function here\n// Example: int ${fn}(int* nums, int numsSize) {\n//     return 0;\n// }\n`,
+        go:   `package main\n\nimport "fmt"\n\n// Write your function and call it from main()\nfunc main() {\n    // result := ${fn}(...)\n    fmt.Println("result")\n}\n`,
+        rust: `fn main() {\n    // Write your function and call it here\n    // let result = ${fn}(...);\n    // println!("{:?}", result);\n    println!("result");\n}\n`,
+    };
+    return starters[lang] || `// Write your ${lang} solution for ${fn}\n`;
+}
+
+// ═══════════════════════════════════════════════════════════════
 // NORMALISE QUESTIONS
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 function normaliseQuestions(questions) {
     if (!questions) return [];
     return questions.map((q, i) => {
@@ -743,9 +750,9 @@ const getS1 = () => (interview?.questions || []).filter(q => Number(q.section) =
 const getS2 = () => (interview?.questions || []).filter(q => Number(q.section) === 2);
 const getS3 = () => (interview?.questions || []).filter(q => Number(q.section) === 3);
 
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 // BOOTSTRAP
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 (async () => {
     await requireAuth();
     const id = new URLSearchParams(window.location.search).get('id');
@@ -774,16 +781,16 @@ const getS3 = () => (interview?.questions || []).filter(q => Number(q.section) =
     }
 })();
 
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 // SECTION OVERLAY + PILLS
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 const sectionMeta = {
-    1: { badge: '📝', title: 'Section 1 — Multiple Choice',
-         desc:  '8 questions with 4 options. Select the best answer or skip if unsure.' },
-    2: { badge: '💻', title: 'Section 2 — Coding Challenge',
-         desc:  '2 algorithmic problems. Write your solution and run it against the test cases.' },
-    3: { badge: '🎥', title: 'Section 3 — Video Interview',
-         desc:  '6 questions with AI interviewer Alex. Speak or type your answers.' },
+    1: { badge:'📝', title:'Section 1 — Multiple Choice',
+         desc:'8 MCQ questions. Select the best answer or skip if unsure.' },
+    2: { badge:'💻', title:'Section 2 — Coding Challenge',
+         desc:'2 algorithmic problems. Write your solution and run it against the test cases. You must pass all tests to submit.' },
+    3: { badge:'🎥', title:'Section 3 — Video Interview',
+         desc:'6 questions with AI interviewer Alex. Speak or type your answers.' },
 };
 
 function showSectionOverlay(section, onStart) {
@@ -798,15 +805,16 @@ function showSectionOverlay(section, onStart) {
 
 function updatePills(active) {
     for (let i = 1; i <= 3; i++) {
-        const p = $(`#pill-${i}`); p.classList.remove('active', 'done');
+        const p = $(`#pill-${i}`);
+        p.classList.remove('active', 'done');
         if      (i < active)  p.classList.add('done');
         else if (i === active) p.classList.add('active');
     }
 }
 
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 // TIMER
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 function startTimer() {
     timerInterval = setInterval(() => {
         elapsedSecs++;
@@ -816,9 +824,9 @@ function startTimer() {
     }, 1000);
 }
 
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 // SECTION 1 — MCQ
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 function startSection1() {
     currentSection = 1; mcqIndex = 0; updatePills(1);
     if (!getS1().length) { showToast('No MCQ questions found', 'error'); return; }
@@ -839,21 +847,25 @@ function showMcqQuestion(idx) {
     const qs = getS1();
     if (idx >= qs.length) { endSection1(); return; }
     mcqIndex = idx; mcqSelected = null; mcqAnswered = false;
-    const q = qs[idx];
+    const q  = qs[idx];
+
     setText('#mcq-q-num',  `Question ${idx + 1} of ${qs.length}`);
     setText('#mcq-q-text', q.text);
     setText('#progress-label', `Q ${idx + 1} / ${qs.length}`);
+
     qs.forEach((_, i) => {
         const d = $(`#sd-${i}`); if (!d) return;
         d.classList.remove('active');
         if (i === idx) d.classList.add('active');
     });
+
     const opts = $('#mcq-opts');
     opts.innerHTML = (q.options || []).map((opt, i) =>
         `<div class="mcq-opt" data-index="${i}">
             <div class="mcq-letter">${'ABCD'[i]}</div>
             <span>${escHtml(opt)}</span>
         </div>`).join('');
+
     opts.querySelectorAll('.mcq-opt').forEach(el => {
         el.addEventListener('click', () => {
             if (mcqAnswered) return;
@@ -863,6 +875,7 @@ function showMcqQuestion(idx) {
             $('#mcq-submit-btn').disabled = false;
         });
     });
+
     $('#mcq-submit-btn').disabled = true;
     hideEl($('#mcq-next-btn'));
     showEl($('#mcq-submit-btn'));
@@ -919,42 +932,37 @@ function handleMcqSkip() {
 }
 
 function endSection1() {
-    const c = mcqResults.filter(r => r === true).length;
-    const t = getS1().length;
+    const correct = mcqResults.filter(r => r === true).length;
     hideEl($('#section1-wrap'));
     updatePills(2);
-    showToast(`MCQ done! Score: ${c}/${t} ✅`, 'success', 4000);
+    showToast(`MCQ done! ${correct}/${getS1().length} correct ✅`, 'success', 4000);
     showSectionOverlay(2, () => startSection2());
 }
 
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 // SECTION 2 — CODING
-// ═══════════════════════════════════════════════════════
-
-// Build a clean function-based starter from the problem bank
-// Falls back to a generic skeleton if starterCode isn't available
-function buildStarter(lang, q) {
-    // Use the problem bank's starter code when available (already language-specific)
-    return null;
-}
-
+// All execution is REAL — goes through Judge0 via backend.
+// No new Function(), no fake analysis, no placeholders.
+// ═══════════════════════════════════════════════════════════════
 function startSection2() {
     currentSection = 2; codeIndex = 0;
     showEl($('#section2-wrap'));
     buildCodeDots();
     showCodeQuestion(0);
 
-    // Language switcher — reload starter if user hasn't edited yet
+    // Language switcher
     $('#code-lang').addEventListener('change', () => {
         const lang = getLang();
         setText('#lang-badge', LANG_BADGE[lang] || lang.toUpperCase());
+        // Only replace if user hasn't edited
         if ($('#code-textarea').dataset.isStarter === 'true') {
             const q = getS2()[codeIndex];
-            $('#code-textarea').value = buildStarter(lang, q);
+            $('#code-textarea').value = getStarterForLang(lang, q);
         }
+        updateLangNote(lang);
     });
 
-    // Mark as user-edited the moment they type
+    // Mark as edited once user types
     $('#code-textarea').addEventListener('input', () => {
         $('#code-textarea').dataset.isStarter = 'false';
     });
@@ -966,18 +974,18 @@ function startSection2() {
 
     // Keyboard shortcuts
     $('#code-textarea').addEventListener('keydown', e => {
-        // Ctrl+Enter → run
+        // Ctrl+Enter → run code
         if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); runCode(); return; }
 
-        // Tab → 4-space indent (single or block)
+        // Tab → 4-space indent
         if (e.key === 'Tab') {
             e.preventDefault();
             const ta = e.target, s = ta.selectionStart, en = ta.selectionEnd;
             if (s === en) {
                 document.execCommand('insertText', false, '    ');
             } else {
-                const ls   = ta.value.lastIndexOf('\n', s - 1) + 1;
-                const le   = ta.value.indexOf('\n', en - 1);
+                const ls    = ta.value.lastIndexOf('\n', s - 1) + 1;
+                const le    = ta.value.indexOf('\n', en - 1);
                 const block = ta.value.substring(ls, le === -1 ? ta.value.length : le);
                 const ind   = block.split('\n').map(l => '    ' + l).join('\n');
                 ta.setSelectionRange(ls, le === -1 ? ta.value.length : le);
@@ -991,7 +999,7 @@ function startSection2() {
         if (e.key === 'Enter') {
             e.preventDefault();
             const lang = getLang(), ta = e.target, pos = ta.selectionStart;
-            const lineStart  = ta.value.lastIndexOf('\n', pos - 1) + 1;
+            const lineStart   = ta.value.lastIndexOf('\n', pos - 1) + 1;
             const currentLine = ta.value.substring(lineStart, pos);
             const indent = currentLine.match(/^(\s*)/)[1];
             const extra  = (lang === 'python' && currentLine.trimEnd().endsWith(':')) ? '    ' : '';
@@ -1013,9 +1021,21 @@ function startSection2() {
     });
 }
 
+// Show/hide the compiled language note below editor
+function updateLangNote(lang) {
+    const el = $('#lang-compiled-note');
+    if (!el) return;
+    const note = COMPILED_LANG_NOTE[lang];
+    if (note) {
+        el.textContent   = note;
+        el.style.display = 'block';
+    } else {
+        el.style.display = 'none';
+    }
+}
+
 function buildCodeDots() {
-    const qs = getS2();
-    $('#code-progress-dots').innerHTML = qs.map((_, i) =>
+    $('#code-progress-dots').innerHTML = getS2().map((_, i) =>
         `<div class="qd" id="cd-${i}"></div>`).join('');
     $(`#cd-0`)?.classList.add('active');
 }
@@ -1023,9 +1043,9 @@ function buildCodeDots() {
 function showCodeQuestion(idx) {
     const qs = getS2();
     if (idx >= qs.length) { endSection2(); return; }
-    codeIndex = idx;
-    const q   = qs[idx];
+    codeIndex     = idx;
     lastRunPassed = 0;
+    const q       = qs[idx];
 
     setText('#code-q-num',     `Coding ${idx + 1} of ${qs.length}`);
     setText('#progress-label', `Coding ${idx + 1} / ${qs.length}`);
@@ -1034,33 +1054,26 @@ function showCodeQuestion(idx) {
     const diff   = (q.difficulty || 'medium').toLowerCase();
     const diffEl = $('#difficulty-chip');
     diffEl.textContent = diff.charAt(0).toUpperCase() + diff.slice(1);
-    diffEl.className = `difficulty-chip ${diff}`;
+    diffEl.className   = `difficulty-chip ${diff}`;
 
     // Problem description
     setText('#prob-title', q.title || `Problem ${idx + 1}`);
     $('#prob-desc').innerHTML = (q.text || '')
-        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
         .replace(/`([^`]+)`/g, '<code>$1</code>');
 
     // Examples
-    const exEl  = $('#prob-examples');
+    const exEl   = $('#prob-examples');
     const richEx = Array.isArray(q.examples) && q.examples.length ? q.examples : null;
     if (richEx) {
         exEl.innerHTML = richEx.map(ex => `
             <div class="example-card">
-                <div class="example-row">
-                    <span class="ex-key">Input:</span>
-                    <span class="ex-val">${escHtml(ex.input || '')}</span>
-                </div>
-                <div class="example-row">
-                    <span class="ex-key">Output:</span>
-                    <span class="ex-val">${escHtml(ex.output || ex.expected || '')}</span>
-                </div>
-                ${ex.explanation
-                    ? `<div class="ex-explanation">// ${escHtml(ex.explanation)}</div>` : ''}
+                <div class="example-row"><span class="ex-key">Input:</span><span class="ex-val">${escHtml(ex.input || '')}</span></div>
+                <div class="example-row"><span class="ex-key">Output:</span><span class="ex-val">${escHtml(ex.output || ex.expected || '')}</span></div>
+                ${ex.explanation ? `<div class="ex-explanation">// ${escHtml(ex.explanation)}</div>` : ''}
             </div>`).join('');
     } else {
-        exEl.innerHTML = `<div style="font-size:.8rem;color:rgba(255,255,255,.3);font-style:italic">See test cases below.</div>`;
+        exEl.innerHTML = `<div style="font-size:.8rem;color:rgba(255,255,255,.3);font-style:italic">See test results below.</div>`;
     }
 
     // Constraints
@@ -1074,19 +1087,19 @@ function showCodeQuestion(idx) {
         cWrap.classList.add('hidden');
     }
 
-    // Hint tab content
+    // Hint
     $('#prob-hint-content').innerHTML = q.explanation
         ? `<strong>💡 Hint</strong><br/>${escHtml(q.explanation)}`
         : `<strong>💡 Tips</strong><br/>Think about time complexity. Check the constraints for clues on the expected approach.`;
 
-    // Code editor — set language and load starter
-    const lang = q.language || 'javascript';
-    const langOpt = [...$('#code-lang').options].find(o => o.value === lang);
-    if (langOpt) $('#code-lang').value = lang;
-    setText('#lang-badge', LANG_BADGE[lang] || lang.toUpperCase());
+    // Code editor — always start with JavaScript
+    const lang = 'javascript';
+    $('#code-lang').value = lang;
+    setText('#lang-badge', 'JS');
+    updateLangNote(lang);
 
     const ta = $('#code-textarea');
-    ta.value = buildStarter(lang, q);
+    ta.value = getStarterForLang(lang, q);
     ta.dataset.isStarter = 'true';
 
     // Progress dots
@@ -1097,8 +1110,10 @@ function showCodeQuestion(idx) {
         else if (i === idx) d.classList.add('active');
     });
 
-    // Reset test panel
+    // Reset test panel + disable submit
     resetTestPanel(q);
+    $('#code-submit-btn').disabled = true;
+    $('#code-submit-btn').title    = 'Run your code and pass all test cases first';
 
     // Switch to description tab
     document.querySelectorAll('.problem-tab').forEach(t => t.classList.remove('active'));
@@ -1108,33 +1123,36 @@ function showCodeQuestion(idx) {
 }
 
 function resetToStarter() {
-    const q    = getS2()[codeIndex];
-    const lang = getLang();
-    $('#code-textarea').value = buildStarter(lang, q);
-    $('#code-textarea').dataset.isStarter = 'true';
+    const q  = getS2()[codeIndex];
+    const ta = $('#code-textarea');
+    ta.value = getStarterForLang(getLang(), q);
+    ta.dataset.isStarter = 'true';
     resetTestPanel(q);
+    $('#code-submit-btn').disabled = true;
     showToast('Editor reset to starter code', 'info', 2000);
 }
 
-// ─── Test panel idle state ──────────────────────────────
+// ── Test panel idle state ──────────────────────────────────────
 function resetTestPanel(q) {
-    const tcs       = (q.testCases || []).filter(tc => !tc.hidden);
-    const summaryEl = $('#test-summary-badge');
+    const visibleTCs    = (q?.testCases || []).filter(tc => !tc.hidden);
+    const summaryEl     = $('#test-summary-badge');
     summaryEl.className   = 'test-summary-badge idle';
-    summaryEl.textContent = tcs.length
-        ? `${tcs.length} test case${tcs.length > 1 ? 's' : ''} ready`
+    summaryEl.textContent = visibleTCs.length
+        ? `${visibleTCs.length} test case${visibleTCs.length > 1 ? 's' : ''} ready`
         : 'No test cases';
     setText('#run-time-display', '');
     $('#test-table-wrap').innerHTML = `
         <div class="test-idle-placeholder">
-            Press <kbd style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.65);padding:1px 6px;border-radius:4px;font-size:.7rem">▶ Run Code</kbd>&nbsp; to see results
+            Press <kbd style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);
+            color:rgba(255,255,255,.65);padding:1px 6px;border-radius:4px;font-size:.7rem">▶ Run Code</kbd>
+            &nbsp; to see test results
         </div>`;
 }
 
-// ─── Render skeleton rows while running ────────────────
-function renderSkeleton(testCases) {
+// ── Skeleton rows while waiting for Judge0 ─────────────────────
+function renderSkeleton(count) {
     let rows = '';
-    testCases.forEach((_, i) => {
+    for (let i = 0; i < count; i++) {
         rows += `<tr>
             <td class="tc-idx">${i + 1}</td>
             <td><span class="status-run"><span class="run-spinner"></span> Running…</span></td>
@@ -1142,7 +1160,7 @@ function renderSkeleton(testCases) {
             <td><span class="mono-val">—</span></td>
             <td><span class="mono-val">—</span></td>
         </tr>`;
-    });
+    }
     $('#test-table-wrap').innerHTML = `
         <table class="results-table">
             <thead><tr>
@@ -1152,45 +1170,54 @@ function renderSkeleton(testCases) {
         </table>`;
 }
 
-// ─── Render final results table ─────────────────────────
-function renderResultsTable(results, testCases, passed, total) {
+// ── Render final results table ─────────────────────────────────
+function renderResultsTable(results) {
     const wrap = $('#test-table-wrap');
 
-    // Global compile error — show full message, skip table
-    if (results.length && results[0].status === 'ce') {
-        wrap.innerHTML = `<div class="test-special ce">⚠️ Compilation Error\n\n${escHtml(results[0].errorMsg || '')}</div>`;
+    // Full compile error — show message block, no table
+    if (results.length && results[0].isCompileError) {
+        wrap.innerHTML = `<div class="test-special ce">⚠️ Compilation Error\n\n${escHtml(results[0].error || '')}</div>`;
         return;
     }
 
     let rows = '';
     results.forEach((r, i) => {
-        const tc = testCases[i] || {};
+        const isTLE      = r.error === 'Time Limit Exceeded — your code is too slow';
+        const isBlocked  = r.error === 'Blocked by compilation error';
+        const isRtError  = !r.passed && r.actual === null && !r.isCompileError;
 
-        const statusCell =
-            r.status === 'pass'  ? `<span class="status-pass">✓ Pass</span>` :
-            r.status === 'tle'   ? `<span class="status-err">⏱ TLE</span>`  :
-            r.status === 'ce'    ? `<span class="status-err">⚠ CE</span>`   :
-            r.status === 'error' ? `<span class="status-err">✗ Error</span>` :
-                                   `<span class="status-fail">✗ Fail</span>`;
+        let statusCell, outputCell;
 
-        let outputCell;
-        if      (r.status === 'tle')   outputCell = `<span class="mono-val err">Time Limit Exceeded</span>`;
-        else if (r.status === 'ce')    outputCell = `<span class="mono-val err">Compilation Error</span>`;
-        else if (r.status === 'error') outputCell = `<span class="mono-val err" title="${escHtml(r.errorMsg || '')}">${escHtml((r.errorMsg || 'Runtime Error').slice(0, 80))}</span>`;
-        else if (r.status === 'pass')  outputCell = `<span class="mono-val pass">${escHtml(String(r.output ?? ''))}</span>`;
-        else                           outputCell = `<span class="mono-val fail">${escHtml(String(r.output ?? ''))}</span>`;
+        if (r.isCompileError || isBlocked) {
+            statusCell = `<span class="status-err">⚠ CE</span>`;
+            outputCell = `<span class="mono-val err">${isBlocked ? 'Blocked' : 'Compile Error'}</span>`;
+        } else if (isTLE) {
+            statusCell = `<span class="status-err">⏱ TLE</span>`;
+            outputCell = `<span class="mono-val err">Time Limit Exceeded</span>`;
+        } else if (isRtError) {
+            statusCell = `<span class="status-err">✗ Error</span>`;
+            outputCell = `<span class="mono-val err" title="${escHtml(r.error || '')}">${escHtml((r.error || 'Runtime Error').slice(0, 120))}</span>`;
+        } else if (r.passed) {
+            statusCell = `<span class="status-pass">✓ Pass</span>`;
+            outputCell = `<span class="mono-val pass">${escHtml(String(r.actual ?? ''))}</span>`;
+        } else {
+            statusCell = `<span class="status-fail">✗ Fail</span>`;
+            outputCell = `<span class="mono-val fail">${escHtml(String(r.actual ?? '(no output)'))}</span>`;
+        }
 
         rows += `<tr>
             <td class="tc-idx">${i + 1}</td>
             <td>${statusCell}</td>
-            <td><span class="mono-val">${escHtml(r.inputDisplay || tc.input || '')}</span></td>
-            <td><span class="mono-val">${escHtml(String(r.expected || tc.expectedDisplay || tc.expected || ''))}</span></td>
+            <td><span class="mono-val">${escHtml(String(r.input || ''))}</span></td>
+            <td><span class="mono-val">${escHtml(String(r.expected || ''))}</span></td>
             <td>${outputCell}</td>
         </tr>`;
     });
 
+    const passed    = results.filter(r => r.passed).length;
+    const total     = results.length;
     const allPass   = passed === total;
-    const wordColor = allPass ? '#1D9E75' : '#E24B4A';
+    const color     = allPass ? '#1D9E75' : '#E24B4A';
 
     wrap.innerHTML = `
         <table class="results-table">
@@ -1200,243 +1227,166 @@ function renderResultsTable(results, testCases, passed, total) {
             <tbody>${rows}</tbody>
         </table>
         <div class="test-summary-row">
-            Passed: <strong style="color:${wordColor}">${passed}/${total}</strong>
+            Passed: <strong style="color:${color}">${passed}/${total}</strong>
             &nbsp;·&nbsp;
-            Result: <strong style="color:${wordColor}">${allPass ? 'Accepted ✓' : 'Wrong Answer'}</strong>
+            Result: <strong style="color:${color}">${allPass ? '✅ All Tests Passed!' : '❌ Wrong Answer'}</strong>
         </div>`;
 }
 
-// ═══════════════════════════════════════════════════════
-// RUN CODE — main entry
-// JS/TS → browser sandbox  |  others → Judge0 via backend
-// ═══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+// runCode — REAL execution via Judge0 through the backend
+// NO fake execution, NO new Function(), NO regex analysis
+// ══════════════════════════════════════════════════════════════
 async function runCode() {
     if (isRunning) return;
-    const code = $('#code-textarea').value.trim();
+
+    const code = ($('#code-textarea').value || '').trim();
     const lang = getLang();
     const q    = getS2()[codeIndex];
 
-    if (!code || code.length < 3) { showToast('Write some code first!', 'warning'); return; }
+    if (!code || code.length < 3) {
+        showToast('Write some code first!', 'warning');
+        return;
+    }
 
+    // Only run visible (non-hidden) test cases
     const visibleTCs = (q.testCases || []).filter(tc => !tc.hidden);
-    if (!visibleTCs.length) { showToast('No test cases for this problem', 'warning'); return; }
+    if (!visibleTCs.length) {
+        showToast('No test cases available for this problem', 'warning');
+        return;
+    }
 
+    // ── Set running state ────────────────────────────────────
     isRunning = true;
     const btn = $('#run-btn');
     btn.disabled  = true;
     btn.innerHTML = '<span class="run-spinner"></span> Running…';
+    $('#code-submit-btn').disabled = true;
 
     const summaryEl = $('#test-summary-badge');
     summaryEl.className   = 'test-summary-badge running';
     summaryEl.textContent = `Running ${visibleTCs.length} test${visibleTCs.length > 1 ? 's' : ''}…`;
     setText('#run-time-display', '');
 
-    renderSkeleton(visibleTCs);
+    // Show skeleton immediately so user sees progress
+    renderSkeleton(visibleTCs.length);
 
     const t0 = performance.now();
-    let results = [];
 
-    try {
-        if (lang === 'javascript' || lang === 'typescript') {
-            results = runJSTestCases(code, q.functionSignature, visibleTCs);
-        } else {
-            results = await runJudge0TestCases(code, lang, visibleTCs, q);
-        }
-    } catch (err) {
-        results = visibleTCs.map(() => ({
-            status: 'error', output: '', expected: '', inputDisplay: '', errorMsg: err.message,
-        }));
-    }
-
-    const elapsed = Math.round(performance.now() - t0);
-    const passed  = results.filter(r => r.status === 'pass').length;
-    const total   = results.length;
-    lastRunPassed = passed;
-
-    const hasErr = results.some(r => ['error','tle','ce'].includes(r.status));
-    if (passed === total) {
-        summaryEl.className   = 'test-summary-badge accepted';
-        summaryEl.textContent = `✓ Accepted  ${passed}/${total} passed`;
-    } else if (hasErr) {
-        summaryEl.className   = 'test-summary-badge error';
-        summaryEl.textContent = `✗ Error  ${passed}/${total} passed`;
-    } else {
-        summaryEl.className   = 'test-summary-badge wrong';
-        summaryEl.textContent = `✗ Wrong Answer  ${passed}/${total} passed`;
-    }
-    setText('#run-time-display', `${elapsed} ms`);
-
-    renderResultsTable(results, visibleTCs, passed, total);
-
-    isRunning     = false;
-    btn.disabled  = false;
-    btn.innerHTML = '▶ Run Code';
-
-    if (passed === total) showToast(`All ${total} tests passed! 🎉`, 'success', 3500);
-    else                   showToast(`${passed}/${total} tests passed`, passed > 0 ? 'warning' : 'error', 3000);
-}
-
-// ─── JavaScript sandbox execution ──────────────────────
-function runJSTestCases(code, fnName, testCases) {
-    return testCases.map(tc => {
-        try {
-            const args     = JSON.parse(tc.inputCode || '[]');
-            const expected = safeParseExpected(tc.expected);
-            // Named params prevent the ...arguments spread issue
-            const paramNames = args.map((_, j) => `_a${j}`);
-            const body       = `"use strict";\n${code}\nreturn ${fnName}(${paramNames.join(', ')});`;
-            const fn         = new Function(...paramNames, body);
-            const result     = fn(...args);
-            const pass       = deepEqual(result, expected);
-            return {
-                status:       pass ? 'pass' : 'fail',
-                output:       formatOutput(result),
-                expected:     tc.expectedDisplay || tc.expected,
-                inputDisplay: tc.input || tc.inputCode || '',
-                errorMsg:     null,
-            };
-        } catch (e) {
-            return {
-                status:       'error',
-                output:       '',
-                expected:     tc.expectedDisplay || tc.expected,
-                inputDisplay: tc.input || tc.inputCode || '',
-                errorMsg:     e.message,
-            };
-        }
-    });
-}
-
-// ─── Judge0 (server-side languages) ────────────────────
-// One harness wraps all visible test cases so we only pay
-// one network round-trip regardless of case count.
-async function runJudge0TestCases(code, lang, testCases, q) {
-    const harness = buildHarness(code, lang, testCases, q);
     try {
         const token = sessionStorage.getItem('accessToken');
-        const res   = await fetch('/api/interview/run-code', {
+        const resp  = await fetch('/api/interview/run-code', {
             method:  'POST',
             headers: {
                 'Content-Type': 'application/json',
                 ...(token ? { Authorization: `Bearer ${token}` } : {}),
             },
             credentials: 'include',
-            body: JSON.stringify({ code: harness, language: lang, stdin: '' }),
+            body: JSON.stringify({
+                code,
+                language:     lang,
+                functionName: q.functionSignature || 'solution',
+                testCases:    visibleTCs,
+            }),
         });
-        const data = await res.json();
 
-        // Compile error
-        if (data.statusId === 6 || /compil/i.test(data.error || '')) {
-            return [{ status: 'ce', output: '', expected: '', inputDisplay: '', errorMsg: data.error || 'Compilation Error' }];
-        }
-        // TLE
-        if (data.statusId === 5) {
-            return testCases.map(() => ({ status: 'tle', output: '', expected: '', inputDisplay: '', errorMsg: 'TLE' }));
-        }
-        // Runtime error
-        if (!data.ran) {
-            return testCases.map(() => ({ status: 'error', output: '', expected: '', inputDisplay: '', errorMsg: data.error || 'Runtime Error' }));
+        if (!resp.ok) {
+            const errData = await resp.json().catch(() => ({}));
+            throw new Error(errData.message || `Server error ${resp.status}`);
         }
 
-        // Split output — one line per test case
-        const lines = (data.output || '').split('\n').map(l => l.trim()).filter(Boolean);
-        return testCases.map((tc, i) => {
-            const got      = lines[i] ?? '';
-            const expected = (tc.expectedDisplay || tc.expected || '').trim();
-            const pass     = normaliseOutput(got) === normaliseOutput(expected);
-            return {
-                status: pass ? 'pass' : 'fail',
-                output: got,
-                expected: tc.expectedDisplay || tc.expected,
-                inputDisplay: tc.input || '',
-                errorMsg: null,
-            };
-        });
-    } catch (e) {
-        return testCases.map(() => ({ status: 'error', output: '', expected: '', inputDisplay: '', errorMsg: e.message }));
+        const data = await resp.json();
+
+        if (!data.success) throw new Error(data.message || 'Execution failed');
+
+        const elapsed = Math.round(performance.now() - t0);
+        setText('#run-time-display', `${elapsed} ms`);
+
+        const results = data.results || [];
+        const passed  = data.passed  ?? results.filter(r => r.passed).length;
+        const total   = data.total   ?? results.length;
+        lastRunPassed = passed;
+
+        // ── Update summary badge ─────────────────────────────
+        const hasCompile = results.some(r => r.isCompileError);
+        const hasError   = results.some(r => !r.passed && r.actual === null && !r.isCompileError);
+
+        if (hasCompile) {
+            summaryEl.className   = 'test-summary-badge error';
+            summaryEl.textContent = '⚠ Compilation Error';
+        } else if (passed === total && total > 0) {
+            summaryEl.className   = 'test-summary-badge accepted';
+            summaryEl.textContent = `✓ Accepted  ${passed}/${total} passed`;
+        } else if (hasError) {
+            summaryEl.className   = 'test-summary-badge error';
+            summaryEl.textContent = `✗ Error  ${passed}/${total} passed`;
+        } else {
+            summaryEl.className   = 'test-summary-badge wrong';
+            summaryEl.textContent = `✗ Wrong Answer  ${passed}/${total} passed`;
+        }
+
+        renderResultsTable(results);
+
+        // ── Enable submit ONLY when ALL tests pass ───────────
+        if (!hasCompile && passed === total && total > 0) {
+            $('#code-submit-btn').disabled = false;
+            $('#code-submit-btn').title    = 'All tests passed — click to submit';
+            showToast(`All ${total} tests passed! ✅ You can now submit.`, 'success', 4000);
+        } else {
+            $('#code-submit-btn').disabled = true;
+            if (!hasCompile) {
+                showToast(
+                    `${passed}/${total} tests passed`,
+                    passed > 0 ? 'warning' : 'error',
+                    3000
+                );
+            }
+        }
+
+    } catch (err) {
+        const summaryEl2 = $('#test-summary-badge');
+        summaryEl2.className   = 'test-summary-badge error';
+        summaryEl2.textContent = '✗ Error';
+        $('#test-table-wrap').innerHTML = `
+            <div class="test-special ce">⚠️ ${escHtml(err.message || 'Unknown error — check your connection and try again')}</div>`;
+        showToast('Execution error: ' + (err.message || 'unknown'), 'error', 4000);
+    } finally {
+        isRunning     = false;
+        btn.disabled  = false;
+        btn.innerHTML = '▶ Run Code';
     }
 }
 
-// ─── Build language-specific harness ───────────────────
-function buildHarness(userCode, lang, testCases, q) {
-    const fn = q.functionSignature || 'solution';
-
-    if (lang === 'python') {
-        // If user is reading stdin themselves, pass code as-is
-        if (/\binput\s*\(/.test(userCode)) return userCode;
-        // Otherwise auto-call their function for each test case
-        const calls = testCases.map(tc => {
-            const args   = JSON.parse(tc.inputCode || '[]');
-            const argStr = args.map(a => JSON.stringify(a)).join(', ');
-            return `print(json.dumps(${fn}(${argStr}), separators=(',',':')))`;
-        }).join('\n');
-        return `import json\n\n${userCode}\n\n${calls}\n`;
-    }
-
-    // C++ / C / Java / Go / Rust — user writes their own main + print
-    // We ship code verbatim; they're responsible for output format
-    return userCode;
-}
-
-// ─── Equality & format helpers ──────────────────────────
-function deepEqual(a, b) {
-    if (a === b) return true;
-    if (a === null || b === null) return a === b;
-    if (typeof a !== typeof b) return String(a) === String(b);
-    if (Array.isArray(a) && Array.isArray(b)) {
-        if (a.length !== b.length) return false;
-        if (a.every((v, i) => deepEqual(v, b[i]))) return true;
-        // Order-insensitive fallback (e.g. twoSum)
-        const sa = [...a].sort((x, y) => JSON.stringify(x).localeCompare(JSON.stringify(y)));
-        const sb = [...b].sort((x, y) => JSON.stringify(x).localeCompare(JSON.stringify(y)));
-        return sa.every((v, i) => deepEqual(v, sb[i]));
-    }
-    if (typeof a === 'object' && typeof b === 'object') {
-        const ka = Object.keys(a).sort(), kb = Object.keys(b).sort();
-        if (ka.join() !== kb.join()) return false;
-        return ka.every(k => deepEqual(a[k], b[k]));
-    }
-    return String(a) === String(b);
-}
-
-function safeParseExpected(v) { try { return JSON.parse(v); } catch (_) { return v; } }
-
-function normaliseOutput(s) {
-    s = String(s).trim();
-    // Strip surrounding quotes that some languages print
-    if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
-        s = s.slice(1, -1);
-    }
-    try { return JSON.stringify(JSON.parse(s)); } catch (_) { return s; }
-}
-
-function formatOutput(v) {
-    if (v === undefined)       return 'undefined';
-    if (v === null)            return 'null';
-    if (typeof v === 'object') return JSON.stringify(v);
-    return String(v);
-}
-
-// ─── Submit / Skip ──────────────────────────────────────
+// ── handleCodeSubmit ─────────────────────────────────────────
+// Only reachable after all tests pass (button disabled otherwise)
 function handleCodeSubmit() {
     const code = ($('#code-textarea').value || '').trim();
     const lang = getLang();
-    if (!code || code.length < 3) { showToast('Write some code before submitting', 'warning'); return; }
+
+    if (!code || code.length < 3) {
+        showToast('Write some code before submitting', 'warning');
+        return;
+    }
+    if ($('#code-submit-btn').disabled) {
+        showToast('Run your code and pass all test cases first', 'warning');
+        return;
+    }
 
     const qs  = getS2();
-    const tag = lastRunPassed > 0
-        ? `[CODE:${lang.toUpperCase()}:OK]`
-        : `[CODE:${lang.toUpperCase()}]`;
+    // Tag includes :OK to signal all tests passed — used in scoring
+    const tag = `[CODE:${lang.toUpperCase()}:OK]`;
     saveAnswer(qs[codeIndex]?.text || '', `${tag}\n${code}`);
 
     const d = $(`#cd-${codeIndex}`);
     if (d) { d.classList.remove('active'); d.classList.add('done'); }
-    showToast('Code submitted! ✅', 'success');
+
+    showToast('Solution submitted! ✅', 'success');
 
     if (codeIndex < qs.length - 1) showCodeQuestion(codeIndex + 1);
     else endSection2();
 }
 
+// ── handleCodeSkip ───────────────────────────────────────────
 function handleCodeSkip() {
     const qs = getS2(), d = $(`#cd-${codeIndex}`);
     if (d) { d.classList.remove('active'); d.classList.add('skipped'); }
@@ -1451,9 +1401,9 @@ function endSection2() {
     showSectionOverlay(3, () => startSection3());
 }
 
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 // SECTION 3 — VIDEO
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 async function startSection3() {
     currentSection = 3; viIndex = 0;
     document.body.classList.add('video-mode');
@@ -1515,14 +1465,17 @@ async function handleViSubmit() {
     isSubmitting = true;
     if (isMicOn) { recognition?.stop(); isMicOn = false; updateMicBtn(); $('#rec-dot').classList.add('hidden'); }
 
-    const btn = $('#vi-submit-btn'); btn.disabled = true; btn.textContent = '⏳';
-    const qs  = getS3();
+    const btn = $('#vi-submit-btn');
+    btn.disabled = true; btn.textContent = '⏳';
+
+    const qs = getS3();
     saveAnswer(qs[viIndex]?.text || '', answer);
 
     const d = $(`#vd-${viIndex}`);
     if (d) { d.classList.remove('active'); d.classList.add('done'); }
 
-    isSubmitting = false; btn.disabled = false; btn.textContent = '➤';
+    isSubmitting = false;
+    btn.disabled = false; btn.textContent = '➤';
 
     if (viIndex < qs.length - 1) { viIndex++; await showViQuestion(viIndex); }
     else endSection3();
@@ -1552,18 +1505,27 @@ async function initCamera() {
         mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
         const v = $('#user-video'); if (v) v.srcObject = mediaStream;
         isCamOn = true;
-    } catch (_) { isCamOn = false; showEl($('#cam-off')); hideEl($('#user-video')); }
+    } catch (_) {
+        isCamOn = false;
+        showEl($('#cam-off'));
+        hideEl($('#user-video'));
+    }
 }
 
 function toggleCam() {
     isCamOn = !isCamOn;
     const v = $('#user-video'), off = $('#cam-off'), btn = $('#vi-cam-btn');
-    if (isCamOn) { showEl(v); hideEl(off); btn.classList.remove('off'); initCamera(); }
-    else         { hideEl(v); showEl(off); btn.classList.add('off'); mediaStream?.getTracks().forEach(t => t.stop()); }
+    if (isCamOn) {
+        showEl(v); hideEl(off); btn.classList.remove('off'); initCamera();
+    } else {
+        hideEl(v); showEl(off); btn.classList.add('off');
+        mediaStream?.getTracks().forEach(t => t.stop());
+    }
 }
 
 function initSpeech() {
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition; if (!SR) return;
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) return;
     recognition = new SR();
     recognition.continuous     = true;
     recognition.interimResults = true;
@@ -1574,11 +1536,13 @@ function initSpeech() {
         const w = $('#transcript-content');
         if (w) w.innerHTML = `<div class="transcript-line">${escHtml(t)}</div>`;
     };
-    recognition.onerror = () => { isMicOn = false; updateMicBtn(); $('#rec-dot').classList.add('hidden'); };
+    recognition.onerror = () => {
+        isMicOn = false; updateMicBtn(); $('#rec-dot').classList.add('hidden');
+    };
 }
 
 function toggleMic() {
-    if (!recognition) { showToast('Speech recognition not supported', 'warning'); return; }
+    if (!recognition) { showToast('Speech recognition not supported in this browser', 'warning'); return; }
     isMicOn = !isMicOn;
     if (isMicOn) { recognition.start(); $('#rec-dot').classList.remove('hidden'); }
     else         { recognition.stop();  $('#rec-dot').classList.add('hidden'); }
@@ -1609,9 +1573,9 @@ function speakText(text) {
     });
 }
 
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 // SAVE ANSWERS + EVALUATE
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
 function saveAnswer(question, answer) {
     localAnswers.push({ question, answer, answeredAt: new Date().toISOString() });
 }
@@ -1621,9 +1585,13 @@ async function handleEvaluate() {
     const spinner = $('#report-spinner');
     showEl(spinner);
     setLoading(btn, true, 'Generating report…');
+
     try {
         // Bulk-save all answers in one call
-        try { await interviewApi.answer(interview._id, { answers: localAnswers }); } catch (_) {}
+        try {
+            await interviewApi.answer(interview._id, { answers: localAnswers });
+        } catch (_) { /* if bulk save fails, evaluation still uses what's in DB */ }
+
         await interviewApi.evaluate(interview._id);
         location.href = `/pages/report.html?id=${interview._id}`;
     } catch (err) {
