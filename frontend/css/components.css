@@ -313,6 +313,11 @@
     color: inherit;
     transition: all var(--transition);
     cursor: pointer;
+    /* Prevent overflow past container */
+    min-width: 0;
+    overflow: hidden;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .interview-row:hover {
@@ -325,12 +330,16 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
 }
 
 .interview-row-right {
     display: flex;
     align-items: center;
     gap: 8px;
+    flex-shrink: 0;
 }
 
 @media (max-width: 600px) {

@@ -6,8 +6,11 @@
 
 .dashboard-body {
     max-width: 1120px;
+    width: 100%;
     margin: 0 auto;
     padding: 2rem 1.5rem;
+    box-sizing: border-box;
+    overflow-x: hidden;
 }
 
 /* ─── Page header ─── */
@@ -42,6 +45,7 @@
     grid-template-columns: 1fr 380px;
     gap: 1.5rem;
     align-items: start;
+    min-width: 0;
 }
 
 /* ─── Interviews list ─── */
@@ -49,6 +53,8 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+    min-width: 0;
+    overflow: hidden;
 }
 
 /* ─── Trend chart wrap ─── */
