@@ -58,6 +58,86 @@
             transform: translateY(-2px);
             box-shadow: 0 8px 24px rgba(0,0,0,0.22);
         }
+
+        /* ══════════════════════════════════════════════
+           NUCLEAR MOBILE FIX — prevents ALL horizontal overflow
+           Applied inline so it can't be cached/overridden
+           ══════════════════════════════════════════════ */
+        @media (max-width: 768px) {
+            html, body {
+                overflow-x: hidden !important;
+                max-width: 100vw !important;
+                width: 100% !important;
+            }
+            .dashboard-layout,
+            .dashboard-body,
+            .dashboard-cols,
+            .dashboard-cols > div,
+            .interviews-section,
+            .quick-start-card,
+            .resume-card,
+            .stats-grid,
+            .trend-wrap,
+            .nav,
+            .page-header,
+            .section-heading,
+            main {
+                max-width: 100% !important;
+                overflow-x: hidden !important;
+                box-sizing: border-box !important;
+            }
+            .dashboard-cols {
+                grid-template-columns: 1fr !important;
+                width: 100% !important;
+            }
+            .interview-row,
+            .interview-row.card,
+            a.interview-row {
+                max-width: 100% !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
+            }
+            .interview-row-left {
+                flex: 0 1 55% !important;
+                max-width: 55% !important;
+                min-width: 0 !important;
+                overflow: hidden !important;
+            }
+            .interview-row-right {
+                flex: 0 1 auto !important;
+                max-width: 42% !important;
+                margin-left: auto !important;
+                overflow: hidden !important;
+            }
+            .interview-row-right .chip {
+                max-width: 80px !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                white-space: nowrap !important;
+                font-size: 0.58rem !important;
+                padding: 2px 5px !important;
+            }
+            .resume-active-name,
+            .resume-active-info {
+                max-width: 100% !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                white-space: nowrap !important;
+            }
+            .format-step {
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            .quick-start-card p {
+                word-break: break-word !important;
+                overflow-wrap: break-word !important;
+            }
+            /* Hide the decorative circle that extends past card edge */
+            .quick-start-card::before {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -489,6 +569,27 @@ function setText(sel, val) { const el=$(sel); if(el) el.textContent=val; }
 function escHtml(str='') {
     return str.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
+
+/* ── Post-load overflow catcher ──
+   Runs after everything is rendered (including JS-injected rows)
+   and force-constrains any element wider than the viewport. */
+function fixMobileOverflow() {
+    if (window.innerWidth > 768) return;
+    const vw = document.documentElement.clientWidth;
+    document.querySelectorAll('*').forEach(el => {
+        if (el.scrollWidth > vw) {
+            el.style.maxWidth = '100%';
+            el.style.overflowX = 'hidden';
+            el.style.boxSizing = 'border-box';
+        }
+    });
+}
+// Run after initial render
+setTimeout(fixMobileOverflow, 500);
+// Run again after interviews load (they're async)
+setTimeout(fixMobileOverflow, 2000);
+// Run on resize
+window.addEventListener('resize', fixMobileOverflow);
 </script>
 </body>
 </html>
