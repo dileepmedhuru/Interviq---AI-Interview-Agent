@@ -46,6 +46,33 @@
         }
         .landing-nav-links { display: flex; align-items: center; gap: 8px; }
 
+        @media (max-width: 600px) {
+            .landing-nav {
+                padding: 0.75rem 1rem !important;
+            }
+            .landing-nav-brand span {
+                display: none !important;
+            }
+            .landing-nav-logo {
+                width: 32px !important;
+                height: 32px !important;
+            }
+            .landing-nav-links {
+                gap: 6px !important;
+            }
+            .landing-nav-links .btn {
+                padding: 6px 10px !important;
+                font-size: 0.8rem !important;
+                height: 32px !important;
+                min-width: unset !important;
+            }
+            .landing-nav-links #theme-toggle {
+                width: 32px !important;
+                height: 32px !important;
+                padding: 0 !important;
+            }
+        }
+
         /* Hero */
         .hero {
             min-height: 100vh;
