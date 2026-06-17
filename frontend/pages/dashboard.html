@@ -7,12 +7,13 @@
     <link rel="icon" href="../public/favicon.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="../css/base.css?v=10" />
-    <link rel="stylesheet" href="../css/3d-effects.css?v=10" />
-    <link rel="stylesheet" href="../css/animations.css?v=10" />
-    <link rel="stylesheet" href="../css/components.css?v=10" />
-    <link rel="stylesheet" href="../css/dashboard.css?v=10" />
+    <link rel="stylesheet" href="../css/base.css?v=12" />
+    <link rel="stylesheet" href="../css/3d-effects.css?v=12" />
+    <link rel="stylesheet" href="../css/animations.css?v=12" />
+    <link rel="stylesheet" href="../css/components.css?v=12" />
+    <link rel="stylesheet" href="../css/dashboard.css?v=12" />
     <style>
+        /* ── Quick-start card components ── */
         .format-steps {
             display: flex; flex-direction: column; gap: 8px;
             margin: 1rem 0 1.25rem;
@@ -56,139 +57,6 @@
         .btn-start-interview:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 24px rgba(0,0,0,0.22);
-        }
-        
-        /* Force circular buttons, correct sizing, and dark mode visibility on mobile viewports */
-        @media (max-width: 600px) {
-            /* Fix white-on-white target role text in dark mode */
-            .input {
-                background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%) !important;
-                color: var(--text-primary) !important;
-            }
-            .input:focus {
-                background: var(--surface) !important;
-                color: var(--text-primary) !important;
-            }
-            select.input option {
-                background: var(--surface) !important;
-                color: var(--text-primary) !important;
-            }
-            
-            /* Navbar Mobile Fixes */
-            .nav {
-                padding: 0 1rem !important;
-                height: 60px !important;
-            }
-            .nav-brand {
-                font-size: 0.95rem !important;
-                gap: 8px !important;
-            }
-            .nav-logo {
-                width: 36px !important;
-                height: 36px !important;
-            }
-            .nav-brand span {
-                display: none !important;
-            }
-            .nav-actions {
-                gap: 10px !important;
-                display: flex !important;
-                align-items: center !important;
-            }
-            .nav-actions .btn {
-                height: 36px !important;
-                width: 36px !important;
-                padding: 0 !important;
-                display: inline-flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                font-size: 1.1rem !important;
-                border-radius: 50% !important;
-                min-width: unset !important;
-                box-shadow: var(--shadow-sm) !important;
-                background: var(--surface-2) !important;
-                border: 1px solid var(--border) !important;
-                color: var(--text-primary) !important;
-            }
-            .nav-user-name {
-                display: none !important;
-            }
-            .nav-user {
-                padding: 0 !important;
-                background: transparent !important;
-                border: none !important;
-                box-shadow: none !important;
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-            }
-            .nav-user .avatar {
-                width: 36px !important;
-                height: 36px !important;
-                font-size: 0.95rem !important;
-            }
-            
-            /* Recent Interviews Row mobile fixes */
-            .interview-row {
-                display: flex !important;
-                flex-direction: row !important;
-                align-items: center !important;
-                justify-content: space-between !important;
-                padding: 0.75rem 1rem !important;
-                gap: 12px !important;
-            }
-            .interview-row-left {
-                display: flex !important;
-                align-items: center !important;
-                gap: 12px !important;
-                flex: 1 !important;
-                min-width: 0 !important;
-            }
-            .interview-row-left > div:not(.avatar) {
-                min-width: 0 !important;
-                flex: 1 !important;
-            }
-            .interview-row-left .avatar {
-                flex: 0 0 32px !important;
-                width: 32px !important;
-                height: 32px !important;
-                border-radius: 50% !important;
-            }
-            .interview-row-left .font-semibold {
-                font-size: 0.9rem !important;
-                white-space: nowrap !important;
-                overflow: hidden !important;
-                text-overflow: ellipsis !important;
-            }
-            .interview-row-left .text-xs {
-                font-size: 0.75rem !important;
-                white-space: nowrap !important;
-                overflow: hidden !important;
-                text-overflow: ellipsis !important;
-            }
-            .interview-row-right {
-                display: flex !important;
-                align-items: center !important;
-                gap: 6px !important;
-                flex-shrink: 0 !important;
-                border-top: none !important;
-                padding-top: 0 !important;
-                margin-top: 0 !important;
-            }
-            .interview-row-right .chip {
-                padding: 2px 6px !important;
-                font-size: 0.65rem !important;
-                white-space: nowrap !important;
-            }
-            
-            /* Modal mobile padding */
-            .modal {
-                padding: 1.25rem !important;
-                border-radius: var(--radius-lg) !important;
-            }
-            .quick-start-card {
-                padding: 1.25rem !important;
-            }
         }
     </style>
 </head>
