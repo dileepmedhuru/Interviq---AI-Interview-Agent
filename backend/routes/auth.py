@@ -9,6 +9,7 @@ from backend.services.token_service import (
     verify_access_token, verify_refresh_token, get_cookie_options
 )
 from backend.services.email_service import send_verification_email, send_password_reset_email
+from backend.config.utils import get_frontend_url
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -68,7 +69,7 @@ def get_current_user(request: Request) -> dict:
     return user
 
 @router.post("/register")
-def register(body: RegisterSchema, response: Response):
+def register(body: RegisterSchema, request: Request, response: Response):
     db = get_db()
     email_lower = body.email.strip().lower()
     
@@ -104,7 +105,8 @@ def register(body: RegisterSchema, response: Response):
 
     # Send verification email asynchronously / background (simple inline SMTP)
     try:
-        send_verification_email(email_lower, body.name, verification_token)
+        frontend_url = get_frontend_url(request)
+        send_verification_email(email_lower, body.name, verification_token, frontend_url=frontend_url)
     except Exception as e:
         print(f"Failed to send email: {e}")
 
@@ -204,7 +206,7 @@ def get_me(current_user: dict = Depends(get_current_user)):
     }
 
 @router.post("/forgot-password")
-def forgot_password(body: ForgotPasswordSchema):
+def forgot_password(body: ForgotPasswordSchema, request: Request):
     db = get_db()
     email_lower = body.email.strip().lower()
     
@@ -222,7 +224,8 @@ def forgot_password(body: ForgotPasswordSchema):
     )
 
     try:
-        send_password_reset_email(email_lower, user.get("name", "User"), reset_token)
+        frontend_url = get_frontend_url(request)
+        send_password_reset_email(email_lower, user.get("name", "User"), reset_token, frontend_url=frontend_url)
     except Exception as e:
         print(f"Failed to send email: {e}")
 

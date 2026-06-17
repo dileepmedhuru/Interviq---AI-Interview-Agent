@@ -71,9 +71,10 @@ def _send_email(to_email: str, subject: str, html_content: str):
     except Exception as e:
         print(f"❌ Failed to send email to {to_email}: {e}")
 
-def send_verification_email(email: str, name: str, token: str):
-    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5000")
-    url = f"{frontend_url}/pages/verify.html?token={token}"
+def send_verification_email(email: str, name: str, token: str, frontend_url: str = None):
+    if not frontend_url:
+        frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5000")
+    url = f"{frontend_url.rstrip('/')}/pages/verify.html?token={token}"
     html = f"""
     <div style="font-family:sans-serif;max-width:480px;margin:0 auto">
         <h2>Welcome, {name}!</h2>
@@ -84,9 +85,10 @@ def send_verification_email(email: str, name: str, token: str):
     """
     _send_email(email, "Verify your account", html)
 
-def send_password_reset_email(email: str, name: str, token: str):
-    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5000")
-    url = f"{frontend_url}/pages/reset_password.html?token={token}"
+def send_password_reset_email(email: str, name: str, token: str, frontend_url: str = None):
+    if not frontend_url:
+        frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5000")
+    url = f"{frontend_url.rstrip('/')}/pages/reset_password.html?token={token}"
     html = f"""
     <div style="font-family:sans-serif;max-width:480px;margin:0 auto">
         <h2>Hi {name},</h2>

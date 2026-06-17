@@ -8,6 +8,7 @@ from backend.config.db import get_db
 from backend.routes.auth import get_current_user
 from backend.services import ai_service
 from backend.services.email_service import send_report_email
+from backend.config.utils import get_frontend_url
 
 router = APIRouter(prefix="/interview", tags=["Interview"])
 
@@ -423,7 +424,7 @@ def submit_answer(id: str, body: SubmitAnswerSchema, current_user: dict = Depend
     }
 
 @router.post("/{id}/evaluate")
-def evaluate_interview(id: str, background_tasks: BackgroundTasks, current_user: dict = Depends(get_current_user)):
+def evaluate_interview(id: str, request: Request, background_tasks: BackgroundTasks, current_user: dict = Depends(get_current_user)):
     db = get_db()
     
     interview = db.interviews.find_one({"_id": ObjectId(id), "user": current_user["_id"]})
@@ -504,7 +505,7 @@ def evaluate_interview(id: str, background_tasks: BackgroundTasks, current_user:
         to_email = current_user.get("email")
         user_name = current_user.get("name", "Candidate")
         if to_email:
-            frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5000")
+            frontend_url = get_frontend_url(request)
             report_url = f"{frontend_url}/pages/report.html?id={id}&public=true"
             background_tasks.add_task(
                 send_report_email,
