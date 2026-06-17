@@ -337,9 +337,15 @@
         flex: 1 !important;
         min-width: 0 !important;
     }
-    .interview-row-left > div {
+    .interview-row-left > div:not(.avatar) {
         min-width: 0 !important;
         flex: 1 !important;
+    }
+    .interview-row-left .avatar {
+        flex: 0 0 32px !important;
+        width: 32px !important;
+        height: 32px !important;
+        border-radius: 50% !important;
     }
     .interview-row-left .font-semibold {
         font-size: 0.9rem !important;
