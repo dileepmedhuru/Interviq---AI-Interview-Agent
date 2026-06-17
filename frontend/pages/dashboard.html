@@ -7,11 +7,11 @@
     <link rel="icon" href="../public/favicon.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="../css/base.css?v=12" />
-    <link rel="stylesheet" href="../css/3d-effects.css?v=12" />
-    <link rel="stylesheet" href="../css/animations.css?v=12" />
-    <link rel="stylesheet" href="../css/components.css?v=12" />
-    <link rel="stylesheet" href="../css/dashboard.css?v=12" />
+    <link rel="stylesheet" href="../css/base.css?v=13" />
+    <link rel="stylesheet" href="../css/3d-effects.css?v=13" />
+    <link rel="stylesheet" href="../css/animations.css?v=13" />
+    <link rel="stylesheet" href="../css/components.css?v=13" />
+    <link rel="stylesheet" href="../css/dashboard.css?v=13" />
     <style>
         /* ── Quick-start card components ── */
         .format-steps {
@@ -365,15 +365,15 @@ async function loadRecentInterviews() {
             const statusColor = { completed:'var(--success)', in_progress:'var(--warning)' }[iv.status] || 'var(--text-muted)';
             const badge = `<span class="chip" style="font-size:0.7rem;color:${statusColor};border-color:${statusColor};background:none">${iv.status.replace('_',' ')}</span>`;
             return `
-            <a href="/pages/report.html?id=${iv._id}" class="interview-row card card-hover">
+            <a href="/pages/report.html?id=${iv._id}" class="interview-row card card-hover" style="padding:0.875rem 1.125rem">
               <div class="interview-row-left">
-                <div class="avatar avatar-sm">${initials(iv.role)}</div>
-                <div>
-                  <div class="font-semibold">${escHtml(iv.role)}</div>
-                  <div class="text-xs text-muted">${iv.expLevel} · ${formatDate(iv.createdAt)}</div>
+                <div class="avatar avatar-sm" style="flex-shrink:0">${initials(iv.role)}</div>
+                <div style="min-width:0;overflow:hidden;flex:1">
+                  <div class="font-semibold" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(iv.role)}</div>
+                  <div class="text-xs text-muted" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${iv.expLevel} · ${formatDate(iv.createdAt)}</div>
                 </div>
               </div>
-              <div class="interview-row-right">${dot}${badge}</div>
+              <div class="interview-row-right" style="flex-shrink:0">${dot}${badge}</div>
             </a>`;
         }).join('');
     } catch (err) {
