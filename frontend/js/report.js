@@ -560,7 +560,55 @@ function renderReport(interview) {
     });
 
     $('#download-pdf-btn')?.addEventListener('click', () => {
-        window.print();
+        const printOnlyEl = $('#print-only-review');
+        if (!printOnlyEl) return;
+        
+        // 1. Temporarily show the print-only element on screen to capture it
+        const originalDisplay = printOnlyEl.style.display;
+        printOnlyEl.style.display = 'block';
+        
+        // 2. Add temporary styled header inside print-only container
+        const headerDiv = document.createElement('div');
+        headerDiv.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #534ab7; padding-bottom: 15px; margin-bottom: 25px; font-family: var(--font);">
+                <div>
+                    <h1 style="font-size: 24px; font-weight: 800; color: #1a1830; margin: 0; letter-spacing: -0.02em;">Interviq Evaluation Report</h1>
+                    <p style="font-size: 13px; color: #5c5a7a; margin: 5px 0 0 0; font-weight: 500;">
+                        Role: <strong>${escHtml(interview.role)}</strong> · Level: <strong>${escHtml(interview.expLevel.toUpperCase())}</strong>
+                    </p>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 28px; font-weight: 800; color: #534ab7; line-height: 1;">${interview.report?.scores?.overall || 0}/10</div>
+                    <div style="font-size: 10px; color: #9896b0; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; margin-top: 4px;">Overall Score</div>
+                </div>
+            </div>
+        `;
+        printOnlyEl.insertBefore(headerDiv, printOnlyEl.firstChild);
+        
+        // 3. Define html2pdf options
+        const filenameRole = (interview.role || 'Report').replace(/\s+/g, '_');
+        const opt = {
+            margin:       [15, 15],
+            filename:     `Interviq_Report_${filenameRole}.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        
+        // Show toast
+        showToast('Generating PDF download...', 'info');
+
+        // 4. Generate PDF
+        html2pdf().set(opt).from(printOnlyEl).save().then(() => {
+            // Restore state
+            headerDiv.remove();
+            printOnlyEl.style.display = originalDisplay;
+        }).catch(err => {
+            console.error("PDF generation failed:", err);
+            showToast('PDF generation failed', 'error');
+            headerDiv.remove();
+            printOnlyEl.style.display = originalDisplay;
+        });
     });
 
     function renderPrintOnlyReport() {

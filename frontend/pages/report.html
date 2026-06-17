@@ -331,11 +331,13 @@
             color: var(--danger);
         }
         
+        #print-only-review {
+            display: none;
+        }
         @media print {
             body { background: white !important; color: black !important; }
-            .nav, .navigator-sidebar, #download-pdf-btn, .btn { display: none !important; }
-            .review-layout { display: block; }
-            .details-pane { box-shadow: none; border: none; padding: 0; min-height: auto; }
+            .nav, .navigator-sidebar, #download-pdf-btn, .btn, .review-layout { display: none !important; }
+            #print-only-review { display: block !important; }
             .card { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
@@ -491,9 +493,13 @@
         <a href="dashboard.html" class="btn btn-secondary btn-lg">Back to dashboard</a>
         <button id="new-interview-btn" class="btn btn-primary btn-lg ripple">Practice again →</button>
     </div>
+    
+    <!-- Print-only review container -->
+    <div id="print-only-review"></div>
 </main>
 
 <div id="toast-container"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script type="module" src="../js/report.js"></script>
 <script>
 /* ── Post-load overflow catcher ──
