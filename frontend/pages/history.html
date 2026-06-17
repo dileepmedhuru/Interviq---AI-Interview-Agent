@@ -6,11 +6,101 @@
     <title>History — Interviq - An AI Interview Agent </title>
     <link rel="icon" href="../public/favicon.ico"/>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
-    <link rel="stylesheet" href="../css/base.css"/>
-    <link rel="stylesheet" href="../css/3d-effects.css"/>
-    <link rel="stylesheet" href="../css/animations.css"/>
-    <link rel="stylesheet" href="../css/components.css?v=3"/>
-    <link rel="stylesheet" href="../css/dashboard.css"/>
+    <link rel="stylesheet" href="../css/base.css?v=10" />
+    <link rel="stylesheet" href="../css/3d-effects.css?v=10" />
+    <link rel="stylesheet" href="../css/animations.css?v=10" />
+    <link rel="stylesheet" href="../css/components.css?v=10" />
+    <link rel="stylesheet" href="../css/dashboard.css?v=10" />
+    <style>
+        /* Force circular buttons, correct sizing, and dark mode visibility on mobile viewports */
+        @media (max-width: 600px) {
+            .input {
+                background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%) !important;
+                color: var(--text-primary) !important;
+            }
+            .input:focus {
+                background: var(--surface) !important;
+                color: var(--text-primary) !important;
+            }
+            select.input option {
+                background: var(--surface) !important;
+                color: var(--text-primary) !important;
+            }
+            .nav {
+                padding: 0 1rem !important;
+                height: 60px !important;
+            }
+            .nav-brand {
+                font-size: 0.95rem !important;
+                gap: 8px !important;
+            }
+            .nav-logo {
+                width: 36px !important;
+                height: 36px !important;
+            }
+            .nav-brand span {
+                display: none !important;
+            }
+            .nav-actions {
+                gap: 10px !important;
+                display: flex !important;
+                align-items: center !important;
+            }
+            .nav-actions .btn {
+                height: 36px !important;
+                width: 36px !important;
+                padding: 0 !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                font-size: 1.1rem !important;
+                border-radius: 50% !important;
+                min-width: unset !important;
+                box-shadow: var(--shadow-sm) !important;
+                background: var(--surface-2) !important;
+                border: 1px solid var(--border) !important;
+                color: var(--text-primary) !important;
+            }
+            .nav-user-name {
+                display: none !important;
+            }
+            .nav-user {
+                padding: 0 !important;
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+            .nav-user .avatar {
+                width: 36px !important;
+                height: 36px !important;
+                font-size: 0.95rem !important;
+            }
+            .history-item-row {
+                display: flex !important;
+                flex-direction: row !important;
+                flex-wrap: wrap !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                gap: 10px !important;
+            }
+            .history-item-row > div:first-child {
+                flex: 1 !important;
+                min-width: 200px !important;
+            }
+            .history-item-row > div:last-child {
+                display: flex !important;
+                align-items: center !important;
+                gap: 8px !important;
+                flex-shrink: 0 !important;
+                border-top: none !important;
+                padding-top: 0 !important;
+                margin-top: 0 !important;
+            }
+        }
+    </style>
 </head>
 <body>
 <div class="dashboard-layout">
