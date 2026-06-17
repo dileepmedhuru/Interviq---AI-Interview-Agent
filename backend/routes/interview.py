@@ -196,13 +196,21 @@ def submit_answer(id: str, body: SubmitAnswerSchema, current_user: dict = Depend
 
     # Bulk save logic (legacy / fallback)
     if body.answers and len(body.answers) > 0:
+        existing_answers = interview.get("answers", [])
         db_answers = []
         for a in body.answers:
-            db_answers.append({
+            ans_data = {
                 "question": a.get("question"),
                 "answer": a.get("answer"),
                 "answeredAt": datetime.fromisoformat(a["answeredAt"].replace("Z", "+00:00")) if a.get("answeredAt") else datetime.utcnow()
-            })
+            }
+            # Find matching existing answer to preserve grades/feedback
+            existing = next((ea for ea in existing_answers if ea["question"] == a.get("question")), None)
+            if existing:
+                for k, v in existing.items():
+                    if k not in ans_data:
+                        ans_data[k] = v
+            db_answers.append(ans_data)
         db.interviews.update_one({"_id": ObjectId(id)}, {"$set": {"answers": db_answers}})
         return {"success": True, "message": "Answers saved", "count": len(db_answers)}
 
