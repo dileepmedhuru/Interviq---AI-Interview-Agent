@@ -86,6 +86,7 @@ def serialize_interview(iv) -> dict:
         "duration": iv.get("duration"),
         "startedAt": iv.get("startedAt").isoformat() if hasattr(iv.get("startedAt"), "isoformat") else str(iv.get("startedAt", "")),
         "completedAt": iv.get("completedAt").isoformat() if hasattr(iv.get("completedAt"), "isoformat") else str(iv.get("completedAt", "")) if iv.get("completedAt") else None,
+        "createdAt": iv.get("createdAt").isoformat() if hasattr(iv.get("createdAt"), "isoformat") else str(iv.get("createdAt", "")) if iv.get("createdAt") else iv.get("startedAt").isoformat() if hasattr(iv.get("startedAt"), "isoformat") else str(iv.get("startedAt", "")),
     }
     return clean_object_ids(res)
 

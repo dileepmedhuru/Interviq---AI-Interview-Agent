@@ -115,7 +115,10 @@ export function toggleEl(el) { el?.classList.toggle('hidden'); }
 
 // ── Format helpers ────────────────────────────────────────────────────────────
 export function formatDate(dateStr) {
-    return new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+    if (!dateStr) return 'Recent';
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return 'Recent';
+    return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 export function formatDuration(seconds) {
