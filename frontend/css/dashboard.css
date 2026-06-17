@@ -208,61 +208,84 @@
     /* Section heading */
     .section-heading h3 { font-size: 0.95rem !important; }
 
-    /* Interview rows — stay horizontal, compact */
+    /* Interview rows — strict width caps so right chips are always visible */
     .interview-row {
-        padding: 0.75rem 0.875rem !important;
+        padding: 0.65rem 0.75rem !important;
         flex-direction: row !important;
         align-items: center !important;
+        justify-content: space-between !important;
+        gap: 8px !important;
     }
     .interview-row-left {
-        flex: 1 !important;
+        /* Cap at 58% so right-side chips always have space */
+        flex: 0 1 58% !important;
+        max-width: 58% !important;
         min-width: 0 !important;
-        gap: 10px !important;
+        gap: 8px !important;
+        overflow: hidden !important;
     }
     .interview-row-left .avatar {
-        width: 34px !important;
-        height: 34px !important;
-        min-width: 34px !important;
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px !important;
         flex-shrink: 0 !important;
         border-radius: 50% !important;
+        font-size: 0.72rem !important;
     }
     .interview-row-left > div:not(.avatar) {
         flex: 1 !important;
         min-width: 0 !important;
+        overflow: hidden !important;
     }
     .interview-row-left .font-semibold {
-        font-size: 0.875rem !important;
+        font-size: 0.82rem !important;
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
     }
     .interview-row-left .text-xs {
-        font-size: 0.7rem !important;
+        font-size: 0.67rem !important;
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
     }
     .interview-row-right {
+        /* Always visible on right, never shrink */
         display: flex !important;
         align-items: center !important;
-        gap: 4px !important;
+        gap: 3px !important;
         flex-shrink: 0 !important;
+        flex: 0 0 auto !important;
+        margin-left: auto !important;
         border-top: none !important;
         padding-top: 0 !important;
         margin-top: 0 !important;
     }
+    /* Chips: tiny on mobile */
     .interview-row-right .chip {
-        padding: 2px 5px !important;
-        font-size: 0.6rem !important;
+        padding: 2px 6px !important;
+        font-size: 0.58rem !important;
         white-space: nowrap !important;
+        border-radius: 20px !important;
+        line-height: 1.4 !important;
     }
 
     /* Quick start card */
     .quick-start-card {
-        padding: 1.25rem !important;
+        padding: 1.125rem !important;
+        /* Prevent text from bleeding outside card */
+        overflow: hidden !important;
+        word-break: break-word !important;
+        overflow-wrap: break-word !important;
     }
-    .quick-start-card h3 { font-size: 1rem !important; }
-    .quick-start-card p  { font-size: 0.82rem !important; margin-bottom: 1rem !important; }
+    .quick-start-card h3 { font-size: 0.95rem !important; }
+    .quick-start-card p {
+        font-size: 0.8rem !important;
+        margin-bottom: 0.875rem !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+        hyphens: auto !important;
+    }
 
     /* ── Navigation bar ── */
     .nav {
