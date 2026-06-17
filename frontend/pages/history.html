@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>History — Interview Agent</title>
+    <title>History — Interviq - An AI Interview Agent </title>
     <link rel="icon" href="../public/favicon.ico"/>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
     <link rel="stylesheet" href="../css/base.css"/>
     <link rel="stylesheet" href="../css/3d-effects.css"/>
     <link rel="stylesheet" href="../css/animations.css"/>
-    <link rel="stylesheet" href="../css/components.css"/>
+    <link rel="stylesheet" href="../css/components.css?v=3"/>
     <link rel="stylesheet" href="../css/dashboard.css"/>
 </head>
 <body>
@@ -17,11 +17,11 @@
 
     <nav class="nav">
         <a class="nav-brand" href="/pages/dashboard.html">
-            <div class="nav-logo">🎯</div> Interview Agent
+            <div class="nav-logo"><img src="../public/logo.png?v=2" alt="Interviq Logo" /></div> Interviq <span style="font-size:0.8rem;font-weight:500;color:var(--text-muted);margin-left:4px;">- An AI Interview Agent</span>
         </a>
         <div class="nav-actions">
-            <a href="/pages/dashboard.html" class="btn btn-secondary btn-sm">← Dashboard</a>
-            <button class="btn btn-ghost btn-sm" data-action="logout">Sign out</button>
+            <a href="/pages/dashboard.html" class="btn btn-secondary btn-sm">← <span class="nav-btn-text" style="display: none;">Dashboard</span></a>
+            <button class="btn btn-ghost btn-sm" data-action="logout">🚪 <span class="nav-btn-text" style="display: none;">Sign out</span></button>
         </div>
     </nav>
 
@@ -130,7 +130,7 @@ async function loadHistory(page = 1) {
 
             return `
             <div class="card card-hover" style="padding:1rem 1.25rem" data-id="${iv._id}">
-                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+                <div class="history-item-row" style="display:flex;align-items:center;justify-content:space-between;gap:12px">
                     <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0">
                         <div class="avatar avatar-sm" style="flex-shrink:0">${initials(iv.role)}</div>
                         <div style="min-width:0">

@@ -43,6 +43,7 @@ export const interviewApi = {
     answer:   (id, body)       => api.post(`/interview/${id}/answer`, body),
     evaluate: (id)             => api.post(`/interview/${id}/evaluate`),
     get:      (id)             => api.get(`/interview/${id}`),
+    getPublic:(id)             => api.get(`/interview/public/${id}`),
     history:  (page=1, limit=10) => api.get(`/interview/history?page=${page}&limit=${limit}`),
     delete:   (id)             => api.delete(`/interview/${id}`),
 };

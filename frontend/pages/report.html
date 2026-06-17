@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Report — Interview Agent</title>
+    <title>Report — Interviq - An AI Interview Agent </title>
     <link rel="icon" href="../public/favicon.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="../css/base.css" />
     <link rel="stylesheet" href="../css/3d-effects.css" />
     <link rel="stylesheet" href="../css/animations.css" />
-    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/components.css?v=3" />
     <style>
         /* Two-column layout */
         .review-layout {
@@ -28,6 +28,38 @@
                 position: relative !important;
                 top: 0 !important;
                 max-height: none !important;
+            }
+            .navigator-list {
+                flex-direction: row !important;
+                overflow-x: auto !important;
+                overflow-y: hidden !important;
+                white-space: nowrap !important;
+                padding-bottom: 8px !important;
+                max-height: none !important;
+                gap: 0.5rem !important;
+                -webkit-overflow-scrolling: touch;
+            }
+            .nav-item {
+                width: auto !important;
+                min-width: 80px !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                justify-content: center !important;
+                padding: 0.5rem 0.75rem !important;
+                flex-shrink: 0 !important;
+            }
+            .nav-item-header {
+                margin-bottom: 0 !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                gap: 2px !important;
+                width: auto !important;
+            }
+            .nav-item-type {
+                font-size: 0.55rem !important;
+            }
+            .nav-item-status {
+                display: none !important;
             }
         }
         
@@ -297,6 +329,15 @@
             border-color: rgba(226, 75, 74, 0.15);
             color: var(--danger);
         }
+        
+        @media print {
+            body { background: white !important; color: black !important; }
+            .nav, .navigator-sidebar, #download-pdf-btn, .btn { display: none !important; }
+            .review-layout { display: block; }
+            .details-pane { box-shadow: none; border: none; padding: 0; min-height: auto; }
+            .card { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
     </style>
 </head>
 <body>
@@ -304,11 +345,12 @@
 <!-- Nav -->
 <nav class="nav">
     <a class="nav-brand" href="dashboard.html">
-        <div class="nav-logo">🎯</div>
-        Interview Agent
+        <div class="nav-logo"><img src="../public/logo.png?v=2" alt="Interviq Logo" /></div>
+        Interviq <span style="font-size:0.8rem;font-weight:500;color:var(--text-muted);margin-left:4px;">- An AI Interview Agent</span>
     </a>
     <div class="nav-actions">
-        <a href="dashboard.html" class="btn btn-secondary btn-sm">← Dashboard</a>
+        <button id="download-pdf-btn" class="btn btn-primary btn-sm">📄 <span class="nav-btn-text" style="display: none;">Download PDF</span></button>
+        <a href="dashboard.html" class="btn btn-secondary btn-sm">← <span class="nav-btn-text" style="display: none;">Dashboard</span></a>
     </div>
 </nav>
 

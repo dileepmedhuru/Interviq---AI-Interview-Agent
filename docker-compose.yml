@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  db:
+    image: mongo:6.0
+    container_name: interviq-db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    restart: unless-stopped
+
+  app:
+    build: .
+    container_name: interviq-app
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGO_URI=mongodb://db:27017/ai-interview-agent
+    depends_on:
+      - db
+    restart: unless-stopped
+
+volumes:
+  mongo-data:

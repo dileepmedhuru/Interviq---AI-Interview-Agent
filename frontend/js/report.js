@@ -4,24 +4,48 @@ import { requireAuth, showToast, $, buildScoreRing, scoreColor, scoreLabel, form
 
 // ── Bootstrap ─────────────────────────────────────────────────────────────────
 (async () => {
-    await requireAuth();
+    const isPublic = new URLSearchParams(window.location.search).get('public') === 'true';
+    if (!isPublic) {
+        await requireAuth();
+    } else {
+        // Adjust navigation and action buttons for public view
+        const navActions = document.querySelector('.nav-actions');
+        if (navActions) {
+            const dashboardLink = navActions.querySelector('a[href="dashboard.html"]');
+            if (dashboardLink) {
+                dashboardLink.href = 'index.html';
+                dashboardLink.textContent = 'Try Interviq Free';
+            }
+        }
+        const backBtn = document.querySelector('a[href="dashboard.html"].btn-secondary');
+        if (backBtn) {
+            backBtn.href = 'index.html';
+            backBtn.textContent = 'Try Interviq Free';
+        }
+        const againBtn = document.getElementById('new-interview-btn');
+        if (againBtn) {
+            againBtn.style.display = 'none';
+        }
+    }
 
     const id = new URLSearchParams(window.location.search).get('id');
     if (!id) {
         showToast('No interview ID provided', 'error');
-        setTimeout(() => { window.location.href = '/pages/dashboard.html'; }, 1500);
+        setTimeout(() => { window.location.href = isPublic ? 'index.html' : '/pages/dashboard.html'; }, 1500);
         return;
     }
 
     try {
-        const data = await interviewApi.get(id);
+        const data = isPublic ? await interviewApi.getPublic(id) : await interviewApi.get(id);
         const { interview } = data;
 
-        if (!interview.report) {
+        if (!interview.report && !isPublic) {
             showToast('Generating report, please wait…', 'info');
             await interviewApi.evaluate(id);
             const fresh = await interviewApi.get(id);
             renderReport(fresh.interview);
+        } else if (!interview.report && isPublic) {
+            showToast('Report is still generating, please check back in a moment.', 'info');
         } else {
             renderReport(interview);
         }
@@ -203,6 +227,7 @@ function renderReport(interview) {
 
         return {
             q,
+            answerObj,
             answer: answerVal,
             status,
             statusText,
@@ -270,7 +295,7 @@ function renderReport(interview) {
         const detailsEl = $('#details-pane');
         if (!detailsEl) return;
 
-        const { q, answer, status, statusText } = item;
+        const { q, answer, status, statusText, answerObj } = item;
         const isMcq = Number(q.section) === 1;
         const isCoding = Number(q.section) === 2;
         const isVideo = Number(q.section) === 3;
@@ -292,7 +317,7 @@ function renderReport(interview) {
         let detailHtml = `
         <div class="detail-header">
             <div style="flex: 1; min-width: 0;">
-                <h3 class="detail-title">Q${idx}: ${isMcq ? escHtml(q.text) : escHtml(q.title || q.functionSignature || 'Coding Question')}</h3>
+                <h3 class="detail-title">Q${idx}: ${(isMcq || isVideo) ? escHtml(q.text) : escHtml(q.title || q.functionSignature || 'Coding Question')}</h3>
                 <div class="detail-meta-badges">
                     <span class="chip chip-teal" style="font-size: 0.7rem;">${typeLabel}</span>
                     <span class="chip ${status === 'correct' ? 'chip-success' : status === 'skipped' ? 'chip-warning' : 'chip-danger'}" style="font-size: 0.7rem; color: #fff; background: ${status === 'correct' ? 'var(--success)' : status === 'skipped' ? 'var(--warning)' : 'var(--danger)'};">${statusText}</span>
@@ -480,11 +505,45 @@ function renderReport(interview) {
 
             detailHtml += `
                 </div>
+            `;
+
+            // Display Agent Decision Logs if available
+            if (answerObj && answerObj.grade !== undefined && answerObj.grade !== null) {
+                detailHtml += `
+                <div style="border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; margin-top: 0.5rem;">
+                    <div style="padding: 10px 14px; background: rgba(168, 85, 247, 0.08); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 1.1rem;">🤖</span>
+                        <strong style="font-size: 0.82rem; color: #a855f7; text-transform: uppercase; letter-spacing: 0.5px;">Grading Agent Evaluation</strong>
+                        <span class="chip" style="margin-left: auto; font-size: 0.72rem; background: #a855f7; color: #fff; border: none; padding: 2px 8px; border-radius: 12px; font-weight: 700;">Score: ${answerObj.grade}/10</span>
+                    </div>
+                    <div style="padding: 14px; background: var(--surface-2); font-size: 0.85rem; line-height: 1.65; color: var(--text-secondary);">
+                        <p><strong>Feedback:</strong> ${escHtml(answerObj.feedback)}</p>
+                    </div>
+                </div>
+
+                <div style="border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden;">
+                    <div style="padding: 10px 14px; background: rgba(13, 148, 136, 0.08); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 1.1rem;">⚙️</span>
+                        <strong style="font-size: 0.82rem; color: #0d9488; text-transform: uppercase; letter-spacing: 0.5px;">Planning Agent Decisions & Reasoning</strong>
+                    </div>
+                    <div style="padding: 14px; background: var(--surface-2); font-size: 0.85rem; line-height: 1.65; color: var(--text-secondary);">
+                        <p><strong>Decision Logic:</strong> ${escHtml(answerObj.planningReasoning)}</p>
+                    </div>
+                </div>
+                `;
+            }
+
+            detailHtml += `
             </div>
             `;
         }
 
         detailsEl.innerHTML = detailHtml;
+
+        // Auto-scroll to details pane on small screens
+        if (window.innerWidth <= 820) {
+            detailsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
     }
 
     // Filter selection event
@@ -494,10 +553,171 @@ function renderReport(interview) {
 
     // Run initial rendering
     renderNavigator();
+    renderPrintOnlyReport();
 
     $('#new-interview-btn')?.addEventListener('click', () => {
         window.location.href = '/pages/dashboard.html';
     });
+
+    $('#download-pdf-btn')?.addEventListener('click', () => {
+        window.print();
+    });
+
+    function renderPrintOnlyReport() {
+        const printOnlyEl = $('#print-only-review');
+        if (!printOnlyEl) return;
+        
+        let printHtml = `
+        <h2 style="font-size: 1.5rem; font-weight: 700; margin-top: 3rem; margin-bottom: 1.5rem; border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; color: var(--text-primary);">Detailed Question & Answer Review</h2>
+        `;
+        
+        reviewData.forEach((item, index) => {
+            const { q, answer, status, statusText } = item;
+            const idx = index + 1;
+            const isMcq = Number(q.section) === 1;
+            const isCoding = Number(q.section) === 2;
+            const isVideo = Number(q.section) === 3;
+            const typeLabel = isMcq ? 'MCQ' : isCoding ? 'Coding' : 'Video Interview';
+            const diffLabel = q.difficulty ? q.difficulty.toUpperCase() : 'MEDIUM';
+            const langLabel = q.language ? q.language.toUpperCase() : (isCoding ? 'PYTHON' : '');
+            
+            let marksText = '—';
+            if (isMcq) {
+                marksText = status === 'correct' ? 'Marks: 1/1' : 'Marks: 0/1';
+            } else if (isCoding) {
+                marksText = status === 'correct' ? 'Marks: 10/10' : 'Marks: 0/10';
+            } else if (isVideo) {
+                marksText = answer !== '[Skipped]' ? 'Marks: Submitted' : 'Marks: 0/10';
+            }
+            
+            printHtml += `
+            <div class="card" style="page-break-inside: avoid; border: 1px solid var(--border); margin-bottom: 1.5rem; padding: 1.5rem; background: var(--surface);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                    <div style="flex: 1; min-width: 0;">
+                        <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0; color: var(--text-primary); line-height: 1.4;">Q${idx}: ${(isMcq || isVideo) ? escHtml(q.text) : escHtml(q.title || q.functionSignature || 'Coding Question')}</h3>
+                        <div style="display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap;">
+                            <span class="chip chip-teal" style="font-size: 0.65rem; padding: 2px 6px;">${typeLabel}</span>
+                            <span class="chip" style="font-size: 0.65rem; padding: 2px 6px; background: ${status === 'correct' ? 'var(--success)' : status === 'skipped' ? 'var(--warning)' : 'var(--danger)'}; color: #fff; border: none;">${statusText}</span>
+                            <span class="chip" style="font-size: 0.65rem; padding: 2px 6px; background: var(--surface-2); border: 1px solid var(--border); color: var(--text-secondary);">${diffLabel}</span>
+                            ${langLabel ? `<span class="chip" style="font-size: 0.65rem; padding: 2px 6px; background: var(--surface-2); border: 1px solid var(--border); color: var(--text-secondary);">${langLabel}</span>` : ''}
+                        </div>
+                    </div>
+                    <div style="font-size: 0.85rem; font-weight: 700; color: var(--accent); padding: 4px 8px; background: var(--surface-2); border-radius: 4px; border: 1px solid var(--border); white-space: nowrap;">${marksText}</div>
+                </div>
+            `;
+            
+            if (isMcq) {
+                const correctIdx = q.correctAnswer;
+                const letter = answer.charAt(0);
+                const userIdx = ['A', 'B', 'C', 'D'].indexOf(letter);
+                const skipped = answer === '[Skipped]';
+                
+                printHtml += `
+                <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem;">
+                `;
+                
+                (q.options || []).forEach((opt, optIdx) => {
+                    const isUserSelected = !skipped && optIdx === userIdx;
+                    const isOptCorrect = optIdx === correctIdx;
+                    let optClass = '';
+                    let indicatorBg = '';
+                    let indicatorColor = '';
+                    
+                    if (isOptCorrect) {
+                        optClass = 'correct';
+                        indicatorBg = 'var(--success)';
+                        indicatorColor = '#fff';
+                    } else if (isUserSelected) {
+                        optClass = 'selected-incorrect';
+                        indicatorBg = 'var(--danger)';
+                        indicatorColor = '#fff';
+                    }
+                    
+                    printHtml += `
+                    <div class="review-option ${optClass}" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border); background: var(--surface-2); font-size: 0.85rem;">
+                        <span style="width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: ${indicatorBg || 'var(--border)'}; color: ${indicatorColor || 'var(--text-secondary)'}; font-weight: bold; font-size: 0.7rem;">${['A', 'B', 'C', 'D'][optIdx]}</span>
+                        <span>${escHtml(opt)}</span>
+                        ${isUserSelected ? `<span style="margin-left: auto; font-size: 0.7rem; font-weight: 600; color: ${isOptCorrect ? 'var(--success)' : 'var(--danger)'};">${isOptCorrect ? '✓ Your Answer' : '✗ Your Answer'}</span>` : ''}
+                        ${!isUserSelected && isOptCorrect ? `<span style="margin-left: auto; font-size: 0.7rem; font-weight: 600; color: var(--success);">✓ Correct Answer</span>` : ''}
+                    </div>
+                    `;
+                });
+                
+                printHtml += `</div>`;
+            } else if (isCoding) {
+                const isPassed = answer.includes(':OK]');
+                const langMatch = answer.match(/^\[(?:CODE|STDIN_CODE):(\w+)(?::OK)?\]\n?/i);
+                const lang = langMatch ? langMatch[1].toUpperCase() : 'PYTHON';
+                const codeBody = langMatch ? answer.replace(/^\[(?:CODE|STDIN_CODE):\w+(?::OK)?\]\n?/i, '').trim() : answer;
+                
+                printHtml += `
+                <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
+                    <div>
+                        <h4 style="font-size: 0.85rem; font-weight: 700; margin-bottom: 4px; color: var(--text-primary);">Submitted Code:</h4>
+                        <pre style="font-family: var(--font-mono); font-size: 0.75rem; background: #1e1e2e; color: #cdd6f4; padding: 0.75rem; border-radius: 6px; overflow-x: auto; white-space: pre-wrap; margin: 0; border: 1px solid rgba(255,255,255,0.1); line-height: 1.4;">${escHtml(codeBody)}</pre>
+                    </div>
+                `;
+                
+                if (q.testCases && q.testCases.length) {
+                    const totalTests = q.testCases.length;
+                    const passedTests = isPassed ? totalTests : 0;
+                    const failedTests = totalTests - passedTests;
+                    
+                    printHtml += `
+                    <div>
+                        <h4 style="font-size: 0.85rem; font-weight: 700; margin-bottom: 6px; color: var(--text-primary);">Test Cases: ${passedTests} Passed · ${failedTests} Failed</h4>
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                    `;
+                    
+                    q.testCases.forEach((tc, tcIdx) => {
+                        const isPass = isPassed;
+                        printHtml += `
+                        <div style="display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 0.7rem; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border); background: ${isPass ? 'rgba(29, 158, 117, 0.05)' : 'rgba(226, 75, 74, 0.05)'}; color: ${isPass ? 'var(--success)' : 'var(--danger)'};">
+                            <span style="font-weight: bold;">${isPass ? '✓' : '✗'}</span>
+                            <span style="font-weight: 600;">Test Case ${tcIdx + 1}:</span>
+                            <span style="color: var(--text-secondary); margin-right: auto;">Input: <code>${escHtml(tc.input || tc.stdin || 'None')}</code></span>
+                            <span style="color: var(--text-muted);">Expected: <code>${escHtml(tc.expectedDisplay || tc.expected || 'None')}</code></span>
+                        </div>
+                        `;
+                    });
+                    
+                    printHtml += `</div></div>`;
+                }
+                printHtml += `</div>`;
+            } else if (isVideo) {
+                const answerObj = as.find(a => a.question === q.text);
+                
+                printHtml += `
+                <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
+                    <div>
+                        <h4 style="font-size: 0.85rem; font-weight: 700; margin-bottom: 4px; color: var(--text-primary);">Transcribed Verbal Response:</h4>
+                        <div style="font-size: 0.85rem; font-style: italic; line-height: 1.6; background: var(--surface-2); padding: 10px 14px; border-radius: 6px; border: 1px solid var(--border); color: var(--text-primary);">
+                            "${escHtml(answer)}"
+                        </div>
+                    </div>
+                `;
+                
+                if (answerObj && answerObj.grade !== undefined && answerObj.grade !== null) {
+                    printHtml += `
+                    <div style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin-top: 0.5rem;">
+                        <div style="padding: 6px 12px; background: rgba(168, 85, 247, 0.05); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
+                            <strong style="font-size: 0.75rem; color: #a855f7; text-transform: uppercase;">Grading Agent Evaluation</strong>
+                            <span class="chip" style="font-size: 0.72rem; background: #a855f7; color: #fff; border: none; padding: 2px 8px; border-radius: 12px; font-weight: 700;">Score: ${answerObj.grade}/10</span>
+                        </div>
+                        <div style="padding: 10px 12px; background: var(--surface-2); font-size: 0.8rem; line-height: 1.5; color: var(--text-secondary);">
+                            <p style="margin: 0;"><strong>Feedback:</strong> ${escHtml(answerObj.feedback)}</p>
+                        </div>
+                    </div>
+                    `;
+                }
+                printHtml += `</div>`;
+            }
+            
+            printHtml += `</div>`;
+        });
+        
+        printOnlyEl.innerHTML = printHtml;
+    }
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

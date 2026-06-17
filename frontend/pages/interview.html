@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Interview — Interview Agent</title>
+    <title>Interview — Interviq - An AI Interview Agent </title>
     <link rel="icon" href="../public/favicon.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="../css/base.css" />
     <link rel="stylesheet" href="../css/3d-effects.css" />
     <link rel="stylesheet" href="../css/animations.css" />
-    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/components.css?v=3" />
     <link rel="stylesheet" href="../css/interview.css" />
     <style>
         html,
@@ -2855,7 +2855,7 @@
             }).join('') + `<span style="font-size:.72rem;color:rgba(255,255,255,.4);margin-left:6px">Video Interview</span>`;
         }
 
-        async function showViQuestion(idx) {
+        async function showViQuestion(idx, transitionText = "") {
             const qs = getS3();
             if (idx >= qs.length) { endSection3(); return; }
             viIndex = idx;
@@ -2876,14 +2876,20 @@
             setText('#progress-label', `Video ${idx + 1} / ${qs.length}`);
             await sleep(1000);
 
-            const intro = idx === 0
-                ? `Hi! I'm Alex, your interviewer. We have ${qs.length} questions. Let's begin! ${q.text}`
-                : q.text;
+            let speechText = "";
+            if (transitionText) {
+                speechText = transitionText;
+            } else {
+                speechText = idx === 0
+                    ? `Hi! I'm Alex, your interviewer. Let's begin the adaptive verbal section. Based on your profile, here is the first question: ${q.text}`
+                    : q.text;
+            }
+
             const badge = q.category === 'behavioral'
                 ? `<div class="vi-q-type-badge vi-q-type-behavioral">🧠 Behavioral</div>`
                 : `<div class="vi-q-type-badge vi-q-type-technical">⚙️ Technical</div>`;
             $('#vi-q-text').innerHTML = badge + '<div>' + escHtml(q.text) + '</div>';
-            await speakText(intro);
+            await speakText(speechText);
         }
 
         async function handleViSubmit() {
@@ -2898,24 +2904,120 @@
             btn.disabled = true; btn.textContent = '⏳';
 
             const qs = getS3();
-            saveAnswer(qs[viIndex]?.text || '', answer);
+            const currentQ = qs[viIndex];
+            saveLocalAnswer(currentQ.text || '', answer);
 
-            const d = $(`#vd-${viIndex}`);
-            if (d) { d.classList.remove('active'); d.classList.add('done'); }
+            const qTextEl = $('#vi-q-text');
+            const prevQText = qTextEl.innerHTML;
+            qTextEl.innerHTML = `
+                <div class="agent-thinking-state" style="font-size: 0.85rem; color: #a855f7; padding: 10px 14px; background: rgba(168, 85, 247, 0.08); border-radius: 8px; border-left: 3px solid #a855f7; margin-bottom: 12px; font-weight: 500;">
+                    🤖 <strong>Grading Agent</strong> evaluating response depth...
+                </div>
+                <div class="agent-thinking-state" id="planning-loader" style="font-size: 0.85rem; color: rgba(255,255,255,0.4); padding: 10px 14px; margin-bottom: 12px; font-weight: 500;">
+                    ⚙️ <strong>Planning Agent</strong> determining follow-up action...
+                </div>
+            `;
 
-            isSubmitting = false;
-            btn.disabled = false; btn.textContent = '➤';
+            setTimeout(() => {
+                const planLoader = document.getElementById('planning-loader');
+                if (planLoader) {
+                    planLoader.style.color = '#0d9488';
+                    planLoader.style.background = 'rgba(13, 148, 136, 0.08)';
+                    planLoader.style.borderLeft = '3px solid #0d9488';
+                    planLoader.style.borderRadius = '8px';
+                    planLoader.innerHTML = '⚙️ <strong>Planning Agent</strong> generating adaptive follow-up...';
+                }
+            }, 1200);
 
-            if (viIndex < qs.length - 1) { viIndex++; await showViQuestion(viIndex); }
-            else endSection3();
+            try {
+                const originalIdx = interview.questions.findIndex(q => q.text === currentQ.text);
+                const res = await interviewApi.answer(interview._id, {
+                    questionIndex: originalIdx,
+                    answer: answer
+                });
+
+                const d = $(`#vd-${viIndex}`);
+                if (d) { d.classList.remove('active'); d.classList.add('done'); }
+
+                if (res.isComplete) {
+                    if (res.aiResponse) {
+                        qTextEl.innerHTML = `<div class="vi-q-type-badge vi-q-type-technical" style="background:var(--success)">🏁 Interview Complete</div><div>${escHtml(res.aiResponse)}</div>`;
+                        await speakText(res.aiResponse);
+                    }
+                    isSubmitting = false;
+                    btn.disabled = false; btn.textContent = '➤';
+                    endSection3();
+                } else {
+                    if (res.nextQuestion) {
+                        interview.questions.push(res.nextQuestion);
+                        buildViDots();
+                    }
+                    isSubmitting = false;
+                    btn.disabled = false; btn.textContent = '➤';
+
+                    viIndex++;
+                    await showViQuestion(viIndex, res.aiResponse);
+                }
+            } catch (err) {
+                showToast(err.message || 'Error communicating with AI agents', 'error');
+                qTextEl.innerHTML = prevQText;
+                isSubmitting = false;
+                btn.disabled = false; btn.textContent = '➤';
+            }
         }
 
-        function handleViSkip() {
-            const qs = getS3(), d = $(`#vd-${viIndex}`);
+        async function handleViSkip() {
+            if (isSubmitting) return;
+            const qs = getS3();
+            const currentQ = qs[viIndex];
+            saveLocalAnswer(currentQ.text || '', '[Skipped]');
+
+            const d = $(`#vd-${viIndex}`);
             if (d) { d.classList.remove('active'); d.classList.add('skipped'); }
-            saveAnswer(qs[viIndex]?.text || '', '[Skipped]');
-            if (viIndex < qs.length - 1) { viIndex++; showViQuestion(viIndex); }
-            else endSection3();
+
+            isSubmitting = true;
+            const btn = $('#vi-skip-btn');
+            const submitBtn = $('#vi-submit-btn');
+            if (btn) btn.disabled = true;
+            if (submitBtn) submitBtn.disabled = true;
+
+            const qTextEl = $('#vi-q-text');
+            const prevQText = qTextEl.innerHTML;
+            qTextEl.innerHTML = `
+                <div class="agent-thinking-state" style="font-size: 0.85rem; color: #a855f7; padding: 10px 14px; background: rgba(168, 85, 247, 0.08); border-radius: 8px; border-left: 3px solid #a855f7; margin-bottom: 12px; font-weight: 500;">
+                    🤖 Skipping question and preparing the next one...
+                </div>
+            `;
+
+            try {
+                const originalIdx = interview.questions.findIndex(q => q.text === currentQ.text);
+                const res = await interviewApi.answer(interview._id, {
+                    questionIndex: originalIdx,
+                    answer: '[Skipped]'
+                });
+
+                if (res.nextQuestion) {
+                    interview.questions.push(res.nextQuestion);
+                    buildViDots();
+                }
+
+                isSubmitting = false;
+                if (btn) btn.disabled = false;
+                if (submitBtn) submitBtn.disabled = false;
+
+                if (res.isComplete) {
+                    endSection3();
+                } else {
+                    viIndex++;
+                    await showViQuestion(viIndex, res.aiResponse);
+                }
+            } catch (err) {
+                showToast('Skip failed', 'error');
+                qTextEl.innerHTML = prevQText;
+                isSubmitting = false;
+                if (btn) btn.disabled = false;
+                if (submitBtn) submitBtn.disabled = false;
+            }
         }
 
         function endSection3() {
@@ -3015,6 +3117,16 @@
             interviewApi.answer(interview._id, { answers: localAnswers }).catch(err => {
                 console.error("Failed to sync answers in background:", err);
             });
+        }
+
+        function saveLocalAnswer(question, answer) {
+            const existingIdx = localAnswers.findIndex(a => a.question === question);
+            if (existingIdx >= 0) {
+                localAnswers[existingIdx].answer = answer;
+                localAnswers[existingIdx].answeredAt = new Date().toISOString();
+            } else {
+                localAnswers.push({ question, answer, answeredAt: new Date().toISOString() });
+            }
         }
 
         async function handleEvaluate() {
