@@ -485,34 +485,36 @@
         }
 
         .example-card {
-            background: rgba(255, 255, 255, .03);
-            border: 1px solid rgba(255, 255, 255, .07);
+            background: rgba(255, 255, 255, .02);
+            border: 1px solid rgba(255, 255, 255, .05);
             border-radius: 10px;
-            padding: 12px 14px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: .78rem;
+            padding: 14px;
         }
 
-        .example-row {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 4px;
-            flex-wrap: wrap;
-        }
-
-        .example-row:last-child {
-            margin-bottom: 0;
-        }
-
-        .ex-key {
+        .sample-label {
+            font-size: .7rem;
+            font-weight: 700;
             color: rgba(255, 255, 255, .35);
-            flex-shrink: 0;
+            margin-bottom: 5px;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: .05em;
         }
 
-        .ex-val {
-            color: rgba(255, 255, 255, .85);
-            font-weight: 500;
-            word-break: break-all;
+        .sample-label:first-of-type {
+            margin-top: 0;
+        }
+
+        .sample-box {
+            background: rgba(0, 0, 0, .2);
+            border: 1px solid rgba(255, 255, 255, .04);
+            border-radius: 6px;
+            padding: 10px 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .8rem;
+            color: rgba(255, 255, 255, .9);
+            white-space: pre-wrap;
+            margin: 0 0 10px 0;
         }
 
         .ex-explanation {
@@ -1790,12 +1792,24 @@
                                 <span class="problem-cat-chip">💻 Coding Challenge</span>
                                 <span id="prob-difficulty-tag"></span>
                             </div>
-                            <p class="problem-desc-text" id="prob-desc"></p>
-                            <div class="section-label">Examples</div>
-                            <div class="examples-list" id="prob-examples"></div>
+                            
+                            <div class="section-label">Problem Description</div>
+                            <div class="problem-desc-text" id="prob-desc"></div>
+
+                            <div class="section-label" id="prob-input-format-title">Input Format</div>
+                            <div class="problem-desc-text" id="prob-input-format"></div>
+
+                            <div class="section-label" id="prob-output-format-title">Output Format</div>
+                            <div class="problem-desc-text" id="prob-output-format"></div>
+
                             <div id="prob-constraints-wrap">
                                 <div class="section-label">Constraints</div>
                                 <div class="constraints-list" id="prob-constraints"></div>
+                            </div>
+
+                            <div id="prob-samples-wrap">
+                                <div class="section-label">Sample Input & Output</div>
+                                <div class="examples-list" id="prob-examples"></div>
                             </div>
                         </div>
                         <div class="problem-content hidden" id="prob-hint-tab">
@@ -1816,7 +1830,7 @@
                         <div class="editor-hint-bar">
                             <span><kbd>Tab</kbd> indent</span>
                             <span><kbd>Ctrl+Enter</kbd> run</span>
-                            <button class="reset-btn-inline" id="reset-starter-btn">↺ Reset starter</button>
+                            <button class="reset-btn-inline" id="reset-starter-btn">↺ Reset editor</button>
                         </div>
                         <!-- Compiled language note (shown dynamically) -->
                         <div id="lang-compiled-note"></div>
@@ -1975,18 +1989,44 @@
             cpp: 'C++', c: 'C', typescript: 'TS', go: 'GO', rust: 'RS',
         };
 
+        function parseDescription(text) {
+            let desc = '';
+            let inputFormat = '';
+            let outputFormat = '';
+
+            const lowerText = text.toLowerCase();
+            
+            const inputIdx = lowerText.indexOf('input format:');
+            if (inputIdx !== -1) {
+                desc = text.substring(0, inputIdx).trim();
+                
+                const outputIdx = lowerText.indexOf('output format:', inputIdx);
+                if (outputIdx !== -1) {
+                    inputFormat = text.substring(inputIdx + 'input format:'.length, outputIdx).trim();
+                    
+                    let exampleIdx = lowerText.indexOf('example', outputIdx);
+                    if (exampleIdx === -1) {
+                        exampleIdx = lowerText.indexOf('sample', outputIdx);
+                    }
+                    if (exampleIdx !== -1) {
+                        outputFormat = text.substring(outputIdx + 'output format:'.length, exampleIdx).trim();
+                    } else {
+                        outputFormat = text.substring(outputIdx + 'output format:'.length).trim();
+                    }
+                } else {
+                    inputFormat = text.substring(inputIdx + 'input format:'.length).trim();
+                }
+            } else {
+                desc = text.trim();
+            }
+
+            return { desc, inputFormat, outputFormat };
+        }
+
         // Default starter shown when user hasn't typed anything yet.
-        // q.starterCode is now an object keyed by language name.
+        // We always return an empty string so the editor starts blank.
         function getStarterForLang(lang, q) {
-            if (q.starterCode && typeof q.starterCode === 'object') {
-                return q.starterCode[lang] || q.starterCode['python'] ||
-                    `# Read your input and print your output\n`;
-            }
-            // Fallback for any legacy problems that still have a string starterCode
-            if (q.starterCode && typeof q.starterCode === 'string') {
-                return q.starterCode;
-            }
-            return `# Read your input and print your output\n`;
+            return '';
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -2017,6 +2057,32 @@
         const getS3 = () => (interview?.questions || []).filter(q => Number(q.section) === 3);
 
         // ═══════════════════════════════════════════════════════════════
+        function determineResumePoint() {
+            const s1 = getS1();
+            const s2 = getS2();
+            const s3 = getS3();
+
+            for (let i = 0; i < s1.length; i++) {
+                if (!localAnswers.some(a => a.question === s1[i].text)) {
+                    return { section: 1, index: i };
+                }
+            }
+
+            for (let i = 0; i < s2.length; i++) {
+                if (!localAnswers.some(a => a.question === s2[i].text)) {
+                    return { section: 2, index: i };
+                }
+            }
+
+            for (let i = 0; i < s3.length; i++) {
+                if (!localAnswers.some(a => a.question === s3[i].text)) {
+                    return { section: 3, index: i };
+                }
+            }
+
+            return { section: 3, index: Math.max(0, s3.length - 1) };
+        }
+
         // BOOTSTRAP
         // ═══════════════════════════════════════════════════════════════
         (async () => {
@@ -2037,11 +2103,41 @@
                     return;
                 }
 
+                // Load existing answers
+                if (Array.isArray(interview.answers) && interview.answers.length > 0) {
+                    localAnswers = interview.answers.map(a => ({
+                        question: a.question,
+                        answer: a.answer,
+                        answeredAt: a.answeredAt
+                    }));
+                } else {
+                    localAnswers = [];
+                }
+
+                // Populate mcqResults from loaded localAnswers
+                const s1 = getS1();
+                mcqResults = s1.map((q) => {
+                    const ansObj = localAnswers.find(a => a.question === q.text);
+                    if (!ansObj || ansObj.answer === '[Skipped]') return null;
+                    const prefix = ansObj.answer.split(':')[0].trim();
+                    const ansIdx = 'ABCD'.indexOf(prefix);
+                    return ansIdx === q.correctAnswer;
+                });
+
                 setText('#header-role', interview.role);
                 setText('#header-level', interview.expLevel + ' level');
                 hideEl($('#loading-state'));
                 startTimer();
-                showSectionOverlay(1, () => startSection1());
+
+                // Determine where to resume
+                const resumePoint = determineResumePoint();
+                if (resumePoint.section === 1) {
+                    showSectionOverlay(1, () => startSection1(resumePoint.index));
+                } else if (resumePoint.section === 2) {
+                    showSectionOverlay(2, () => startSection2(resumePoint.index));
+                } else if (resumePoint.section === 3) {
+                    showSectionOverlay(3, () => startSection3(resumePoint.index));
+                }
             } catch (err) {
                 showToast(err.message || 'Could not load interview', 'error');
             }
@@ -2099,20 +2195,39 @@
         // ═══════════════════════════════════════════════════════════════
         // SECTION 1 — MCQ
         // ═══════════════════════════════════════════════════════════════
-        function startSection1() {
-            currentSection = 1; mcqIndex = 0; updatePills(1);
+        function startSection1(idx = 0) {
+            currentSection = 1; mcqIndex = idx; updatePills(1);
             if (!getS1().length) { showToast('No MCQ questions found', 'error'); return; }
             showEl($('#section1-wrap'));
             buildMcqDots();
-            showMcqQuestion(0);
-            $('#mcq-submit-btn').addEventListener('click', handleMcqSubmit);
-            $('#mcq-next-btn').addEventListener('click', handleMcqNext);
-            $('#mcq-skip-btn').addEventListener('click', handleMcqSkip);
+            showMcqQuestion(idx);
+            if (!startSection1.bound) {
+                $('#mcq-submit-btn').addEventListener('click', handleMcqSubmit);
+                $('#mcq-next-btn').addEventListener('click', handleMcqNext);
+                $('#mcq-skip-btn').addEventListener('click', handleMcqSkip);
+                startSection1.bound = true;
+            }
         }
 
         function buildMcqDots() {
-            $('#mcq-score-dots').innerHTML = getS1().map((_, i) =>
-                `<div class="score-dot" id="sd-${i}">${i + 1}</div>`).join('');
+            const s1 = getS1();
+            $('#mcq-score-dots').innerHTML = s1.map((q, i) => {
+                const ansObj = localAnswers.find(a => a.question === q.text);
+                let cls = 'score-dot';
+                let content = i + 1;
+                if (ansObj) {
+                    if (ansObj.answer === '[Skipped]') {
+                        cls += ' skipped';
+                        content = '—';
+                    } else {
+                        const prefix = ansObj.answer.split(':')[0].trim();
+                        const ansIdx = 'ABCD'.indexOf(prefix);
+                        const isCorrect = ansIdx === q.correctAnswer;
+                        cls += isCorrect ? ' correct' : ' wrong';
+                    }
+                }
+                return `<div class="${cls}" id="sd-${i}">${content}</div>`;
+            }).join('');
         }
 
         function showMcqQuestion(idx) {
@@ -2216,81 +2331,82 @@
         // All execution is REAL — goes through Judge0 via backend.
         // No new Function(), no fake analysis, no placeholders.
         // ═══════════════════════════════════════════════════════════════
-        function startSection2() {
-            currentSection = 2; codeIndex = 0;
+        function startSection2(idx = 0) {
+            currentSection = 2; codeIndex = idx; updatePills(2);
             showEl($('#section2-wrap'));
             buildCodeDots();
-            showCodeQuestion(0);
+            showCodeQuestion(idx);
 
-            // Language switcher
-            $('#code-lang').addEventListener('change', () => {
-                const lang = getLang();
-                setText('#lang-badge', LANG_BADGE[lang] || lang.toUpperCase());
-                // Only replace if user hasn't edited
-                if ($('#code-textarea').dataset.isStarter === 'true') {
-                    const q = getS2()[codeIndex];
-                    $('#code-textarea').value = getStarterForLang(lang, q);
-                }
-                updateLangNote(lang);
-            });
+            if (!startSection2.bound) {
+                // Language switcher
+                $('#code-lang').addEventListener('change', () => {
+                    const lang = getLang();
+                    setText('#lang-badge', LANG_BADGE[lang] || lang.toUpperCase());
+                    // Every language editor must open with a blank file on switch
+                    $('#code-textarea').value = '';
+                    $('#code-textarea').dataset.isStarter = 'true';
+                    updateLangNote(lang);
+                });
 
-            // Mark as edited once user types
-            $('#code-textarea').addEventListener('input', () => {
-                $('#code-textarea').dataset.isStarter = 'false';
-            });
+                // Mark as edited once user types
+                $('#code-textarea').addEventListener('input', () => {
+                    $('#code-textarea').dataset.isStarter = 'false';
+                });
 
-            $('#run-btn').addEventListener('click', runCode);
-            $('#code-submit-btn').addEventListener('click', handleCodeSubmit);
-            $('#code-skip-btn').addEventListener('click', handleCodeSkip);
-            $('#reset-starter-btn').addEventListener('click', resetToStarter);
+                $('#run-btn').addEventListener('click', runCode);
+                $('#code-submit-btn').addEventListener('click', handleCodeSubmit);
+                $('#code-skip-btn').addEventListener('click', handleCodeSkip);
+                $('#reset-starter-btn').addEventListener('click', resetToStarter);
 
-            // Keyboard shortcuts
-            $('#code-textarea').addEventListener('keydown', e => {
-                // Ctrl+Enter → run code
-                if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); runCode(); return; }
+                // Keyboard shortcuts
+                $('#code-textarea').addEventListener('keydown', e => {
+                    // Ctrl+Enter → run code
+                    if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); runCode(); return; }
 
-                // Tab → 4-space indent
-                if (e.key === 'Tab') {
-                    e.preventDefault();
-                    const ta = e.target, s = ta.selectionStart, en = ta.selectionEnd;
-                    if (s === en) {
-                        document.execCommand('insertText', false, '    ');
-                    } else {
-                        const ls = ta.value.lastIndexOf('\n', s - 1) + 1;
-                        const le = ta.value.indexOf('\n', en - 1);
-                        const block = ta.value.substring(ls, le === -1 ? ta.value.length : le);
-                        const ind = block.split('\n').map(l => '    ' + l).join('\n');
-                        ta.setSelectionRange(ls, le === -1 ? ta.value.length : le);
-                        document.execCommand('insertText', false, ind);
-                        ta.setSelectionRange(ls, ls + ind.length);
+                    // Tab → 4-space indent
+                    if (e.key === 'Tab') {
+                        e.preventDefault();
+                        const ta = e.target, s = ta.selectionStart, en = ta.selectionEnd;
+                        if (s === en) {
+                            document.execCommand('insertText', false, '    ');
+                        } else {
+                            const ls = ta.value.lastIndexOf('\n', s - 1) + 1;
+                            const le = ta.value.indexOf('\n', en - 1);
+                            const block = ta.value.substring(ls, le === -1 ? ta.value.length : le);
+                            const ind = block.split('\n').map(l => '    ' + l).join('\n');
+                            ta.setSelectionRange(ls, le === -1 ? ta.value.length : le);
+                            document.execCommand('insertText', false, ind);
+                            ta.setSelectionRange(ls, ls + ind.length);
+                        }
+                        return;
                     }
-                    return;
-                }
 
-                // Enter → auto-indent (with Python colon detection)
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    const lang = getLang(), ta = e.target, pos = ta.selectionStart;
-                    const lineStart = ta.value.lastIndexOf('\n', pos - 1) + 1;
-                    const currentLine = ta.value.substring(lineStart, pos);
-                    const indent = currentLine.match(/^(\s*)/)[1];
-                    const extra = (lang === 'python' && currentLine.trimEnd().endsWith(':')) ? '    ' : '';
-                    document.execCommand('insertText', false, '\n' + indent + extra);
-                }
-            });
-
-            // Problem panel tab switching
-            document.querySelectorAll('.problem-tab').forEach(tab => {
-                tab.addEventListener('click', () => {
-                    document.querySelectorAll('.problem-tab').forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                    if (tab.dataset.tab === 'description') {
-                        showEl($('#prob-description-tab')); hideEl($('#prob-hint-tab'));
-                    } else {
-                        hideEl($('#prob-description-tab')); showEl($('#prob-hint-tab'));
+                    // Enter → auto-indent (with Python colon detection)
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        const lang = getLang(), ta = e.target, pos = ta.selectionStart;
+                        const lineStart = ta.value.lastIndexOf('\n', pos - 1) + 1;
+                        const currentLine = ta.value.substring(lineStart, pos);
+                        const indent = currentLine.match(/^(\s*)/)[1];
+                        const extra = (lang === 'python' && currentLine.trimEnd().endsWith(':')) ? '    ' : '';
+                        document.execCommand('insertText', false, '\n' + indent + extra);
                     }
                 });
-            });
+
+                // Problem panel tab switching
+                document.querySelectorAll('.problem-tab').forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        document.querySelectorAll('.problem-tab').forEach(t => t.classList.remove('active'));
+                        tab.classList.add('active');
+                        if (tab.dataset.tab === 'description') {
+                            showEl($('#prob-description-tab')); hideEl($('#prob-hint-tab'));
+                        } else {
+                            hideEl($('#prob-description-tab')); showEl($('#prob-hint-tab'));
+                        }
+                    });
+                });
+                startSection2.bound = true;
+            }
         }
 
         // Show/hide the compiled language note below editor
@@ -2300,9 +2416,15 @@
         }
 
         function buildCodeDots() {
-            $('#code-progress-dots').innerHTML = getS2().map((_, i) =>
-                `<div class="qd" id="cd-${i}"></div>`).join('');
-            $(`#cd-0`)?.classList.add('active');
+            const s2 = getS2();
+            $('#code-progress-dots').innerHTML = s2.map((q, i) => {
+                let cls = 'qd';
+                const ansObj = localAnswers.find(a => a.question === q.text);
+                if (ansObj) {
+                    cls += ansObj.answer === '[Skipped]' ? ' skipped' : ' done';
+                }
+                return `<div class="${cls}" id="cd-${i}"></div>`;
+            }).join('');
         }
 
         function showCodeQuestion(idx) {
@@ -2321,21 +2443,55 @@
             diffEl.textContent = diff.charAt(0).toUpperCase() + diff.slice(1);
             diffEl.className = `difficulty-chip ${diff}`;
 
+            // Parse and render problem details
+            const parsedText = parseDescription(q.text || '');
+
             // Problem description
             setText('#prob-title', q.title || `Problem ${idx + 1}`);
-            $('#prob-desc').innerHTML = (q.text || '')
+            $('#prob-desc').innerHTML = parsedText.desc
                 .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
                 .replace(/`([^`]+)`/g, '<code>$1</code>');
 
-            // Examples
+            // Input Format
+            const inputTitleEl = $('#prob-input-format-title');
+            const inputValEl = $('#prob-input-format');
+            if (parsedText.inputFormat) {
+                showEl(inputTitleEl);
+                showEl(inputValEl);
+                inputValEl.innerHTML = parsedText.inputFormat
+                    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                    .replace(/`([^`]+)`/g, '<code>$1</code>');
+            } else {
+                hideEl(inputTitleEl);
+                hideEl(inputValEl);
+            }
+
+            // Output Format
+            const outputTitleEl = $('#prob-output-format-title');
+            const outputValEl = $('#prob-output-format');
+            if (parsedText.outputFormat) {
+                showEl(outputTitleEl);
+                showEl(outputValEl);
+                outputValEl.innerHTML = parsedText.outputFormat
+                    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                    .replace(/`([^`]+)`/g, '<code>$1</code>');
+            } else {
+                hideEl(outputTitleEl);
+                hideEl(outputValEl);
+            }
+
+            // Examples / Samples
             const exEl = $('#prob-examples');
             const richEx = Array.isArray(q.examples) && q.examples.length ? q.examples : null;
             if (richEx) {
-                exEl.innerHTML = richEx.map(ex => `
+                exEl.innerHTML = richEx.map((ex, exIdx) => `
             <div class="example-card">
-                <div class="example-row"><span class="ex-key">Input:</span><span class="ex-val">${escHtml(ex.input || '')}</span></div>
-                <div class="example-row"><span class="ex-key">Output:</span><span class="ex-val">${escHtml(ex.output || ex.expected || '')}</span></div>
-                ${ex.explanation ? `<div class="ex-explanation">// ${escHtml(ex.explanation)}</div>` : ''}
+                <div style="font-size: .7rem; font-weight: 700; color: var(--accent-light); margin-bottom: 10px; text-transform: uppercase; letter-spacing: .05em;">Sample Case ${exIdx}</div>
+                <div class="sample-label">Sample Input</div>
+                <pre class="sample-box">${escHtml(ex.input || '')}</pre>
+                <div class="sample-label">Sample Output</div>
+                <pre class="sample-box">${escHtml(ex.output || ex.expected || '')}</pre>
+                ${ex.explanation ? `<div class="ex-explanation"><strong>Explanation:</strong> ${escHtml(ex.explanation)}</div>` : ''}
             </div>`).join('');
             } else {
                 exEl.innerHTML = `<div style="font-size:.8rem;color:rgba(255,255,255,.3);font-style:italic">See test results below.</div>`;
@@ -2357,13 +2513,13 @@
                 ? `<strong>💡 Hint</strong><br/>${escHtml(q.explanation)}`
                 : `<strong>💡 Tips</strong><br/>Think about time complexity. Check the constraints for clues on the expected approach.`;
 
-            // Code editor — always start with JavaScript
+            // Code editor — always start with javascript/python as empty
             const lang = 'python';
             $('#code-lang').value = lang;
             setText('#lang-badge', 'PY');
 
             const ta = $('#code-textarea');
-            ta.value = getStarterForLang(lang, q);
+            ta.value = '';
             ta.dataset.isStarter = 'true';
 
             // Progress dots
@@ -2389,11 +2545,11 @@
         function resetToStarter() {
             const q = getS2()[codeIndex];
             const ta = $('#code-textarea');
-            ta.value = getStarterForLang(getLang(), q);
+            ta.value = '';
             ta.dataset.isStarter = 'true';
             resetTestPanel(q);
             $('#code-submit-btn').disabled = true;
-            showToast('Editor reset to starter code', 'info', 2000);
+            showToast('Editor cleared', 'info', 2000);
         }
 
         // ── Test panel idle state ──────────────────────────────────────
@@ -2667,29 +2823,36 @@
         // ═══════════════════════════════════════════════════════════════
         // SECTION 3 — VIDEO
         // ═══════════════════════════════════════════════════════════════
-        async function startSection3() {
-            currentSection = 3; viIndex = 0;
+        async function startSection3(idx = 0) {
+            currentSection = 3; viIndex = idx; updatePills(3);
             document.body.classList.add('video-mode');
             showEl($('#section3-wrap'));
             buildViDots();
             await initCamera();
             initSpeech();
-            await showViQuestion(0);
-            $('#vi-submit-btn').addEventListener('click', handleViSubmit);
-            $('#vi-skip-btn').addEventListener('click', handleViSkip);
-            $('#vi-mic-btn').addEventListener('click', toggleMic);
-            $('#vi-cam-btn').addEventListener('click', toggleCam);
-            $('#vi-answer').addEventListener('keydown', e => {
-                if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); handleViSubmit(); }
-            });
+            await showViQuestion(idx);
+            if (!startSection3.bound) {
+                $('#vi-submit-btn').addEventListener('click', handleViSubmit);
+                $('#vi-skip-btn').addEventListener('click', handleViSkip);
+                $('#vi-mic-btn').addEventListener('click', toggleMic);
+                $('#vi-cam-btn').addEventListener('click', toggleCam);
+                $('#vi-answer').addEventListener('keydown', e => {
+                    if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); handleViSubmit(); }
+                });
+                startSection3.bound = true;
+            }
         }
 
         function buildViDots() {
             const qs = getS3();
-            $('#vi-progress-dots').innerHTML = qs.map((q, i) =>
-                `<div class="qd" id="vd-${i}" title="${q.category === 'behavioral' ? '🧠 Behavioral' : '⚙️ Technical'}"></div>`
-            ).join('') + `<span style="font-size:.72rem;color:rgba(255,255,255,.4);margin-left:6px">Video Interview</span>`;
-            $(`#vd-0`)?.classList.add('active');
+            $('#vi-progress-dots').innerHTML = qs.map((q, i) => {
+                let cls = 'qd';
+                const ansObj = localAnswers.find(a => a.question === q.text);
+                if (ansObj) {
+                    cls += ansObj.answer === '[Skipped]' ? ' skipped' : ' done';
+                }
+                return `<div class="${cls}" id="vd-${i}" title="${q.category === 'behavioral' ? '🧠 Behavioral' : '⚙️ Technical'}"></div>`;
+            }).join('') + `<span style="font-size:.72rem;color:rgba(255,255,255,.4);margin-left:6px">Video Interview</span>`;
         }
 
         async function showViQuestion(idx) {
@@ -2701,11 +2864,14 @@
             $('#vi-q-text').innerHTML = '<div class="vi-typing-dots"><span></span><span></span><span></span></div>';
             $('#vi-answer').value = '';
 
-            qs.forEach((_, i) => {
+            qs.forEach((q3, i) => {
                 const d = $(`#vd-${i}`); if (!d) return;
-                d.classList.remove('active', 'done', 'skipped');
-                if (i < idx) d.classList.add('done');
-                else if (i === idx) d.classList.add('active');
+                d.className = 'qd';
+                const ansObj = localAnswers.find(a => a.question === q3.text);
+                if (ansObj) {
+                    d.classList.add(ansObj.answer === '[Skipped]' ? 'skipped' : 'done');
+                }
+                if (i === idx) d.classList.add('active');
             });
             setText('#progress-label', `Video ${idx + 1} / ${qs.length}`);
             await sleep(1000);
@@ -2836,11 +3002,19 @@
             });
         }
 
-        // ═══════════════════════════════════════════════════════════════
-        // SAVE ANSWERS + EVALUATE
-        // ═══════════════════════════════════════════════════════════════
         function saveAnswer(question, answer) {
-            localAnswers.push({ question, answer, answeredAt: new Date().toISOString() });
+            const existingIdx = localAnswers.findIndex(a => a.question === question);
+            if (existingIdx >= 0) {
+                localAnswers[existingIdx].answer = answer;
+                localAnswers[existingIdx].answeredAt = new Date().toISOString();
+            } else {
+                localAnswers.push({ question, answer, answeredAt: new Date().toISOString() });
+            }
+
+            // Sync with backend immediately in the background
+            interviewApi.answer(interview._id, { answers: localAnswers }).catch(err => {
+                console.error("Failed to sync answers in background:", err);
+            });
         }
 
         async function handleEvaluate() {

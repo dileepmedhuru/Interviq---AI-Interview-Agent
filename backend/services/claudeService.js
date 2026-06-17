@@ -919,25 +919,23 @@ int main() {
 Find and print that unique number.
 (Bonus challenge: can you do it without extra memory?)
 
-Input format:  integers separated by spaces
+Input format:  integers separated by spaces on one line
 Output format: one integer — the unique number
 
 Example
-  Input:  4 1 2 1 2
+  Input:  [4, 1, 2, 1, 2]
   Output: 4`,
         constraints: ['1 ≤ length ≤ 60000 (always odd)', 'All numbers except one appear exactly twice'],
         examples: [
-            { input: '2 2 1',     output: '1' },
-            { input: '4 1 2 1 2', output: '4' },
+            { input: '[2, 2, 1]',     output: '1' },
+            { input: '[4, 1, 2, 1, 2]', output: '4' },
         ],
         functionSignature: null,
         starterCode: {
             python:
 `nums = list(map(int, input().split()))
 
-# TODO: find the number that appears only once and print it
-# Hint 1 (easy): use a dictionary to count occurrences
-# Hint 2 (clever): XOR — a ^ a = 0, so XOR all numbers together`,
+# TODO: find the number that appears only once and print it`,
 
             javascript:
 `const nums = require('fs').readFileSync('/dev/stdin','utf8').trim().split(' ').map(Number);
@@ -971,10 +969,10 @@ int main() {
 }`,
         },
         testCases: [
-            { input: '2 2 1',     stdin: '2 2 1',     expected: '1', hidden: false },
-            { input: '4 1 2 1 2', stdin: '4 1 2 1 2', expected: '4', hidden: false },
-            { input: '1',         stdin: '1',          expected: '1', hidden: true  },
-            { input: '0 0 7 4 4', stdin: '0 0 7 4 4', expected: '7', hidden: true  },
+            { input: '[2, 2, 1]',       stdin: '2 2 1',       expected: '1', hidden: false },
+            { input: '[4, 1, 2, 1, 2]',   stdin: '4 1 2 1 2',   expected: '4', hidden: false },
+            { input: '[1]',           stdin: '1',           expected: '1', hidden: true  },
+            { input: '[0, 0, 7, 4, 4]',   stdin: '0 0 7 4 4',   expected: '7', hidden: true  },
         ],
     },
 
@@ -1309,7 +1307,7 @@ For open questions (IDs 11-16): IDs 11-14 technical (category:"technical"), IDs 
                     language:         null,
                     explanation:      null,
                     functionSignature: null,   // ← no function harness
-                    starterCode:      src.starterCode,   // ← object with per-language starters
+                    starterCode:      null,              // ← no starter code (empty editor)
                     testCases:        src.testCases,
                     title:            src.title,
                     difficulty:       src.difficulty,
