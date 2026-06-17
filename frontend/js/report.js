@@ -14,7 +14,7 @@ import { requireAuth, showToast, $, buildScoreRing, scoreColor, scoreLabel, form
             const dashboardLink = navActions.querySelector('a[href="dashboard.html"]');
             if (dashboardLink) {
                 dashboardLink.href = 'index.html';
-                dashboardLink.textContent = 'Try Interviq Free';
+                dashboardLink.innerHTML = `🚀 <span class="nav-btn-text" style="display: none;">Try Interviq Free</span>`;
             }
         }
         const backBtn = document.querySelector('a[href="dashboard.html"].btn-secondary');
