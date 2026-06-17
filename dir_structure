@@ -1,89 +1,68 @@
-ai-interview-agent/
-│
-├── frontend/
-│   ├── public/
-│   │   ├── favicon.ico
-│   │   └── logo.svg
-│   │
-│   ├── pages/
-│   │   ├── index.html
-│   │   ├── login.html
-│   │   ├── signup.html
-│   │   ├── dashboard.html
-│   │   ├── interview.html
-│   │   ├── forgot_password.html
-│   │   ├── reset_password.html
-│   │   ├── verify.html
-│   │   ├── report.html
-│   │   └── profile.html
-│   │
-│   ├── css/
-│   │   ├── base.css
-│   │   ├── 3d-effects.css
-│   │   ├── auth.css
-│   │   ├── dashboard.css
-│   │   ├── interview.css
-│   │   ├── components.css
-│   │   └── animations.css
-│   │
-│   └── js/
-│       ├── auth.js
-│       ├── api.js
-│       ├── interview.js
-│       ├── report.js
-│       ├── dashboard.js
-│       └── utils.js
-│
+Interviq/
 ├── backend/
-│   ├── server.js
+│   ├── config/
+│   │   ├── constants.py
+│   │   ├── db.py
+│   │   └── utils.py
 │   │
 │   ├── routes/
-│   │   ├── auth.routes.js
-│   │   ├── interview.routes.js
-│   │   ├── user.routes.js
-│   │   └── resume.routes.js
-│   │
-│   ├── controllers/
-│   │   ├── auth.controller.js
-│   │   ├── interview.controller.js
-│   │   ├── user.controller.js
-│   │   └── resume.controller.js
-│   │
-│   ├── middleware/
-│   │   ├── authMiddleware.js
-│   │   ├── rateLimiter.js
-│   │   ├── upload.js
-│   │   └── errorHandler.js
-│   │
-│   ├── models/
-│   │   ├── User.js
-│   │   ├── Interview.js
-│   │   ├── Report.js
-│   │   └── Resume.js
+│   │   ├── auth.py
+│   │   ├── interview.py
+│   │   ├── resume.py
+│   │   └── user.py
 │   │
 │   ├── services/
-│   │   ├── claudeService.js
-│   │   ├── resumeParser.js
-│   │   ├── tokenService.js
-│   │   └── emailService.js
+│   │   ├── ai_service.py
+│   │   ├── email_service.py
+│   │   ├── problem_bank.py
+│   │   ├── resume_parser.py
+│   │   └── token_service.py
 │   │
-│   ├── config/
-│   │   ├── db.js
-│   │   ├── cors.js
-│   │   └── constants.js
+│   └── server.py
+│
+├── frontend/
+│   ├── css/
+│   │   ├── 3d-effects.css
+│   │   ├── animations.css
+│   │   ├── auth.css
+│   │   ├── base.css
+│   │   ├── components.css
+│   │   ├── dashboard.css
+│   │   └── interview.css
 │   │
-│   ├── deploy/
-│   │   ├── Dockerfile
-│   │   ├── docker-compose.yml
-│   │   ├── nginx.conf
-│   │   └── github-actions/
-│   │       ├── deploy.yml
-│   │       └── test.yml
+│   ├── js/
+│   │   ├── api.js
+│   │   ├── auth.js
+│   │   ├── dashboard.js
+│   │   ├── interview.js
+│   │   ├── report.js
+│   │   ├── theme.js
+│   │   ├── utils.js
+│   │   └── video-interview.js
 │   │
-│   ├── .env
-│   └── package.json
+│   ├── pages/
+│   │   ├── dashboard.html
+│   │   ├── forgot_password.html
+│   │   ├── history.html
+│   │   ├── index.html
+│   │   ├── interview.html
+│   │   ├── login.html
+│   │   ├── profile.html
+│   │   ├── report.html
+│   │   ├── reset_password.html
+│   │   ├── signup.html
+│   │   ├── verify.html
+│   │   └── video-interview.html
+│   │
+│   └── public/
+│       ├── logo.png
+│       └── logo_backup.jpeg
 │
 ├── .env.example
 ├── .gitignore
-└── README.md
-
+├── app.py
+├── dir_structure
+├── Dockerfile
+├── docker-compose.yml
+├── requirements.txt
+└── Logo.png
