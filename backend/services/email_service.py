@@ -4,10 +4,37 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 def _send_email(to_email: str, subject: str, html_content: str):
+    import requests
+    
     email_host = os.getenv("EMAIL_HOST")
     email_port = os.getenv("EMAIL_PORT")
     email_user = os.getenv("EMAIL_USER")
     email_pass = os.getenv("EMAIL_PASS")
+    
+    # Try Brevo HTTP API first if API key is configured (bypasses Render free-tier SMTP block)
+    brevo_api_key = os.getenv("BREVO_API_KEY")
+    if brevo_api_key:
+        try:
+            url = "https://api.brevo.com/v3/smtp/email"
+            headers = {
+                "accept": "application/json",
+                "api-key": brevo_api_key,
+                "content-type": "application/json"
+            }
+            payload = {
+                "sender": {"name": "Interviq Agent", "email": email_user or "medhurudileep@gmail.com"},
+                "to": [{"email": to_email}],
+                "subject": subject,
+                "htmlContent": html_content
+            }
+            res = requests.post(url, json=payload, headers=headers, timeout=10)
+            if res.status_code in [200, 201, 202]:
+                print(f"📧 Email sent successfully via Brevo HTTP to {to_email}")
+                return
+            else:
+                print(f"⚠️ Brevo HTTP API failed: {res.text}. Falling back to SMTP...")
+        except Exception as api_err:
+            print(f"⚠️ Brevo HTTP request failed: {api_err}. Falling back to SMTP...")
 
     if not email_host or not email_user or not email_pass:
         print("⚠️ Email configuration missing. Skipping email dispatch.")
