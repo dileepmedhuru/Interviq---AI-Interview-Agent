@@ -1,6 +1,52 @@
-# Interviq — AI Mock Interview Simulator
+# Interviq — Agentic AI Multi-Agent Mock Interview Simulator
 
-Interviq is a state-of-the-art, end-to-end **AI Mock Interview Simulator** designed to help developers and technical professionals practice mock interviews. The platform dynamically reads candidates' resumes, generates tailored question sets based on target roles, guides them through a realistic three-stage interview (MCQ, Live Coding, and Verbal Video Questions), and provides detailed AI-driven evaluation reports and PDF scorecards.
+Interviq is a state-of-the-art, end-to-end **Agentic AI Mock Interview Simulator** designed to help developers and professionals practice mock interviews. Powered by a specialized, collaborative **Multi-Agent architecture**, the platform dynamically reads candidates' resumes, generates customized role-specific questions, guides users through a realistic three-stage interview (MCQ, Live Coding Sandbox, and Speech-to-Text Verbal Questions), and provides comprehensive AI-driven evaluations and PDF scorecards.
+
+---
+
+## 🤖 Agentic AI & Multi-Agent Architecture
+
+Unlike static interview scripts, Interviq leverages a stateful, adaptive **Multi-Agent Orchestrator** powered by Groq API Llama models. Each agent acts as an autonomous node with specialized prompts, system roles, and decision logic, collaborating through a central state manager to provide a responsive, conversational hiring simulation.
+
+```mermaid
+flowchart TD
+    Candidate[Candidate Interface] <--> Controller[FastAPI App Controller]
+    Controller <--> DB[(MongoDB Session State)]
+    
+    Controller --> ParseAgent[1. Resume Parsing & Question Planner Agent]
+    Controller <--> PlanningAgent[2. Stateful Adaptive Planning Loop Agent]
+    Controller --> EvalAgent[3. Synthesis & Evaluation Agent]
+    
+    ParseAgent & PlanningAgent & EvalAgent --> ResiliencyAgent[4. Resiliency & Fallback Agent]
+```
+
+### The Multi-Agent System in Detail:
+
+1. **Resume Parsing & Question Planner Agent** (`resume_parser.py` & `ai_service.py`):
+   * **Role**: Analyzes the candidate's uploaded PDF or text resume.
+   * **Capabilities**: Parses skills, core technologies, seniority, and employment history.
+   * **Decision Logic**: Dynamically plans a custom interview curriculum:
+     * Generates **8 target-specific MCQs** (covering concepts matching the resume).
+     * Automatically picks **2 tailored coding challenges** from the Problem Bank (calibrated for the candidate's experience level).
+     * Devises an **initial technical question** to start the verbal phase.
+
+2. **Stateful Adaptive Evaluator & Planning Agent** (`ai_service.py`):
+   * **Role**: The core interviewer guiding the verbal video phase.
+   * **State Management**: Performs real-time feedback loops over 6 conversational questions.
+   * **Feedback & Adaptation Logic**:
+     * **Grading Sub-Agent**: Scores the verbal speech-to-text response (0-10) based on depth, relevance, and accuracy.
+     * **Planning Sub-Agent**: Evaluates the score and dynamically shifts the interview difficulty. If a candidate aces a question ($\ge 8$), it increases difficulty (Easy ➔ Medium ➔ Hard) or pivots to advanced topics. If they struggle ($< 5$), it scales down or shifts to simpler fundamentals.
+     * **Interviewer Tone**: Generates a warm, spoken transition in the interviewer's voice, bridging the last response and the new question.
+     * **Final Phase Shift**: On question #5, the Planning Agent automatically transitions the candidate to behavioral/situational topics for the final question.
+
+3. **Synthesis & Evaluation Agent** (`ai_service.py`):
+   * **Role**: The lead scoring panelist.
+   * **Capabilities**: Aggregates test performance metrics across all stages: MCQ correct answers, test suite execution results from the coding sandbox, and video verbal transcripts.
+   * **Output**: Generates a comprehensive feedback report containing overall rating, skill-specific scores, qualitative feedback (strengths/improvements), recommendations, and a detailed development roadmap.
+
+4. **Resiliency & Fallback Agent** (`ai_service.py`):
+   * **Role**: Pipeline health sentinel.
+   * **Capabilities**: Intercepts HTTP/API communications. If the primary high-capacity model (`llama-3.3-70b-versatile`) hits rate limits (HTTP 429) or times out, it seamlessly fails over to the faster `llama-3.1-8b-instant` to ensure the candidate's interview session is never interrupted.
 
 ---
 
@@ -33,20 +79,81 @@ Interviq is a state-of-the-art, end-to-end **AI Mock Interview Simulator** desig
 
 ```text
 Interviq/
-├── backend/                  # FastAPI Application Root
-│   ├── config/               # Configurations (db, utils)
-│   ├── routes/               # FastAPI Router Endpoints (auth, interview, resume, user)
-│   ├── services/             # Core Services (ai_service, email_service, problem_bank, etc.)
-│   └── server.py             # Server lifecycle, CORS, and SPA routing handler
-├── frontend/                 # Client Static Files
-│   ├── css/                  # Styling Sheets (base, components, 3d-effects)
-│   ├── js/                   # Frontend Scripts (api, auth, dashboard, interview, theme, etc.)
-│   └── pages/                # Client Views (HTML Templates)
-├── .env.example              # Sample environment template
-├── .gitignore                # Git ignores
-├── app.py                    # Root runner script
-├── Dockerfile                # Production Container Configuration
-└── docker-compose.yml        # Development Docker orchestration
+├── backend/
+│   ├── config/
+│   │   ├── constants.py
+│   │   ├── db.py
+│   │   └── utils.py
+│   │
+│   ├── routes/
+│   │   ├── auth.py
+│   │   ├── interview.py
+│   │   ├── resume.py
+│   │   └── user.py
+│   │
+│   ├── services/
+│   │   ├── ai_service.py
+│   │   ├── email_service.py
+│   │   ├── problem_bank.py
+│   │   ├── resume_parser.py
+│   │   └── token_service.py
+│   │
+│   └── server.py
+│
+├── frontend/
+│   ├── css/
+│   │   ├── 3d-effects.css
+│   │   ├── animations.css
+│   │   ├── auth.css
+│   │   ├── base.css
+│   │   ├── components.css
+│   │   ├── dashboard.css
+│   │   └── interview.css
+│   │
+│   ├── js/
+│   │   ├── api.js
+│   │   ├── auth.js
+│   │   ├── dashboard.js
+│   │   ├── interview.js
+│   │   ├── report.js
+│   │   ├── theme.js
+│   │   ├── utils.js
+│   │   └── video-interview.js
+│   │
+│   ├── pages/
+│   │   ├── dashboard.html
+│   │   ├── forgot_password.html
+│   │   ├── history.html
+│   │   ├── index.html
+│   │   ├── interview.html
+│   │   ├── login.html
+│   │   ├── profile.html
+│   │   ├── report.html
+│   │   ├── reset_password.html
+│   │   ├── signup.html
+│   │   ├── verify.html
+│   │   └── video-interview.html
+│   │
+│   └── public/
+│       ├── logo.png
+│       └── logo_backup.jpeg
+│
+├── .env
+├── .env.example
+├── .gitignore
+├── ai_interview_agent_dir_structure.svg
+├── app.py
+├── diff_html.txt
+├── dir_structure
+├── Dockerfile
+├── docker-compose.yml
+├── interviq_agentic_ai_report.md
+├── interviq_challenges_report.md
+├── local_setup_guide.md
+├── Logo.png
+├── project_report.md
+├── README.md
+└── requirements.txt
 ```
 
 ---
