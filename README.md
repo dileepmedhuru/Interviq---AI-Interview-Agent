@@ -139,19 +139,11 @@ Interviq/
 │       └── logo_backup.jpeg
 │
 ├── .env
-├── .env.example
 ├── .gitignore
-├── ai_interview_agent_dir_structure.svg
 ├── app.py
-├── diff_html.txt
 ├── dir_structure
 ├── Dockerfile
 ├── docker-compose.yml
-├── interviq_agentic_ai_report.md
-├── interviq_challenges_report.md
-├── local_setup_guide.md
-├── Logo.png
-├── project_report.md
 ├── README.md
 └── requirements.txt
 ```
