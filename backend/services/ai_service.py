@@ -12,7 +12,7 @@ client = None
 if GROQ_API_KEY:
     client = Groq(api_key=GROQ_API_KEY)
 
-MODEL = "llama-3.3-70b-versatile"
+MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
 
 def call_ai(prompt: str, max_tokens: int = 1500) -> str:
     global client
@@ -24,13 +24,34 @@ def call_ai(prompt: str, max_tokens: int = 1500) -> str:
         else:
             raise Exception("GROQ_API_KEY environment variable is not set")
             
-    response = client.chat.completions.create(
-        model=MODEL,
-        max_tokens=max_tokens,
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.7
-    )
-    return response.choices[0].message.content
+    primary_model = MODEL
+    fallback_model = "llama-3.1-8b-instant"
+    
+    try:
+        response = client.chat.completions.create(
+            model=primary_model,
+            max_tokens=max_tokens,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        error_msg = str(e)
+        if "429" in error_msg or "rate_limit" in error_msg.lower() or "limit reached" in error_msg.lower():
+            print(f"[WARN] Groq rate limit reached for {primary_model}. Retrying with fallback: {fallback_model}...")
+            try:
+                response = client.chat.completions.create(
+                    model=fallback_model,
+                    max_tokens=max_tokens,
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.7
+                )
+                return response.choices[0].message.content
+            except Exception as fallback_err:
+                print(f"[ERROR] Groq fallback failed: {fallback_err}")
+                raise e
+        else:
+            raise e
 
 _recently_used = set()
 
