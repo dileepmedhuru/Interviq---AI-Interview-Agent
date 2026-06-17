@@ -23,6 +23,11 @@
             backdrop-filter: blur(16px);
             border-bottom: 1px solid var(--border);
         }
+        @media (prefers-color-scheme: dark) {
+            .landing-nav {
+                background: rgba(16, 15, 30, 0.85);
+            }
+        }
         .landing-nav-brand {
             display: flex; align-items: center; gap: 10px;
             font-weight: 800; font-size: 1rem; color: var(--text-primary);
