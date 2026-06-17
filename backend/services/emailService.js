@@ -27,9 +27,9 @@ async function sendVerificationEmail(email, name, token) {
 }
 
 async function sendPasswordResetEmail(email, name, token) {
-    const url = `${process.env.FRONTEND_URL}/pages/reset-password.html?token=${token}`;
+    const url = `${process.env.FRONTEND_URL}/pages/reset_password.html?token=${token}`;
     await transporter.sendMail({
-        from: `"Interview Agent" <${process.env.EMAIL_USER}>`,
+        from: `"Interviq" <${process.env.EMAIL_USER}>`,
         to: email,
         subject: 'Reset your password',
         html: `
