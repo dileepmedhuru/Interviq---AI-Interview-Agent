@@ -69,8 +69,22 @@
 }
 
 /* Dark mode */
+:root.dark {
+    --bg: #100F1E;
+    --surface: #1A1830;
+    --surface-2: #221F3A;
+    --text-primary: #F0EFF8;
+    --text-secondary: #9896B0;
+    --text-muted: #5C5A7A;
+    --border: rgba(127, 119, 221, 0.12);
+    --border-strong: rgba(127, 119, 221, 0.28);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.5);
+}
+
 @media (prefers-color-scheme: dark) {
-    :root {
+    :root:not(.light) {
         --bg: #100F1E;
         --surface: #1A1830;
         --surface-2: #221F3A;

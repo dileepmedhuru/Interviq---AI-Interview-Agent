@@ -14,8 +14,13 @@
     justify-content: space-between;
 }
 
+/* Dark mode override */
+:root.dark .nav {
+    background: rgba(26, 24, 48, 0.85);
+}
+
 @media (prefers-color-scheme: dark) {
-    .nav {
+    :root:not(.light) .nav {
         background: rgba(26, 24, 48, 0.85);
     }
 }

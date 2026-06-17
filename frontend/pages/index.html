@@ -7,7 +7,8 @@
     <link rel="icon" href="../public/favicon.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="../css/base.css?v=15" />
+        <script src="../js/theme.js"></script>
+<link rel="stylesheet" href="../css/base.css?v=15" />
     <link rel="stylesheet" href="../css/3d-effects.css?v=15" />
     <link rel="stylesheet" href="../css/animations.css?v=15" />
     <style>
@@ -23,8 +24,11 @@
             backdrop-filter: blur(16px);
             border-bottom: 1px solid var(--border);
         }
+        :root.dark .landing-nav {
+            background: rgba(16, 15, 30, 0.85);
+        }
         @media (prefers-color-scheme: dark) {
-            .landing-nav {
+            :root:not(.light) .landing-nav {
                 background: rgba(16, 15, 30, 0.85);
             }
         }

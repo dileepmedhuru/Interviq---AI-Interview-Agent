@@ -10,7 +10,8 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
         rel="stylesheet" />
-    <link rel="stylesheet" href="../css/base.css?v=15" />
+        <script src="../js/theme.js"></script>
+<link rel="stylesheet" href="../css/base.css?v=15" />
     <link rel="stylesheet" href="../css/3d-effects.css?v=15" />
     <link rel="stylesheet" href="../css/animations.css?v=15" />
     <link rel="stylesheet" href="../css/components.css?v=15" />
@@ -1060,19 +1061,19 @@
 
         .mcq-opt:hover {
             border-color: var(--accent-light);
-            background: var(--purple-50);
+            background: rgba(127, 119, 221, 0.08);
             transform: translateX(3px);
         }
 
         .mcq-opt.selected {
             border-color: var(--accent);
-            background: var(--purple-50);
+            background: rgba(127, 119, 221, 0.15);
             font-weight: 600;
         }
 
         .mcq-opt.correct {
             border-color: var(--success);
-            background: #e1f5ee;
+            background: rgba(29, 158, 117, 0.12);
             color: var(--success);
             font-weight: 600;
             pointer-events: none;
@@ -1080,7 +1081,7 @@
 
         .mcq-opt.wrong {
             border-color: var(--danger);
-            background: #fcebeb;
+            background: rgba(226, 75, 74, 0.12);
             color: var(--danger);
             pointer-events: none;
         }
@@ -1121,11 +1122,10 @@
         .mcq-explanation {
             margin-top: 1rem;
             padding: 12px 16px;
-            background: linear-gradient(135deg, var(--purple-50), #fff);
+            background: linear-gradient(135deg, var(--surface-2), var(--surface));
             border: 1px solid var(--border-strong);
             border-radius: var(--radius-md);
-            font-size: .85rem;
-            color: var(--text-secondary);
+            font-size: .95rem;
             line-height: 1.6;
             animation: fade-up .3s ease;
         }
