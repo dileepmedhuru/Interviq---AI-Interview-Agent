@@ -58,8 +58,16 @@
 
 @media (max-width: 600px) {
     .nav {
-        padding: 0 0.75rem;
-        height: 56px;
+        padding: 0 1rem !important;
+        height: 60px !important;
+    }
+    .nav-brand {
+        font-size: 0.95rem !important;
+        gap: 8px !important;
+    }
+    .nav-logo {
+        width: 36px !important;
+        height: 36px !important;
     }
     .nav-brand span {
         display: none !important;
@@ -100,6 +108,10 @@
         width: 36px !important;
         height: 36px !important;
         font-size: 0.95rem !important;
+    }
+    .modal {
+        padding: 1.25rem !important;
+        border-radius: var(--radius-lg) !important;
     }
 }
 
