@@ -17,6 +17,7 @@ services:
       - "5000:5000"
     environment:
       - MONGO_URI=mongodb://db:27017/ai-interview-agent
+      - HOST=0.0.0.0
     depends_on:
       - db
     restart: unless-stopped

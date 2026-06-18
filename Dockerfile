@@ -17,6 +17,7 @@ COPY frontend/ ./frontend/
 COPY app.py .
 COPY .env .
 
+ENV HOST=0.0.0.0
 EXPOSE 5000
 
 # Start app using python app.py or uvicorn directly
